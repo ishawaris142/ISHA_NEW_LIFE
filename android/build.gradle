@@ -1,3 +1,21 @@
+buildscript {
+    ext.kotlin_version = '1.7.10' // Ensure this matches your Kotlin version
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.1.2' // Ensure Gradle version is compatible
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.3.14' // Latest version for Firebase
+    }
+}
+
+// Now we can use the plugins block
+plugins {
+    id 'com.google.gms.google-services' version '4.4.2' apply false
+}
+
 allprojects {
     repositories {
         google()
@@ -5,11 +23,11 @@ allprojects {
     }
 }
 
+// This sets the build directory for all subprojects
 rootProject.buildDir = "../build"
+
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
     project.evaluationDependsOn(":app")
 }
 

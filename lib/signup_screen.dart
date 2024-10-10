@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:red_coprative/login.dart'; // Make sure to import the login screen
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
+import 'package:red_coprative/login.dart'; // Import the login screen
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore (optional for saving other fields)
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -20,6 +22,66 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
+
+  // Firebase Auth and Firestore instance
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Method to handle signup
+  Future<void> _signup() async {
+    // Check if passwords match
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Passwords do not match"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Check if terms are accepted
+    if (!acceptTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please accept the terms and conditions"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Try to create a user with Firebase Authentication
+    try {
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      // Store additional user info in Firestore (Optional)
+      await _firestore.collection('users').doc(userCredential.user?.uid).set({
+        'full_name': fullNameController.text.trim(),
+        'email': emailController.text.trim(),
+        'phone': phoneController.text.trim(),
+        'cnic': cnicController.text.trim(),
+        'address': addressController.text.trim(),
+      });
+
+      // Navigate to login screen after successful signup
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      // Show error message if signup fails
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? 'An error occurred'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -211,29 +273,7 @@ class _SignupScreenState extends State<SignupScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  // Add signup logic here
-                  if (passwordController.text != confirmPasswordController.text) {
-                    // Passwords do not match
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Passwords do not match"),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  } else if (!acceptTerms) {
-                    // Terms and conditions not accepted
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Please accept the terms and conditions"),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  } else {
-                    // Handle sign up logic here
-                    // For example, send data to a server or authenticate
-                  }
-                },
+                onPressed: _signup, // Call Firebase signup method
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   padding: const EdgeInsets.all(16),
@@ -259,7 +299,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const LoginScreen(), // Navigate back to login screen
+                          builder: (context) => const LoginScreen(),
                         ),
                       );
                     },

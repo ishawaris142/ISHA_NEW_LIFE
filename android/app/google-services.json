@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "528871985358",
+    "project_id": "project-ishh",
+    "storage_bucket": "project-ishh.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:528871985358:android:d2a3157988bb6babc1809f",
+        "android_client_info": {
+          "package_name": "com.proj_ish.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7t6DFzhmgxs2xzKMch72t7isyk1GlbHg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

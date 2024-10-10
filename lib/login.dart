@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'package:red_coprative/signup_screen.dart'; // Import the signup screen
 import 'package:red_coprative/dashboard.dart'; // Import your dashboard
 
@@ -11,6 +12,39 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool rememberMe = false;
+
+  // Controllers to retrieve input values
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  // Firebase Auth instance
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Method to handle login
+  Future<void> _login() async {
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      // Navigate to the dashboard on successful login
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const Dashboardscreen(),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      // Show error message if login fails
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? 'An error occurred'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               TextField(
+                controller: _emailController, // Add controller
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.grey[800],
@@ -53,6 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               TextField(
+                controller: _passwordController, // Add controller
                 obscureText: true,
                 decoration: InputDecoration(
                   filled: true,
@@ -105,15 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 width: double.infinity, // Full width button
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Navigate to the dashboard when login is pressed
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Dashboardscreen(),
-                      ),
-                    );
-                  },
+                  onPressed: _login, // Call Firebase login method
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red, // Button color
                     padding: const EdgeInsets.all(16),
@@ -135,11 +163,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      // Navigate to the signup screen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SignupScreen(), // Navigate to SignupScreen
+                          builder: (context) => const SignupScreen(),
                         ),
                       );
                     },
