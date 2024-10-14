@@ -27,8 +27,23 @@ class _SignupScreenState extends State<SignupScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // List of account types
+  String? selectedAccountType;
+  final List<String> accountTypes = ['Super Dealer', 'Mechanics', 'Dealer'];
+
   // Method to handle signup
   Future<void> _signup() async {
+    // Check if account type is selected
+    if (selectedAccountType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please select an account type"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     // Check if passwords match
     if (passwordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,6 +75,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
       // Store additional user info in Firestore (Optional)
       await _firestore.collection('users').doc(userCredential.user?.uid).set({
+        'account_type': selectedAccountType, // Store account type
         'full_name': fullNameController.text.trim(),
         'email': emailController.text.trim(),
         'phone': phoneController.text.trim(),
@@ -117,6 +133,34 @@ class _SignupScreenState extends State<SignupScreen> {
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
+            ),
+            const SizedBox(height: 20),
+            // Account Type Dropdown
+            DropdownButtonFormField<String>(
+              value: selectedAccountType,
+              hint: const Text("Select Account Type", style: TextStyle(color: Colors.white54)),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey[800],
+                labelText: "Account Type",
+                labelStyle: const TextStyle(color: Colors.white),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              dropdownColor: Colors.grey[800],
+              style: const TextStyle(color: Colors.white),
+              items: accountTypes.map((type) {
+                return DropdownMenuItem(
+                  value: type,
+                  child: Text(type, style: const TextStyle(color: Colors.white)),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() {
+                  selectedAccountType = newValue;
+                });
+              },
             ),
             const SizedBox(height: 20),
             // Full Name

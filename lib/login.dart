@@ -28,6 +28,12 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text.trim(),
       );
 
+      // Access user info if needed
+      User? user = userCredential.user;
+      if (user != null) {
+        print('Logged in as: ${user.email}');
+      }
+
       // Navigate to the dashboard on successful login
       Navigator.pushReplacement(
         context,

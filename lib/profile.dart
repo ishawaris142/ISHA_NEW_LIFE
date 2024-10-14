@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:red_coprative/account.dart';
+import 'package:red_coprative/login.dart';
 
 class Profilescreen extends StatefulWidget {
   const Profilescreen({super.key});
@@ -49,116 +51,125 @@ class _ProfilescreenState extends State<Profilescreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 6),
-        margin: EdgeInsets.only(top: 25),
+        padding:const EdgeInsets.symmetric(horizontal: 6),
+        margin:const EdgeInsets.only(top: 25),
         child: Column(
           children: [
             // Top section with app name and logout icon
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+              padding:const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(Icons.arrow_back, color: Colors.white, size: 32),
-                  GestureDetector(
-                    onTap: () async {
-                      await FirebaseAuth.instance.signOut(); // Log out functionality
-                      Navigator.pop(context); // Return to previous screen
+                  IconButton(
+                    icon:const Icon(Icons.arrow_back, color: Colors.white, size: 32),
+                    onPressed: () {
+                      // Navigate to the Accountscreen
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Accountscreen()),
+                      );
                     },
-                    child: Image(image: AssetImage("assets/profilelogout.png")),
+                  ),
+                  IconButton(
+                    icon: Image.asset("assets/profilelogout.png"),
+                    onPressed: () async {
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen(),));
+                    },
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 17),
+            const SizedBox(height: 17),
             // If the data has been fetched, display it
             userData != null
                 ? ListTile(
-                    leading: CircleAvatar(
-                      radius: 30,
-                      backgroundImage: AssetImage("assets/Kid.png"),
-                    ),
-                    title: Text(
-                      userData?['full_name'] ?? "Name not available",
-                      style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                    subtitle: Row(
-                      children: [
-                        Icon(Icons.access_time_filled, color: Colors.white),
-                        Text(
-                          "Mechanics Account", // Replace with a dynamic field if needed
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.white),
-                        )
-                      ],
-                    ),
-                    trailing: Image.asset("assets/BiSolidEditAlt.png"),
+              leading:const CircleAvatar(
+                radius: 30,
+                backgroundImage: AssetImage("assets/Kid.png"),
+              ),
+              title: Text(
+                userData?['full_name'] ?? "Name not available",
+                style:const TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+              subtitle: Row(
+                children: [
+                  const Icon(Icons.access_time_filled, color: Colors.white),
+                  Text(
+                    userData?['account_type'] ?? "Account type not available", // Dynamically display the account type
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white),
                   )
-                : CircularProgressIndicator(), // Show a loading spinner while data is being fetched
-            SizedBox(height: 40),
+                ],
+              ),
+
+              trailing: Image.asset("assets/BiSolidEditAlt.png"),
+            )
+                :const CircularProgressIndicator(), // Show a loading spinner while data is being fetched
+            const SizedBox(height: 40),
             // Display the rest of the user details
             if (userData != null)
               Container(
-                margin: EdgeInsets.only(left: 25),
+                margin:const EdgeInsets.only(left: 25),
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.mail_outline,
-                          color: const Color.fromARGB(255, 211, 35, 23),
+                          color:  Color.fromARGB(255, 211, 35, 23),
                         ),
-                        SizedBox(width: 3),
+                        const SizedBox(width: 3),
                         Text(
                           userData?['email'] ?? "Email not available",
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style:const TextStyle(color: Colors.white, fontSize: 16),
                         )
                       ],
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.phone,
                           color: const Color.fromARGB(255, 211, 35, 23),
                         ),
-                        SizedBox(width: 3),
+                        const SizedBox(width: 3),
                         Text(
                           userData?['phone'] ?? "Phone not available",
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style:const TextStyle(color: Colors.white, fontSize: 16),
                         )
                       ],
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.credit_card_rounded,
-                          color: const Color.fromARGB(255, 211, 35, 23),
+                          color: Color.fromARGB(255, 211, 35, 23),
                         ),
-                        SizedBox(width: 3),
+                        const SizedBox(width: 3),
                         Text(
-                          userData?['cnic'] ?? "CNIC not available",
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                           userData?['cnic'] ?? "CNIC not available",
+                          style:const TextStyle(color: Colors.white, fontSize: 16),
                         )
                       ],
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.location_on_outlined,
-                          color: const Color.fromARGB(255, 211, 35, 23),
+                          color: Color.fromARGB(255, 211, 35, 23),
                         ),
-                        SizedBox(width: 3),
+                        const SizedBox(width: 3),
                         Text(
                           userData?['address'] ?? "Address not available",
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style: const TextStyle(color: Colors.white, fontSize: 16),
                         )
                       ],
                     ),

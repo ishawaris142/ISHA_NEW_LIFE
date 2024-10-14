@@ -1,7 +1,12 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:red_coprative/feeds.dart';
 import 'package:red_coprative/models/accountgridmodelclass.dart';
+import 'package:red_coprative/viewproducts.dart';
+
+import 'cart_items.dart';
 
 class Accountscreen extends StatefulWidget {
   const Accountscreen({super.key});
@@ -21,12 +26,21 @@ class _AccountscreenState extends State<Accountscreen> {
         child: Column(
           children: [
             // Top section with app name and QR code icon
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                 Icon(Icons.arrow_back,color: Colors.white,size: 32,),
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: Colors.white, size: 32),
+                    onPressed: () {
+                      // Navigate to the Accountscreen
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Feedsscreen()),
+                      );
+                    },
+                  ),
                   Icon(
                     Icons.qr_code_scanner_sharp,
                     size: 28,
@@ -63,13 +77,13 @@ class _AccountscreenState extends State<Accountscreen> {
                               children: [
                                 Icon(
                                   Icons.location_on_outlined,
-                                  color: Color.fromARGB(255, 165, 6, 13), 
+                                  color: Color.fromARGB(255, 165, 6, 13),
                                 ),
                                 SizedBox(width: 4),
                                 Text(
                                   "Lahore",
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 12, 12, 12), 
+                                    color: Color.fromARGB(255, 12, 12, 12),
                                     fontSize: 16,
                                   ),
                                 ),
@@ -79,7 +93,7 @@ class _AccountscreenState extends State<Accountscreen> {
                             Text(
                               "Mechanics Account",
                               style: TextStyle(
-                                color: Color.fromARGB(255, 12, 12, 12), 
+                                color: Color.fromARGB(255, 12, 12, 12),
                                 fontSize: 16,
                               ),
                             ),
@@ -103,7 +117,7 @@ class _AccountscreenState extends State<Accountscreen> {
                                 Icon(
                                   Icons.blur_circular_rounded,
                                   size: 16,
-                                  color: Color.fromARGB(255, 165, 6, 13), 
+                                  color: Color.fromARGB(255, 165, 6, 13),
                                 ),
                                 SizedBox(width: 3),
                                 Text(
@@ -132,10 +146,10 @@ class _AccountscreenState extends State<Accountscreen> {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.red.shade900, 
+                        color: Colors.red.shade900,
                         borderRadius: BorderRadius.only(
                           bottomLeft: Radius.circular(10),
-                        ), 
+                        ),
                       ),
                       child: TextButton(
                         onPressed: () {},
@@ -153,20 +167,20 @@ class _AccountscreenState extends State<Accountscreen> {
                       ),
                     ),
                   ),
-                 
+
                   Container(
-                    height: 45, 
+                    height: 45,
                     width: 1,
-                    color: Colors.white, 
+                    color: Colors.white,
                   ),
                   // History button
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.red.shade900, 
+                        color: Colors.red.shade900,
                         borderRadius: BorderRadius.only(
                           bottomRight: Radius.circular(10),
-                        ), 
+                        ),
                       ),
                       child: TextButton(
                         onPressed: () {},
@@ -194,34 +208,63 @@ class _AccountscreenState extends State<Accountscreen> {
               style: TextStyle(fontSize: 20, color: const Color.fromARGB(255, 255, 255, 255)),
             ),
 
-                                   // GridView with Expanded
+            // GridView with Expanded
             Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.symmetric(vertical: 2), 
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, 
-                  crossAxisSpacing: 15, 
-                  mainAxisSpacing: 1, 
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 10),
+                child: GridView.builder(
+                  padding: EdgeInsets.symmetric(vertical: 2),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 15,
+                    mainAxisSpacing: 1,
+                  ),
+                  itemCount: accountgridmodelclasslist.length,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () {
+                        if (accountgridmodelclasslist[index].text == "View Products") {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ViewproductScreen(),
+                            ),
+                          );
+                        } else if (accountgridmodelclasslist[index].text == "Popular Products") {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CartScreen(),
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 25),
+                        margin: EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(38, 255, 255, 255),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+
+                          children: [
+                            Image.asset(
+                              "${accountgridmodelclasslist[index].image}",
+                            ),
+                            Text(
+                              "${accountgridmodelclasslist[index].text}",
+                              style: TextStyle(fontSize: 15, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                itemCount: accountgridmodelclasslist.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                  padding: EdgeInsets.symmetric(vertical: 25),
-                  margin: EdgeInsets.symmetric(vertical: 25),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(38, 255, 255, 255),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      children: [
-                        Image.asset("${accountgridmodelclasslist[index].image}"),
-                        Text("${accountgridmodelclasslist[index].text}",style: TextStyle(fontSize: 15,color: Colors.white),)
-                      ],
-                    ),
-                  );
-                },
               ),
             ),
+
           ],
         ),
       ),
