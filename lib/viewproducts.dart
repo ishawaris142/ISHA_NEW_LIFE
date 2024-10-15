@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'cart_items.dart'; // Import the CartScreen
 
 import 'account.dart';
 import 'login.dart';
@@ -187,117 +188,175 @@ class _ProductItemState extends State<ProductItem> {
 
         String downloadUrl = downloadSnapshot.data!;
 
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: 10),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.grey[900],
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: ListTile(
-            leading: SizedBox(
-              height: 100,
-              width: 80,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: CachedNetworkImage(
-                  imageUrl: downloadUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                  errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
+        return GestureDetector(
+          onTap: () {
+            // Show Dialog with product details when row is clicked
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(
+                  backgroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Image.network(
+                          downloadUrl,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          widget.product['name'],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          widget.product['description'],
+                          style: const TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          "\$${widget.product['price']}",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 10),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.grey[900],
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ListTile(
+              leading: SizedBox(
+                height: 100,
+                width: 80,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(
+                    imageUrl: downloadUrl,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
+                  ),
                 ),
               ),
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.product['name'],
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.product['name'],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  widget.product['description'],
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
+                  Text(
+                    widget.product['description'],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "\$${widget.product['price']}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      Text(
+                        "\$${widget.product['price']}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Icon(
-                      Icons.blur_circular_rounded,
-                      size: 16,
-                      color: Color.fromARGB(255, 165, 6, 13),
-                    ),
-                    const SizedBox(width: 2),
-                    Text(
-                      "$totalPoints pts",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(width: 12),
+                      const Icon(
+                        Icons.blur_circular_rounded,
+                        size: 16,
+                        color: Color.fromARGB(255, 165, 6, 13),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            trailing: Image.asset(
-              "assets/Add to cart.png",
-              width: 40,
-              height: 40,
-              color: Colors.amber,
-            ),
-            subtitle: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.remove_circle_outline, color: Colors.red, size: 20),
-                  onPressed: () {
-                    if (quantity > 1) {
-                      setState(() {
-                        quantity--;
-                      });
-                    }
-                  },
-                ),
-                Text(
-                  "$quantity",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                      const SizedBox(width: 2),
+                      Text(
+                        "$totalPoints pts",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add_circle_outline, color: Colors.green, size: 20),
-                  onPressed: () {
-                    if (quantity < availableQuantity) {
-                      setState(() {
-                        quantity++;
-                      });
-                    }
-                  },
-                ),
-              ],
+                ],
+              ),
+              trailing: IconButton(
+                icon: const Icon(Icons.add_shopping_cart, color: Colors.amber),
+                onPressed: () {
+                  // Show Snackbar when "Add to Cart" is clicked
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("${widget.product['name']} has been added to cart"),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+              subtitle: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.remove_circle_outline, color: Colors.red, size: 20),
+                    onPressed: () {
+                      if (quantity > 1) {
+                        setState(() {
+                          quantity--;
+                        });
+                      }
+                    },
+                  ),
+                  Text(
+                    "$quantity",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline, color: Colors.green, size: 20),
+                    onPressed: () {
+                      if (quantity < availableQuantity) {
+                        setState(() {
+                          quantity++;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         );
