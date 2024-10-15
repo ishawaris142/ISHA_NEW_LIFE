@@ -1,5 +1,5 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Feedsscreen extends StatefulWidget {
@@ -10,6 +10,40 @@ class Feedsscreen extends StatefulWidget {
 }
 
 class _FeedsscreenState extends State<Feedsscreen> {
+  // Variable to hold user data
+  Map<String, dynamic>? userData;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData(); // Fetch user data when the screen initializes
+  }
+
+  // Function to fetch user data from Firestore
+  Future<void> fetchUserData() async {
+    try {
+      // Get the currently logged-in user
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Fetch the user's document from Firestore
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid) // Use the UID to get the document
+            .get();
+
+        // Check if the document exists and contains data
+        if (doc.exists) {
+          setState(() {
+            userData = doc.data() as Map<String, dynamic>?; // Store the data in the state
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,15 +86,16 @@ class _FeedsscreenState extends State<Feedsscreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Profile info row
-                    const Row(
+                    Row(
                       children: [
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Dynamically display the user's name
                               Text(
-                                "Ahmad Hassan",
-                                style: TextStyle(
+                                userData?['full_name'] ?? "Name not available",
+                                style:const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                   color: Color.fromARGB(255, 12, 12, 12), // Dark color for the text
@@ -68,24 +103,26 @@ class _FeedsscreenState extends State<Feedsscreen> {
                               ),
                               Row(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.location_on_outlined,
                                     color: Color.fromARGB(255, 165, 6, 13), // Location icon color
                                   ),
-                                  SizedBox(width: 4),
+                                  const SizedBox(width: 4),
+                                  // Dynamically display the user's location
                                   Text(
-                                    "Lahore",
-                                    style: TextStyle(
+                                    userData?['location'] ?? "Lahore",
+                                    style:const TextStyle(
                                       color: Color.fromARGB(255, 12, 12, 12), // Text color
                                       fontSize: 16,
                                     ),
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                              // Dynamically display the user's account type
                               Text(
-                                "Mechanics Account",
-                                style: TextStyle(
+                                userData?['account_type'] ?? "Account type not available",
+                                style:const TextStyle(
                                   color: Color.fromARGB(255, 12, 12, 12), // Text color
                                   fontSize: 16,
                                 ),
@@ -94,18 +131,19 @@ class _FeedsscreenState extends State<Feedsscreen> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.only(bottom: 27),
+                          padding:const EdgeInsets.only(bottom: 27),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Dynamically display the user's points, defaulting to 0 if not available
                               Text(
-                                "490",
-                                style: TextStyle(
+                                "${userData?['points'] ?? 0}",
+                                style:const TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Row(
+                              const Row(
                                 children: [
                                   Icon(
                                     Icons.blur_circular_rounded,
@@ -130,8 +168,8 @@ class _FeedsscreenState extends State<Feedsscreen> {
 
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.red.shade900, 
-                  borderRadius: BorderRadius.circular(10), 
+                  color: Colors.red.shade900,
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
                   children: [
@@ -140,9 +178,9 @@ class _FeedsscreenState extends State<Feedsscreen> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.red.shade900, // Same red color
-                          borderRadius: BorderRadius.only(
+                          borderRadius:const BorderRadius.only(
                             bottomLeft: Radius.circular(10),
-                           
+
                           ), // Rounded left corners
                         ),
                         child: TextButton(
@@ -172,9 +210,9 @@ class _FeedsscreenState extends State<Feedsscreen> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.red.shade900, // Same red color
-                          borderRadius: BorderRadius.only(
+                          borderRadius:const BorderRadius.only(
                             bottomRight: Radius.circular(10),
-                            
+
                           ), // Rounded right corners
                         ),
                         child: TextButton(
@@ -211,7 +249,7 @@ class _FeedsscreenState extends State<Feedsscreen> {
                       height: 362, // Adjust the height accordingly
                       width: 400,
                       child: Container(
-                        decoration: BoxDecoration(
+                        decoration:const BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage("assets/technology (1).jpg"), // Image asset
                             fit: BoxFit.cover,

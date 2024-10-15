@@ -1,5 +1,5 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Homescreen extends StatefulWidget {
@@ -14,6 +14,40 @@ class _HomescreenState extends State<Homescreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
+  // Variable to hold user data
+  Map<String, dynamic>? userData;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData(); // Fetch user data when the screen initializes
+  }
+
+  // Function to fetch user data from Firestore
+  Future<void> fetchUserData() async {
+    try {
+      // Get the currently logged-in user
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Fetch the user's document from Firestore
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid) // Use the UID to get the document
+            .get();
+
+        // Check if the document exists and contains data
+        if (doc.exists) {
+          setState(() {
+            userData = doc.data() as Map<String, dynamic>?; // Store the data in the state
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +59,7 @@ class _HomescreenState extends State<Homescreen> {
           child: Column(
             children: [
               // Top section with app name and QR code icon
-              Padding(
+              const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -62,35 +96,38 @@ class _HomescreenState extends State<Homescreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Dynamically display user's name
                               Text(
-                                "Ahmad Hassan",
-                                style: TextStyle(
+                                userData?['full_name'] ?? "Name not available",
+                                style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 12, 12, 12), // Dark color for the text
+                                  color: Color.fromARGB(255, 12, 12, 12),
                                 ),
                               ),
                               Row(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.location_on_outlined,
-                                    color: Color.fromARGB(255, 165, 6, 13), // Location icon color
+                                    color: Color.fromARGB(255, 165, 6, 13),
                                   ),
-                                  SizedBox(width: 4),
+                                  const SizedBox(width: 4),
+                                  // Dynamically display user's location
                                   Text(
-                                    "Lahore",
-                                    style: TextStyle(
-                                      color: Color.fromARGB(255, 12, 12, 12), // Text color
+                                    userData?['location'] ?? "Lahore",
+                                    style:const TextStyle(
+                                      color: Color.fromARGB(255, 12, 12, 12),
                                       fontSize: 16,
                                     ),
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                              // Dynamically display user's account type
                               Text(
-                                "Mechanics Account",
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 12, 12, 12), // Text color
+                                userData?['account_type'] ?? "Account type not available",
+                                style:const TextStyle(
+                                  color: Color.fromARGB(255, 12, 12, 12),
                                   fontSize: 16,
                                 ),
                               ),
@@ -102,19 +139,20 @@ class _HomescreenState extends State<Homescreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Dynamically display user's points, defaulting to 0 if not available
                               Text(
-                                "490",
-                                style: TextStyle(
+                                "${userData?['points'] ?? 0}",
+                                style:const TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Row(
+                              const Row(
                                 children: [
                                   Icon(
                                     Icons.blur_circular_rounded,
                                     size: 16,
-                                    color: Color.fromARGB(255, 165, 6, 13), // Icon color
+                                    color: Color.fromARGB(255, 165, 6, 13),
                                   ),
                                   SizedBox(width: 3),
                                   Text(
@@ -145,7 +183,7 @@ class _HomescreenState extends State<Homescreen> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.red.shade900, // Same red color
-                          borderRadius: BorderRadius.only(
+                          borderRadius:const BorderRadius.only(
                             bottomLeft: Radius.circular(10),
                             topLeft: Radius.circular(10), // Rounded left corners
                           ),
@@ -177,7 +215,7 @@ class _HomescreenState extends State<Homescreen> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.red.shade900, // Same red color
-                          borderRadius: BorderRadius.only(
+                          borderRadius:const BorderRadius.only(
                             bottomRight: Radius.circular(10),
                             topRight: Radius.circular(10), // Rounded right corners
                           ),
@@ -204,7 +242,7 @@ class _HomescreenState extends State<Homescreen> {
 
               // PageView with Dots Indicator
               const SizedBox(height: 16),
-              Container(
+               Container(
                 height: 400, // Set a fixed height for the page view
                 child: PageView(
                   controller: _pageController,
@@ -236,7 +274,7 @@ class _HomescreenState extends State<Homescreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(3, (index) {
                   return Container(
-                    margin: EdgeInsets.symmetric(horizontal: 4),
+                    margin:const EdgeInsets.symmetric(horizontal: 4),
                     width: 10,
                     height: 10,
                     decoration: BoxDecoration(

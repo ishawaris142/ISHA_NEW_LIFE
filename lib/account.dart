@@ -1,11 +1,9 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
-import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:red_coprative/feeds.dart';
 import 'package:red_coprative/models/accountgridmodelclass.dart';
 import 'package:red_coprative/viewproducts.dart';
-
 import 'cart_items.dart';
 
 class Accountscreen extends StatefulWidget {
@@ -16,32 +14,66 @@ class Accountscreen extends StatefulWidget {
 }
 
 class _AccountscreenState extends State<Accountscreen> {
+  // Variable to hold user data
+  Map<String, dynamic>? userData;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData(); // Fetch user data when the screen initializes
+  }
+
+  // Function to fetch user data from Firestore
+  Future<void> fetchUserData() async {
+    try {
+      // Get the currently logged-in user
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Fetch the user's document from Firestore
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid) // Use the UID to get the document
+            .get();
+
+        // Check if the document exists and contains data
+        if (doc.exists) {
+          setState(() {
+            userData = doc.data() as Map<String, dynamic>?; // Store the data in the state
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 6),
-        margin: EdgeInsets.only(top: 25),
+        padding:const EdgeInsets.symmetric(horizontal: 6),
+        margin:const EdgeInsets.only(top: 25),
         child: Column(
           children: [
             // Top section with app name and QR code icon
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+              padding:const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.white, size: 32),
+                    icon:const Icon(Icons.arrow_back, color: Colors.white, size: 32),
                     onPressed: () {
-                      // Navigate to the Accountscreen
+                      // Navigate to the Feedsscreen
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => Feedsscreen()),
                       );
                     },
                   ),
-                  Icon(
+                  const Icon(
                     Icons.qr_code_scanner_sharp,
                     size: 28,
                     color: Colors.white,
@@ -59,40 +91,42 @@ class _AccountscreenState extends State<Accountscreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Profile info row
-                  const Row(
+                  Row(
                     children: [
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Display fetched full name, or a default value if not available
                             Text(
-                              "Ahmad Hassan",
-                              style: TextStyle(
+                              userData?['full_name'] ?? "Name not available",
+                              style:const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 12, 12, 12), // Dark color for the text
+                                color: Color.fromARGB(255, 12, 12, 12),
                               ),
                             ),
                             Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.location_on_outlined,
                                   color: Color.fromARGB(255, 165, 6, 13),
                                 ),
-                                SizedBox(width: 4),
+                                const SizedBox(width: 4),
                                 Text(
-                                  "Lahore",
-                                  style: TextStyle(
+                                  userData?['location'] ?? "Lahore",
+                                  style:const TextStyle(
                                     color: Color.fromARGB(255, 12, 12, 12),
                                     fontSize: 16,
                                   ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
+                            // Display fetched account type, or a default value if not available
                             Text(
-                              "Mechanics Account",
-                              style: TextStyle(
+                              userData?['account_type'] ?? "Account type not available",
+                              style:const  TextStyle(
                                 color: Color.fromARGB(255, 12, 12, 12),
                                 fontSize: 16,
                               ),
@@ -105,14 +139,15 @@ class _AccountscreenState extends State<Accountscreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Display fetched points, or default to 0
                             Text(
-                              "490",
-                              style: TextStyle(
+                              "${userData?['points'] ?? 0}",
+                              style:const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Row(
+                            const Row(
                               children: [
                                 Icon(
                                   Icons.blur_circular_rounded,
@@ -135,6 +170,7 @@ class _AccountscreenState extends State<Accountscreen> {
               ),
             ),
 
+            // Cash Withdraw and History buttons
             Container(
               decoration: BoxDecoration(
                 color: Colors.red.shade900,
@@ -142,12 +178,11 @@ class _AccountscreenState extends State<Accountscreen> {
               ),
               child: Row(
                 children: [
-                  // Cash Withdraw button
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.red.shade900,
-                        borderRadius: BorderRadius.only(
+                        borderRadius:const BorderRadius.only(
                           bottomLeft: Radius.circular(10),
                         ),
                       ),
@@ -167,18 +202,16 @@ class _AccountscreenState extends State<Accountscreen> {
                       ),
                     ),
                   ),
-
                   Container(
                     height: 45,
                     width: 1,
                     color: Colors.white,
                   ),
-                  // History button
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.red.shade900,
-                        borderRadius: BorderRadius.only(
+                        borderRadius:const BorderRadius.only(
                           bottomRight: Radius.circular(10),
                         ),
                       ),
@@ -203,7 +236,7 @@ class _AccountscreenState extends State<Accountscreen> {
             ),
 
             const SizedBox(height: 24),
-            Text(
+            const Text(
               "More From ISH",
               style: TextStyle(fontSize: 20, color: const Color.fromARGB(255, 255, 255, 255)),
             ),
@@ -211,10 +244,10 @@ class _AccountscreenState extends State<Accountscreen> {
             // GridView with Expanded
             Expanded(
               child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 10),
+                margin:const EdgeInsets.symmetric(horizontal: 10),
                 child: GridView.builder(
-                  padding: EdgeInsets.symmetric(vertical: 2),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  padding:const EdgeInsets.symmetric(vertical: 2),
+                  gridDelegate:const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 15,
                     mainAxisSpacing: 1,
@@ -247,14 +280,13 @@ class _AccountscreenState extends State<Accountscreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Column(
-
                           children: [
                             Image.asset(
                               "${accountgridmodelclasslist[index].image}",
                             ),
                             Text(
                               "${accountgridmodelclasslist[index].text}",
-                              style: TextStyle(fontSize: 15, color: Colors.white),
+                              style:const TextStyle(fontSize: 15, color: Colors.white),
                             ),
                           ],
                         ),
@@ -264,7 +296,6 @@ class _AccountscreenState extends State<Accountscreen> {
                 ),
               ),
             ),
-
           ],
         ),
       ),
