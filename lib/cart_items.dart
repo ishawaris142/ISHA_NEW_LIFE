@@ -12,40 +12,125 @@ class _CartScreenState extends State<CartScreen> {
   final CollectionReference cartCollection = FirebaseFirestore.instance.collection('cart');
   final CollectionReference historyCollection = FirebaseFirestore.instance.collection('history');
 
-  // Function to move an item from cart to history and delete it from cart
-  Future<void> _buyItem(String docId, Map<String, dynamic> itemData, String name) async {
-    try {
-      // Move the item to the 'history' collection
-      await historyCollection.add(itemData);
+  double _totalAmount = 0.0; // Total amount variable
+  int _totalPoints = 0; // Total points variable
 
-      // Delete the item from the 'cart' collection
-      await cartCollection.doc(docId).delete();
+  @override
+  void initState() {
+    super.initState();
+    _calculateTotals(); // Calculate total amount and points when the screen is loaded
+  }
+
+  // Function to calculate the total amount and total points of all items in the cart
+  Future<void> _calculateTotals() async {
+    final cartItems = await cartCollection.get();
+    double totalAmount = 0.0;
+    int totalPoints = 0;
+
+    for (var doc in cartItems.docs) {
+      totalAmount += (doc['price'] * doc['quantity']).toDouble(); // Total amount as double
+
+      // Handle points as int, ensure correct casting
+      num pointsValue = doc['points'];
+      totalPoints += (pointsValue * doc['quantity']).toInt(); // Explicitly cast to int
+    }
+
+    setState(() {
+      _totalAmount = totalAmount; // Update the total amount
+      _totalPoints = totalPoints; // Update the total points
+    });
+  }
+
+  // Function to delete an item from the cart
+  Future<void> _deleteItem(String docId, String name) async {
+    try {
+      await cartCollection.doc(docId).delete(); // Delete the item
+      _calculateTotals(); // Recalculate the totals after deletion
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$name has been bought and moved to history')),
+        SnackBar(content: Text('$name has been removed from the cart')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to buy item: $e')),
+        SnackBar(content: Text('Failed to delete item: $e')),
       );
     }
   }
 
-  // Function to delete all items from the cart
-  Future<void> _deleteAllItems() async {
-    final cartItems = await cartCollection.get();
-    for (var doc in cartItems.docs) {
-      await cartCollection.doc(doc.id).delete();
+  // Function to move all items from cart to history and clear the cart
+  Future<void> _checkout() async {
+    try {
+      final cartItems = await cartCollection.get();
+
+      if (cartItems.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No items in the cart to checkout')),
+        );
+        return;
+      }
+
+      // Prepare arrays for storing purchase session data
+      List<String> imageUrls = [];
+      List<String> names = [];
+      List<String> descriptions = [];
+      List<double> prices = [];
+      List<int> quantities = [];
+      List<int> points = []; // Points as int
+
+      // Loop through each cart item and add to the arrays
+      for (var doc in cartItems.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+        imageUrls.add(data['imageUrl'] ?? '');
+        names.add(data['name'] ?? '');
+        descriptions.add(data['description'] ?? '');
+        prices.add((data['price'] ?? 0.0).toDouble()); // Ensure price is double
+        quantities.add(data['quantity'] ?? 1); // Quantities as int
+
+        // Handle points casting
+        num pointsValue = data['points']; // Capture points value as num
+        points.add((pointsValue).toInt()); // Convert points to int
+      }
+
+      // Create a new document in the 'history' collection with these arrays
+      await historyCollection.add({
+        'imageUrls': imageUrls,
+        'names': names,
+        'descriptions': descriptions,
+        'prices': prices,
+        'quantities': quantities,
+        'points': points,
+        'totalAmount': _totalAmount, // Store the total amount for reference
+        'totalPoints': _totalPoints, // Store the total points for reference
+        'timestamp': FieldValue.serverTimestamp(), // To track when the purchase was made
+      });
+
+      // Clear the cart after checkout
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      for (var doc in cartItems.docs) {
+        batch.delete(cartCollection.doc(doc.id)); // Remove from cart
+      }
+      await batch.commit();
+
+      // Clear total amount and points after checkout
+      setState(() {
+        _totalAmount = 0.0;
+        _totalPoints = 0;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Checkout successful. Items moved to history')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to checkout: $e')),
+      );
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('All items have been removed from the cart')),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1E1C1B), // Background color of the page
+      backgroundColor: const Color(0xFF1E1C1B), // Background color
       appBar: AppBar(
         title: const Text('Cart'),
         backgroundColor: const Color(0xFF1E1C1B), // Match app bar with background
@@ -148,15 +233,15 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                                 Text(
                                   '${item['points']}',
-                                  style: const TextStyle(color: Color(0xFFFFFFFF)), // Normal value
+                                  style: const TextStyle(color: Color(0xFFFFFFFF)), // Points value
                                 ),
                               ],
                             ),
                           ],
                         ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.shopping_bag, color: Colors.green),
-                          onPressed: () => _buyItem(item.id, item.data() as Map<String, dynamic>, item['name']), // Buy the item
+                          icon: const Icon(Icons.delete, color: Colors.red), // Delete icon
+                          onPressed: () => _deleteItem(item.id, item['name']), // Delete the item
                         ),
                       ),
                     );
@@ -165,74 +250,49 @@ class _CartScreenState extends State<CartScreen> {
               },
             ),
           ),
-          // Buttons: Delete All and Buy All
+          // Display Total Amount and Total Points
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Text(
+                  'Total Amount: \$${_totalAmount.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                Text(
+                  'Total Points: $_totalPoints',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Checkout Button
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: SafeArea( // Using SafeArea to prevent overflow
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                    onPressed: _deleteAllItems, // Delete all items action
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFA5060D), // Red color
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20), // Button border radius
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    ),
-                    child: const Text(
-                      'Delete All',
-                      style: TextStyle(color: Color(0xFFFFFFFF)), // Button text color
-                    ),
+              child: ElevatedButton.icon(
+                onPressed: _checkout, // Checkout action
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFA5060D), // Red color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20), // Button border radius
                   ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        // Fetch all cart items
-                        final cartItems = await cartCollection.get();
-
-                        // Initialize a batch for atomic operations
-                        WriteBatch batch = FirebaseFirestore.instance.batch();
-
-                        // Loop through each cart item
-                        for (var doc in cartItems.docs) {
-                          // Add each item to the history collection
-                          batch.set(historyCollection.doc(), doc.data());
-
-                          // Delete each item from the cart collection
-                          batch.delete(cartCollection.doc(doc.id));
-                        }
-
-                        // Commit the batch operation (moves all items at once)
-                        await batch.commit();
-
-                        // Show confirmation message
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('All items have been bought and moved to history')),
-                        );
-
-                      } catch (e) {
-                        // Show error message if something goes wrong
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Failed to buy all items: $e')),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFA5060D), // Red color
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20), // Button border radius
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    ),
-                    child: const Text(
-                      'Buy All',
-                      style: TextStyle(color: Color(0xFFFFFFFF)), // Button text color
-                    ),
-                  ),
-
-                ],
+                  padding: const EdgeInsets.symmetric(vertical: 15), // Full width button
+                  minimumSize: const Size(double.infinity, 50), // Full width button
+                ),
+                icon: const Icon(Icons.shopping_cart), // Optional icon
+                label: const Text(
+                  'Checkout',
+                  style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 18), // Button text color
+                ),
               ),
             ),
           ),

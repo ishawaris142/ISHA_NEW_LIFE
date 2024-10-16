@@ -273,7 +273,7 @@ class _AccountscreenState extends State<Accountscreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const CartScreen(),
+                              builder: (context) =>  CartScreen(),
                             ),
                           );
                         }
