@@ -349,6 +349,7 @@ class _ProductItemState extends State<ProductItem> {
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
+                        overflow: TextOverflow.ellipsis, // Prevents overflow
                       ),
                     ],
                   ),

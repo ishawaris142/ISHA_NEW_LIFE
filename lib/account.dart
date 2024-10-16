@@ -5,6 +5,8 @@ import 'package:red_coprative/feeds.dart';
 import 'package:red_coprative/models/accountgridmodelclass.dart';
 import 'package:red_coprative/viewproducts.dart';
 import 'cart_items.dart';
+import 'cash_withdraw.dart';
+import 'history.dart';
 
 class Accountscreen extends StatefulWidget {
   const Accountscreen({super.key});
@@ -187,7 +189,9 @@ class _AccountscreenState extends State<Accountscreen> {
                         ),
                       ),
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const CashWithdrawScreen(),));
+                        },
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 15),
                         ),
@@ -216,7 +220,9 @@ class _AccountscreenState extends State<Accountscreen> {
                         ),
                       ),
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const Historyscreen(),));
+                        },
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 15),
                         ),
@@ -238,7 +244,7 @@ class _AccountscreenState extends State<Accountscreen> {
             const SizedBox(height: 24),
             const Text(
               "More From ISH",
-              style: TextStyle(fontSize: 20, color: const Color.fromARGB(255, 255, 255, 255)),
+              style: TextStyle(fontSize: 20, color:  Color.fromARGB(255, 255, 255, 255)),
             ),
 
             // GridView with Expanded
@@ -273,8 +279,8 @@ class _AccountscreenState extends State<Accountscreen> {
                         }
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 25),
-                        margin: EdgeInsets.symmetric(vertical: 14),
+                        padding:const EdgeInsets.symmetric(vertical: 25),
+                        margin:const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(38, 255, 255, 255),
                           borderRadius: BorderRadius.circular(20),
