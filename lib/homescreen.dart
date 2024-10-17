@@ -56,7 +56,9 @@ class _HomescreenState extends State<Homescreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SingleChildScrollView(
+      body: userData == null
+          ? const Center(child: CircularProgressIndicator()) // Show loading if userData is null
+          : SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 6),
           margin: EdgeInsets.only(top: 25),
@@ -118,8 +120,8 @@ class _HomescreenState extends State<Homescreen> {
                                   const SizedBox(width: 4),
                                   // Dynamically display user's location
                                   Text(
-                                    userData?['location'] ?? "Lahore",
-                                    style:const TextStyle(
+                                    userData?['address'] ?? "Lahore",
+                                    style: const TextStyle(
                                       color: Color.fromARGB(255, 12, 12, 12),
                                       fontSize: 16,
                                     ),
@@ -130,7 +132,7 @@ class _HomescreenState extends State<Homescreen> {
                               // Dynamically display user's account type
                               Text(
                                 userData?['account_type'] ?? "Account type not available",
-                                style:const TextStyle(
+                                style: const TextStyle(
                                   color: Color.fromARGB(255, 12, 12, 12),
                                   fontSize: 16,
                                 ),
@@ -145,8 +147,8 @@ class _HomescreenState extends State<Homescreen> {
                             children: [
                               // Dynamically display user's points, defaulting to 0 if not available
                               Text(
-                                "${userData?['points'] ?? 0}",
-                                style:const TextStyle(
+                                "${userData?['totalPoints'] ?? 0}",
+                                style: const TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -160,7 +162,7 @@ class _HomescreenState extends State<Homescreen> {
                                   ),
                                   SizedBox(width: 3),
                                   Text(
-                                    "points",
+                                    "Points",
                                     style: TextStyle(fontSize: 12),
                                   ),
                                 ],
@@ -187,14 +189,17 @@ class _HomescreenState extends State<Homescreen> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.red.shade900, // Same red color
-                          borderRadius:const BorderRadius.only(
+                          borderRadius: const BorderRadius.only(
                             bottomLeft: Radius.circular(10),
-
                           ),
                         ),
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => CashWithdrawScreen(),));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CashWithdrawScreen()),
+                            );
                           },
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 15),
@@ -221,14 +226,17 @@ class _HomescreenState extends State<Homescreen> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.red.shade900, // Same red color
-                          borderRadius:const BorderRadius.only(
+                          borderRadius: const BorderRadius.only(
                             bottomRight: Radius.circular(10),
-
                           ),
                         ),
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => Historyscreen(),));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Historyscreen()),
+                            );
                           },
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 15),
@@ -282,7 +290,7 @@ class _HomescreenState extends State<Homescreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(3, (index) {
                   return Container(
-                    margin:const EdgeInsets.symmetric(horizontal: 4),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
                     width: 10,
                     height: 10,
                     decoration: BoxDecoration(

@@ -66,6 +66,7 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> _checkout() async {
     String? userId = getUserID();
     if (userId != null) {
+      // Fetch the user's cart items
       final cartItems = await FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').get();
       if (cartItems.docs.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -82,7 +83,7 @@ class _CartScreenState extends State<CartScreen> {
       List<int> points = [];
 
       for (var doc in cartItems.docs) {
-        var data = doc.data() as Map<String, dynamic>;
+        var data = doc.data() as Map<String, dynamic>; // Cast data to Map<String, dynamic>
         imageUrls.add(data['imageUrl'] ?? '');
         names.add(data['name'] ?? '');
         descriptions.add(data['description'] ?? '');
@@ -92,6 +93,7 @@ class _CartScreenState extends State<CartScreen> {
         points.add((pointsValue).toInt());
       }
 
+      // Add the cart items to the history collection
       await historyCollection.add({
         'imageUrls': imageUrls,
         'names': names,
@@ -105,22 +107,46 @@ class _CartScreenState extends State<CartScreen> {
         'userId': userId
       });
 
+      // Clear the user's cart after checkout
       WriteBatch batch = FirebaseFirestore.instance.batch();
       for (var doc in cartItems.docs) {
         batch.delete(FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').doc(doc.id));
       }
       await batch.commit();
 
+      // Store totalPoints in the user's document
+      final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+
+      // Retrieve the current total points stored in the user's document
+      DocumentSnapshot userSnapshot = await userDoc.get();
+      if (userSnapshot.exists) {
+        var userData = userSnapshot.data() as Map<String, dynamic>?; // Explicitly cast the snapshot data
+        int currentPoints = userData?['totalPoints'] ?? 0;
+
+        // Update the user's total points by adding the new points
+        await userDoc.update({
+          'totalPoints': currentPoints + _totalPoints,
+        });
+      } else {
+        // If the user document doesn't exist, create it and store the points
+        await userDoc.set({
+          'totalPoints': _totalPoints,
+        });
+      }
+
+      // Reset the total amount and points in the UI
       setState(() {
         _totalAmount = 0.0;
         _totalPoints = 0;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Checkout successful. Items moved to history')),
+        const SnackBar(content: Text('Checkout successful. Items moved to history and points updated')),
       );
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CashWithdrawScreen extends StatefulWidget {
   const CashWithdrawScreen({super.key});
@@ -12,7 +14,66 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
   final TextEditingController _mobileNumberController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   String _selectedAccountType = 'JazzCash'; // Default selected option
-  double _walletBalance = 1599.0; // Storing the wallet balance here
+  double _walletBalance = 0.0; // Initialize the wallet balance
+  double _pointsInRupees = 0.0; // Variable to store points converted to rupees
+  num totalPoints = 0; // Variable to hold total points from Firestore
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserPoints(); // Fetch user points when the screen initializes
+  }
+
+  // Function to fetch user's total points from Firestore
+  Future<void> _fetchUserPoints() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser; // Get the currently logged-in user
+
+      if (user != null) {
+        // Fetch user's document from Firestore
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (doc.exists && doc.data() != null) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          totalPoints = data['totalPoints'] ?? 0; // Fetch totalPoints from the document
+
+          // Convert points to rupees (10 points = 1 rupee)
+          _pointsInRupees = totalPoints / 10;
+
+          setState(() {
+            _walletBalance = _pointsInRupees; // Update the wallet balance
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching user points: $e");
+    }
+  }
+
+  // Function to update the remaining points after withdrawal
+  Future<void> _updateRemainingPoints(double remainingRupees) async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Convert remaining rupees back to points
+      int remainingPoints = (remainingRupees * 10).toInt();
+
+      // Update the user's points in Firestore
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        'totalPoints': remainingPoints, // Update the totalPoints field with new points
+      });
+
+      // Update the local state
+      setState(() {
+        totalPoints = remainingPoints; // Update the total points locally
+      });
+
+      print('Updated total points: $remainingPoints');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +84,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 40),
         child: Column(
           children: [
-            // Top section with app name and QR code icon
+            // Top section with back button and QR code icon
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -70,7 +131,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                         ),
                         const SizedBox(width: 2),
                         Text(
-                          _walletBalance.toString(), // Use the variable here
+                          _walletBalance.toStringAsFixed(2), // Display wallet balance in rupees
                           style: const TextStyle(
                               fontSize: 32,
                               color: Colors.white,
@@ -80,7 +141,6 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                     ),
                     const SizedBox(height: 50), // Adjusted for better spacing
                     Row(
-                      //mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         _buildSmallButton(
                           icon: Icons.send,
@@ -89,7 +149,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                             print('Sending cash...');
                           },
                         ),
-                        SizedBox(width: 5),
+                        const SizedBox(width: 5),
                         _buildSmallButton(
                           icon: Icons.branding_watermark_sharp,
                           label: "Withdraw",
@@ -97,7 +157,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                             print('Cash Withdraw...');
                           },
                         ),
-                        SizedBox(width: 5),
+                        const SizedBox(width: 5),
                         _buildSmallButton(
                           icon: Icons.contact_page,
                           label: "View History",
@@ -188,6 +248,10 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                           setState(() {
                             _walletBalance -= withdrawAmount; // Deduct the amount from the balance
                           });
+
+                          double remainingRupees = _walletBalance; // Calculate remaining rupees
+                          _updateRemainingPoints(remainingRupees); // Update remaining points in Firestore
+
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -294,8 +358,11 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
     );
   }
 
-  Widget _buildSmallButton(
-      {required IconData icon, required String label, required VoidCallback onPressed}) {
+  Widget _buildSmallButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(

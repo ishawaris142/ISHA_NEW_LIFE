@@ -15,6 +15,7 @@ class _FeedsscreenState extends State<Feedsscreen> {
   // Variable to hold user data
   Map<String, dynamic>? userData;
   num totalPoints = 0;  // Use `num` to handle both integer and decimal values
+  bool isLoading = true; // Track if data is still loading
 
   @override
   void initState() {
@@ -48,34 +49,26 @@ class _FeedsscreenState extends State<Feedsscreen> {
     }
   }
 
-  // Function to fetch total points of the logged-in user from their cart collection
+  // Function to fetch total points of the logged-in user from Firestore
   Future<void> fetchUserTotalPoints() async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
-        // Fetch the cart items for the logged-in user
-        QuerySnapshot cartItemsSnapshot = await FirebaseFirestore.instance
+        // Fetch the user's document from Firestore
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
             .collection('users')
-            .doc(user.uid)
-            .collection('cart')
+            .doc(user.uid) // Use the UID to get the user's document
             .get();
 
-        // Calculate the total points for the user based on cart items
-        num pointsSum = 0;
-        for (var doc in cartItemsSnapshot.docs) {
-          var data = doc.data() as Map<String, dynamic>;
-          num price = data['price'] ?? 0;  // Assume there is a 'price' field in cart items
-          num quantity = data['quantity'] ?? 1;  // Default quantity to 1 if not present
-
-          // Example: 1 point for every $100 spent
-          pointsSum += (price / 100) * quantity;  // Adjust the points calculation logic as needed
+        // Check if the document contains totalPoints field
+        if (userDoc.exists && userDoc.data() != null) {
+          Map<String, dynamic> data = userDoc.data() as Map<String, dynamic>;
+          setState(() {
+            totalPoints = data['totalPoints'] ?? 0;  // Fetch totalPoints or default to 0
+            isLoading = false; // Data has been fetched, stop showing loading indicator
+          });
         }
-
-        // Update the totalPoints state
-        setState(() {
-          totalPoints = pointsSum;
-        });
       }
     } catch (e) {
       print("Error fetching total points: $e");
@@ -86,7 +79,9 @@ class _FeedsscreenState extends State<Feedsscreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SingleChildScrollView(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator()) // Show loading indicator while data is being fetched
+          : SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 6),
           margin: EdgeInsets.only(top: 25),
@@ -148,7 +143,7 @@ class _FeedsscreenState extends State<Feedsscreen> {
                                   const SizedBox(width: 4),
                                   // Dynamically display the user's location
                                   Text(
-                                    userData?['location'] ?? "Lahore",
+                                    userData?['address'] ?? "Lahore",
                                     style: const TextStyle(
                                       color: Color.fromARGB(255, 12, 12, 12), // Text color
                                       fontSize: 16,

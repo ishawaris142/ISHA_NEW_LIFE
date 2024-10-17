@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:red_coprative/feeds.dart';
-import 'package:red_coprative/models/accountgridmodelclass.dart';
 import 'package:red_coprative/viewproducts.dart';
-import 'cart_items.dart';
-import 'cash_withdraw.dart';
+import 'feeds.dart';  // Assuming you have this screen
+import 'cart_items.dart';  // Assuming you have this screen
+import 'cash_withdraw.dart';  // Assuming you have this screen
 import 'history.dart';
+import 'models/accountgridmodelclass.dart';  // Assuming you have this screen
 
 class Accountscreen extends StatefulWidget {
   const Accountscreen({super.key});
@@ -54,24 +54,31 @@ class _AccountscreenState extends State<Accountscreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Container(
-        padding:const EdgeInsets.symmetric(horizontal: 6),
-        margin:const EdgeInsets.only(top: 25),
+      body: userData == null // Show loading indicator if data is still being fetched
+          ? const Center(
+        child: CircularProgressIndicator(),
+      )
+          : Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        margin: const EdgeInsets.only(top: 25),
         child: Column(
           children: [
             // Top section with app name and QR code icon
             Padding(
-              padding:const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(
+                  vertical: 16.0, horizontal: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon:const Icon(Icons.arrow_back, color: Colors.white, size: 32),
+                    icon: const Icon(Icons.arrow_back,
+                        color: Colors.white, size: 32),
                     onPressed: () {
                       // Navigate to the Feedsscreen
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => Feedsscreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const Feedsscreen()),
                       );
                     },
                   ),
@@ -102,7 +109,7 @@ class _AccountscreenState extends State<Accountscreen> {
                             // Display fetched full name, or a default value if not available
                             Text(
                               userData?['full_name'] ?? "Name not available",
-                              style:const TextStyle(
+                              style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(255, 12, 12, 12),
@@ -116,8 +123,8 @@ class _AccountscreenState extends State<Accountscreen> {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  userData?['location'] ?? "Lahore",
-                                  style:const TextStyle(
+                                  userData?['address'] ?? "Location not available",
+                                  style: const TextStyle(
                                     color: Color.fromARGB(255, 12, 12, 12),
                                     fontSize: 16,
                                   ),
@@ -128,7 +135,7 @@ class _AccountscreenState extends State<Accountscreen> {
                             // Display fetched account type, or a default value if not available
                             Text(
                               userData?['account_type'] ?? "Account type not available",
-                              style:const  TextStyle(
+                              style: const TextStyle(
                                 color: Color.fromARGB(255, 12, 12, 12),
                                 fontSize: 16,
                               ),
@@ -137,14 +144,14 @@ class _AccountscreenState extends State<Accountscreen> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(bottom: 27),
+                        padding: const EdgeInsets.only(bottom: 27),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // Display fetched points, or default to 0
                             Text(
-                              "${userData?['points'] ?? 0}",
-                              style:const TextStyle(
+                              "${userData?['totalPoints'] ?? 0}", // Display totalPoints safely
+                              style: const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -158,7 +165,7 @@ class _AccountscreenState extends State<Accountscreen> {
                                 ),
                                 SizedBox(width: 3),
                                 Text(
-                                  "points",
+                                  "Points",
                                   style: TextStyle(fontSize: 12),
                                 ),
                               ],
@@ -184,13 +191,18 @@ class _AccountscreenState extends State<Accountscreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.red.shade900,
-                        borderRadius:const BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(10),
                         ),
                       ),
                       child: TextButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const CashWithdrawScreen(),));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                const CashWithdrawScreen(),
+                              ));
                         },
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 15),
@@ -215,13 +227,18 @@ class _AccountscreenState extends State<Accountscreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.red.shade900,
-                        borderRadius:const BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           bottomRight: Radius.circular(10),
                         ),
                       ),
                       child: TextButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const Historyscreen(),));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                const Historyscreen(),
+                              ));
                         },
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 15),
@@ -244,16 +261,16 @@ class _AccountscreenState extends State<Accountscreen> {
             const SizedBox(height: 24),
             const Text(
               "More From ISH",
-              style: TextStyle(fontSize: 20, color:  Color.fromARGB(255, 255, 255, 255)),
+              style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 255, 255, 255)),
             ),
 
             // GridView with Expanded
             Expanded(
               child: Container(
-                margin:const EdgeInsets.symmetric(horizontal: 10),
+                margin: const EdgeInsets.symmetric(horizontal: 10),
                 child: GridView.builder(
-                  padding:const EdgeInsets.symmetric(vertical: 2),
-                  gridDelegate:const SliverGridDelegateWithFixedCrossAxisCount(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 15,
                     mainAxisSpacing: 1,
@@ -262,25 +279,30 @@ class _AccountscreenState extends State<Accountscreen> {
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () {
-                        if (accountgridmodelclasslist[index].text == "View Products") {
+                        if (accountgridmodelclasslist[index].text ==
+                            "View Products") {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ViewproductScreen(),
+                              builder: (context) =>
+                              const ViewproductScreen(),
                             ),
                           );
-                        } else if (accountgridmodelclasslist[index].text == "Popular Products") {
+                        } else if (accountgridmodelclasslist[index]
+                            .text ==
+                            "Popular Products") {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>  CartScreen(),
+                              builder: (context) => CartScreen(),
                             ),
                           );
                         }
                       },
                       child: Container(
-                        padding:const EdgeInsets.symmetric(vertical: 25),
-                        margin:const EdgeInsets.symmetric(vertical: 14),
+                        padding:
+                        const EdgeInsets.symmetric(vertical: 25),
+                        margin: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(38, 255, 255, 255),
                           borderRadius: BorderRadius.circular(20),
@@ -292,7 +314,8 @@ class _AccountscreenState extends State<Accountscreen> {
                             ),
                             Text(
                               "${accountgridmodelclasslist[index].text}",
-                              style:const TextStyle(fontSize: 15, color: Colors.white),
+                              style: const TextStyle(
+                                  fontSize: 15, color: Colors.white),
                             ),
                           ],
                         ),
