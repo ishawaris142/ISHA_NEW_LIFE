@@ -20,6 +20,9 @@ class _LoginScreenState extends State<LoginScreen> {
   // Firebase Auth instance
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  // Password visibility toggle
+  bool _obscureText = true;
+
   // Method to handle login
   Future<void> _login() async {
     try {
@@ -78,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               TextField(
-                controller: _emailController, // Add controller
+                controller: _emailController,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.grey[800],
@@ -93,9 +96,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 20),
+
+              // Password Field with eye button
               TextField(
-                controller: _passwordController, // Add controller
-                obscureText: true,
+                controller: _passwordController,
+                obscureText: _obscureText, // Use the obscureText variable
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.grey[800],
@@ -105,6 +110,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   labelStyle: const TextStyle(color: Colors.white),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  // Eye icon button for showing/hiding password
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureText ? Icons.visibility : Icons.visibility_off,
+                      color: Colors.white54,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText; // Toggle visibility
+                      });
+                    },
                   ),
                 ),
                 style: const TextStyle(color: Colors.white),
@@ -143,13 +160,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              // Login button
               SizedBox(
-                width: double.infinity, // Full width button
+                width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _login, // Call Firebase login method
+                  onPressed: _login,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, // Button color
+                    backgroundColor: Colors.red,
                     padding: const EdgeInsets.all(16),
                   ),
                   child: const Text(
@@ -159,7 +175,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              // Register section
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

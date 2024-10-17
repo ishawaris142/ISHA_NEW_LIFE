@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -9,59 +10,63 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  final CollectionReference cartCollection = FirebaseFirestore.instance.collection('cart');
   final CollectionReference historyCollection = FirebaseFirestore.instance.collection('history');
+  double _totalAmount = 0.0;
+  int _totalPoints = 0;
 
-  double _totalAmount = 0.0; // Total amount variable
-  int _totalPoints = 0; // Total points variable
+  // Function to get the current user ID
+  String? getUserID() {
+    User? user = FirebaseAuth.instance.currentUser;
+    return user?.uid;
+  }
 
   @override
   void initState() {
     super.initState();
-    _calculateTotals(); // Calculate total amount and points when the screen is loaded
+    _calculateTotals();
   }
 
-  // Function to calculate the total amount and total points of all items in the cart
   Future<void> _calculateTotals() async {
-    final cartItems = await cartCollection.get();
-    double totalAmount = 0.0;
-    int totalPoints = 0;
+    String? userId = getUserID();
+    if (userId != null) {
+      final cartItems = await FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').get();
+      double totalAmount = 0.0;
+      int totalPoints = 0;
 
-    for (var doc in cartItems.docs) {
-      totalAmount += (doc['price'] * doc['quantity']).toDouble(); // Total amount as double
+      for (var doc in cartItems.docs) {
+        totalAmount += (doc['price'] * doc['quantity']).toDouble();
+        num pointsValue = doc['points'];
+        totalPoints += (pointsValue * doc['quantity']).toInt();
+      }
 
-      // Handle points as int, ensure correct casting
-      num pointsValue = doc['points'];
-      totalPoints += (pointsValue * doc['quantity']).toInt(); // Explicitly cast to int
+      setState(() {
+        _totalAmount = totalAmount;
+        _totalPoints = totalPoints;
+      });
     }
-
-    setState(() {
-      _totalAmount = totalAmount; // Update the total amount
-      _totalPoints = totalPoints; // Update the total points
-    });
   }
 
-  // Function to delete an item from the cart
   Future<void> _deleteItem(String docId, String name) async {
-    try {
-      await cartCollection.doc(docId).delete(); // Delete the item
-      _calculateTotals(); // Recalculate the totals after deletion
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$name has been removed from the cart')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete item: $e')),
-      );
+    String? userId = getUserID();
+    if (userId != null) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').doc(docId).delete();
+        _calculateTotals();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$name has been removed from the cart')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete item: $e')),
+        );
+      }
     }
   }
 
-  // Function to move all items from cart to history and clear the cart
   Future<void> _checkout() async {
-    try {
-      final cartItems = await cartCollection.get();
-
+    String? userId = getUserID();
+    if (userId != null) {
+      final cartItems = await FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').get();
       if (cartItems.docs.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No items in the cart to checkout')),
@@ -69,29 +74,24 @@ class _CartScreenState extends State<CartScreen> {
         return;
       }
 
-      // Prepare arrays for storing purchase session data
       List<String> imageUrls = [];
       List<String> names = [];
       List<String> descriptions = [];
       List<double> prices = [];
       List<int> quantities = [];
-      List<int> points = []; // Points as int
+      List<int> points = [];
 
-      // Loop through each cart item and add to the arrays
       for (var doc in cartItems.docs) {
         var data = doc.data() as Map<String, dynamic>;
         imageUrls.add(data['imageUrl'] ?? '');
         names.add(data['name'] ?? '');
         descriptions.add(data['description'] ?? '');
-        prices.add((data['price'] ?? 0.0).toDouble()); // Ensure price is double
-        quantities.add(data['quantity'] ?? 1); // Quantities as int
-
-        // Handle points casting
-        num pointsValue = data['points']; // Capture points value as num
-        points.add((pointsValue).toInt()); // Convert points to int
+        prices.add((data['price'] ?? 0.0).toDouble());
+        quantities.add(data['quantity'] ?? 1);
+        num pointsValue = data['points'];
+        points.add((pointsValue).toInt());
       }
 
-      // Create a new document in the 'history' collection with these arrays
       await historyCollection.add({
         'imageUrls': imageUrls,
         'names': names,
@@ -99,19 +99,18 @@ class _CartScreenState extends State<CartScreen> {
         'prices': prices,
         'quantities': quantities,
         'points': points,
-        'totalAmount': _totalAmount, // Store the total amount for reference
-        'totalPoints': _totalPoints, // Store the total points for reference
-        'timestamp': FieldValue.serverTimestamp(), // To track when the purchase was made
+        'totalAmount': _totalAmount,
+        'totalPoints': _totalPoints,
+        'timestamp': FieldValue.serverTimestamp(),
+        'userId': userId
       });
 
-      // Clear the cart after checkout
       WriteBatch batch = FirebaseFirestore.instance.batch();
       for (var doc in cartItems.docs) {
-        batch.delete(cartCollection.doc(doc.id)); // Remove from cart
+        batch.delete(FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').doc(doc.id));
       }
       await batch.commit();
 
-      // Clear total amount and points after checkout
       setState(() {
         _totalAmount = 0.0;
         _totalPoints = 0;
@@ -120,27 +119,30 @@ class _CartScreenState extends State<CartScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Checkout successful. Items moved to history')),
       );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to checkout: $e')),
-      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    String? userId = getUserID();
+    if (userId == null) {
+      return const Center(
+        child: Text('You need to be logged in to view the cart.'),
+      );
+    }
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1E1C1B), // Background color
+      backgroundColor: const Color(0xFF1E1C1B),
       appBar: AppBar(
         title: const Text('Cart'),
-        backgroundColor: const Color(0xFF1E1C1B), // Match app bar with background
-        elevation: 0, // Remove shadow
+        backgroundColor: const Color(0xFF1E1C1B),
+        elevation: 0,
       ),
       body: Column(
         children: [
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: cartCollection.snapshots(),
+              stream: FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(child: Text("Error: ${snapshot.error}"));
@@ -166,9 +168,9 @@ class _CartScreenState extends State<CartScreen> {
                     var item = cartItems[index];
                     return Card(
                       margin: const EdgeInsets.all(8.0),
-                      color: const Color.fromARGB(38, 255, 255, 255), // Item background color
+                      color: const Color.fromARGB(38, 255, 255, 255),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20), // Border radius
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: ListTile(
                         leading: Image.network(
@@ -181,7 +183,7 @@ class _CartScreenState extends State<CartScreen> {
                           item['name'],
                           style: const TextStyle(
                             color: Color(0xFFFFFFFF),
-                            fontWeight: FontWeight.bold, // Bold product name
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         subtitle: Column(
@@ -189,7 +191,7 @@ class _CartScreenState extends State<CartScreen> {
                           children: [
                             Text(
                               item['description'],
-                              style: const TextStyle(color: Color(0xFFFFFFFF)), // Font color (white)
+                              style: const TextStyle(color: Color(0xFFFFFFFF)),
                             ),
                             const SizedBox(height: 5),
                             Row(
@@ -197,13 +199,13 @@ class _CartScreenState extends State<CartScreen> {
                                 const Text(
                                   'Price: ',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.bold, // Bold key
+                                    fontWeight: FontWeight.bold,
                                     color: Color(0xFFFFFFFF),
                                   ),
                                 ),
                                 Text(
                                   '\$${item['price'].toStringAsFixed(2)}',
-                                  style: const TextStyle(color: Color(0xFFFFFFFF)), // Normal value
+                                  style: const TextStyle(color: Color(0xFFFFFFFF)),
                                 ),
                               ],
                             ),
@@ -212,13 +214,13 @@ class _CartScreenState extends State<CartScreen> {
                                 const Text(
                                   'Quantity: ',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.bold, // Bold key
+                                    fontWeight: FontWeight.bold,
                                     color: Color(0xFFFFFFFF),
                                   ),
                                 ),
                                 Text(
                                   '${item['quantity']}',
-                                  style: const TextStyle(color: Color(0xFFFFFFFF)), // Normal value
+                                  style: const TextStyle(color: Color(0xFFFFFFFF)),
                                 ),
                               ],
                             ),
@@ -227,21 +229,21 @@ class _CartScreenState extends State<CartScreen> {
                                 const Text(
                                   'Points: ',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.bold, // Bold key
+                                    fontWeight: FontWeight.bold,
                                     color: Color(0xFFFFFFFF),
                                   ),
                                 ),
                                 Text(
                                   '${item['points']}',
-                                  style: const TextStyle(color: Color(0xFFFFFFFF)), // Points value
+                                  style: const TextStyle(color: Color(0xFFFFFFFF)),
                                 ),
                               ],
                             ),
                           ],
                         ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red), // Delete icon
-                          onPressed: () => _deleteItem(item.id, item['name']), // Delete the item
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _deleteItem(item.id, item['name']),
                         ),
                       ),
                     );
@@ -250,7 +252,6 @@ class _CartScreenState extends State<CartScreen> {
               },
             ),
           ),
-          // Display Total Amount and Total Points
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -274,24 +275,23 @@ class _CartScreenState extends State<CartScreen> {
               ],
             ),
           ),
-          // Checkout Button
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: SafeArea( // Using SafeArea to prevent overflow
+            child: SafeArea(
               child: ElevatedButton.icon(
-                onPressed: _checkout, // Checkout action
+                onPressed: _checkout,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFA5060D), // Red color
+                  backgroundColor: const Color(0xFFA5060D),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20), // Button border radius
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 15), // Full width button
-                  minimumSize: const Size(double.infinity, 50), // Full width button
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  minimumSize: const Size(double.infinity, 50),
                 ),
-                icon: const Icon(Icons.shopping_cart), // Optional icon
+                icon: const Icon(Icons.shopping_cart),
                 label: const Text(
                   'Checkout',
-                  style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 18), // Button text color
+                  style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 18),
                 ),
               ),
             ),

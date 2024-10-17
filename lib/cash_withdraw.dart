@@ -20,7 +20,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
       backgroundColor: const Color.fromARGB(255, 30, 30, 30),
       resizeToAvoidBottomInset: true, // Allow screen to resize when keyboard appears
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 40),
         child: Column(
           children: [
             // Top section with app name and QR code icon
@@ -80,7 +80,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                     ),
                     const SizedBox(height: 50), // Adjusted for better spacing
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         _buildSmallButton(
                           icon: Icons.send,
@@ -89,6 +89,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                             print('Sending cash...');
                           },
                         ),
+                        SizedBox(width: 5),
                         _buildSmallButton(
                           icon: Icons.branding_watermark_sharp,
                           label: "Withdraw",
@@ -96,6 +97,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                             print('Cash Withdraw...');
                           },
                         ),
+                        SizedBox(width: 5),
                         _buildSmallButton(
                           icon: Icons.contact_page,
                           label: "View History",
@@ -298,7 +300,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white, // Button background color
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),

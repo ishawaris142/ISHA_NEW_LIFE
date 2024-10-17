@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore for fetching data
-import 'package:intl/intl.dart'; // Import for date formatting
-import 'history_data.dart'; // Import the showPurchaseDetails function
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'history_data.dart';
 
 class Historyscreen extends StatefulWidget {
   const Historyscreen({super.key});
@@ -18,26 +18,21 @@ class _HistoryscreenState extends State<Historyscreen> {
   @override
   void initState() {
     super.initState();
-    fetchUserData(); // Call fetchUserData when the screen is initialized
+    fetchUserData();
   }
 
-  // Function to fetch user data from Firestore
   Future<void> fetchUserData() async {
     try {
-      // Get the currently logged-in user
       User? user = FirebaseAuth.instance.currentUser;
-
       if (user != null) {
-        // Fetch the user's document from Firestore
         DocumentSnapshot doc = await FirebaseFirestore.instance
             .collection('users')
-            .doc(user.uid) // Use UID to identify the user's document
+            .doc(user.uid)
             .get();
 
-        // Check if the document exists and contains data
         if (doc.exists) {
           setState(() {
-            userData = doc.data() as Map<String, dynamic>?; // Store the data in the state
+            userData = doc.data() as Map<String, dynamic>?;
           });
         }
       }
@@ -46,16 +41,14 @@ class _HistoryscreenState extends State<Historyscreen> {
     }
   }
 
-  // Function to format the Firestore timestamp to only display the date
   String formatDate(Timestamp? timestamp) {
     if (timestamp == null) {
-      return 'No Date Available'; // Handle missing timestamp
+      return 'No Date Available';
     }
-    DateTime date = timestamp.toDate(); // Convert Firestore Timestamp to DateTime
-    return DateFormat('yyyy-MM-dd').format(date); // Format the date in 'YYYY-MM-DD' format
+    DateTime date = timestamp.toDate();
+    return DateFormat('yyyy-MM-dd').format(date);
   }
 
-  // Function to delete a specific history item by its document ID
   Future<void> _deleteHistoryItem(String docId) async {
     try {
       await historyCollection.doc(docId).delete();
@@ -71,16 +64,22 @@ class _HistoryscreenState extends State<Historyscreen> {
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return const Center(
+        child: Text('You need to be logged in to view purchase history.'),
+      );
+    }
+
     return Scaffold(
-      backgroundColor: Colors.black, // Set background color to solid black
+      backgroundColor: Colors.black,
       body: Column(
         children: [
-          // Top Section with Icons only
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16), // Adjust padding for icons
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             decoration: const BoxDecoration(
-              color: Colors.black, // Solid black background
+              color: Colors.black,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -88,32 +87,28 @@ class _HistoryscreenState extends State<Historyscreen> {
                 IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
                   onPressed: () {
-                    Navigator.pop(context); // Go back to the previous screen
+                    Navigator.pop(context);
                   },
                 ),
-                const Icon(Icons.commit, size: 30, color: Colors.white), // Optional icon
+                const Icon(Icons.commit, size: 30, color: Colors.white),
               ],
             ),
           ),
-
-          // Display user's name from Firestore
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16), // Adjust padding for the title
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                userData?['full_name'] ?? "Name not available", // Show the user's full name or fallback text
+                userData?['full_name'] ?? "Name not available",
                 style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
           ),
-
-          // List of Purchases
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15), // Add padding around the list
+              padding: const EdgeInsets.symmetric(horizontal: 15),
               child: StreamBuilder<QuerySnapshot>(
-                stream: historyCollection.snapshots(), // Fetch data from history collection
+                stream: historyCollection.where('userId', isEqualTo: user.uid).snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(
@@ -139,26 +134,25 @@ class _HistoryscreenState extends State<Historyscreen> {
                     itemCount: historyItems.length,
                     itemBuilder: (context, index) {
                       var historyItem = historyItems[index];
-                      Timestamp? timestamp = historyItem['timestamp'] as Timestamp?; // Safely get timestamp field
+                      Timestamp? timestamp = historyItem['timestamp'] as Timestamp?;
                       double totalAmount = historyItem['totalAmount'];
                       int totalPoints = historyItem['totalPoints'];
-                      String docId = historyItem.id; // Get document ID for deletion
+                      String docId = historyItem.id;
                       Map<String, dynamic> purchaseData = historyItem.data() as Map<String, dynamic>;
 
                       return GestureDetector(
                         onTap: () {
-                          // Call the showPurchaseDetails function from historyData.dart
                           showPurchaseDetails(context, purchaseData);
                         },
                         child: Card(
                           margin: const EdgeInsets.only(bottom: 8.0),
-                          color: const Color.fromARGB(38, 255, 255, 255), // Background color of the list item
+                          color: const Color.fromARGB(38, 255, 255, 255),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10), // Border radius
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: ListTile(
                             title: Text(
-                              'Date of Purchase: ${formatDate(timestamp)}', // Format the timestamp to show only the date
+                              'Date of Purchase: ${formatDate(timestamp)}',
                               style: const TextStyle(color: Colors.white),
                             ),
                             subtitle: Column(
@@ -169,8 +163,8 @@ class _HistoryscreenState extends State<Historyscreen> {
                               ],
                             ),
                             trailing: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red), // Delete icon
-                              onPressed: () => _deleteHistoryItem(docId), // Delete the item
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteHistoryItem(docId),
                             ),
                           ),
                         ),

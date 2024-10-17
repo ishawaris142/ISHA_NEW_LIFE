@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 void showPurchaseDetails(BuildContext context, Map<String, dynamic> purchaseData) {
-  // Extract the list of items from the purchaseData
   List<dynamic> names = purchaseData['names'];
   List<dynamic> descriptions = purchaseData['descriptions'];
   List<dynamic> imageUrls = purchaseData['imageUrls'];
@@ -13,10 +12,10 @@ void showPurchaseDetails(BuildContext context, Map<String, dynamic> purchaseData
     context: context,
     builder: (context) {
       return AlertDialog(
-        backgroundColor: Colors.black, // Set background color to black
+        backgroundColor: Colors.black,
         title: const Text(
           "Purchase Details",
-          style: TextStyle(fontSize: 18, color: Colors.white), // Set title text to white
+          style: TextStyle(fontSize: 18, color: Colors.white),
         ),
         content: SizedBox(
           width: double.maxFinite,
@@ -25,7 +24,7 @@ void showPurchaseDetails(BuildContext context, Map<String, dynamic> purchaseData
             itemCount: names.length,
             itemBuilder: (context, index) {
               return Card(
-                color: const Color.fromARGB(38, 255, 255, 255), // Set card background color
+                color: const Color.fromARGB(38, 255, 255, 255),
                 child: ListTile(
                   leading: Image.network(
                     imageUrls[index],
@@ -35,15 +34,15 @@ void showPurchaseDetails(BuildContext context, Map<String, dynamic> purchaseData
                   ),
                   title: Text(
                     names[index],
-                    style: const TextStyle(color: Colors.white), // Set item name text to white
+                    style: const TextStyle(color: Colors.white),
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(descriptions[index], style: const TextStyle(color: Colors.white)), // Set description text to white
-                      Text('Price: \$${prices[index]}', style: const TextStyle(color: Colors.white)), // Set price text to white
-                      Text('Points: ${points[index]}', style: const TextStyle(color: Colors.white)), // Set points text to white
-                      Text('Quantity: ${quantities[index]}', style: const TextStyle(color: Colors.white)), // Set quantity text to white
+                      Text(descriptions[index], style: const TextStyle(color: Colors.white)),
+                      Text('Price: \$${prices[index]}', style: const TextStyle(color: Colors.white)),
+                      Text('Points: ${points[index]}', style: const TextStyle(color: Colors.white)),
+                      Text('Quantity: ${quantities[index]}', style: const TextStyle(color: Colors.white)),
                     ],
                   ),
                 ),
@@ -55,11 +54,11 @@ void showPurchaseDetails(BuildContext context, Map<String, dynamic> purchaseData
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             style: TextButton.styleFrom(
-              backgroundColor: Colors.red, // Set button background color to red
+              backgroundColor: Colors.red,
             ),
             child: const Text(
               "Close",
-              style: TextStyle(color: Colors.white), // Set text color to white
+              style: TextStyle(color: Colors.white),
             ),
           ),
         ],
