@@ -117,7 +117,6 @@ class _DashboardscreenState extends State<Dashboardscreen> {
       //   },
       //   children: pages,
       // ),
-      backgroundColor: Colors.amber,
     );
   }
 }

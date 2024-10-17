@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'account.dart';
+
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
@@ -159,13 +161,28 @@ class _CartScreenState extends State<CartScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF1E1C1B),
-      appBar: AppBar(
-        title: const Text('Cart'),
-        backgroundColor: const Color(0xFF1E1C1B),
-        elevation: 0,
-      ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 40),
+            child: Row(
+
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
+                  onPressed: () {
+                    Navigator.pop(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Accountscreen()),
+                    );
+                  },
+                ),
+                SizedBox(width: 50),
+                Text('Cart',style: TextStyle(color: Colors.white,fontSize: 30),),
+
+              ],
+            ),
+          ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').snapshots(),

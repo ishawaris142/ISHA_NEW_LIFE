@@ -77,7 +77,7 @@ class _HistoryscreenState extends State<Historyscreen> {
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
             decoration: const BoxDecoration(
               color: Colors.black,
             ),
