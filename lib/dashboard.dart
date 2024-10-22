@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:red_coprative/account.dart';
 import 'package:red_coprative/feeds.dart';
@@ -28,20 +26,17 @@ class _DashboardscreenState extends State<Dashboardscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Bottom Navigation Bar
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (value) {
           setState(() {
             currentIndex = value;
           });
-                      // pageController.jumpToPage(currentIndex);
-
         },
-        selectedItemColor: Colors.red,  // Color when selected
-        unselectedItemColor: Colors.white,  // Color when not selected
-        backgroundColor: Colors.black, // Background color of bottom bar
-        type: BottomNavigationBarType.fixed, // Ensures all labels are shown
+        selectedItemColor: Colors.red,
+        unselectedItemColor: Colors.white,
+        backgroundColor: Colors.black,
+        type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
             icon: Container(
@@ -51,10 +46,10 @@ class _DashboardscreenState extends State<Dashboardscreen> {
               ),
               padding: EdgeInsets.all(8),
               child: Image.asset(
-                "assets/Home.png", // Replace with your Home icon
-                width: 28,  // Ensure the size fits the container
-                height: 28, // Adjust the size to fit within the circle
-                fit: BoxFit.contain, // Ensures the icon fits well
+                "assets/Home.png",
+                width: 28,
+                height: 28,
+                fit: BoxFit.contain,
               ),
             ),
             label: "Home",
@@ -66,7 +61,13 @@ class _DashboardscreenState extends State<Dashboardscreen> {
                 color: currentIndex == 1 ? Colors.red : Colors.transparent,
               ),
               padding: EdgeInsets.all(8),
-              child: Text("F",style: TextStyle(fontSize: 20,color: Colors.white,fontWeight: FontWeight.bold),)
+              child: Text(
+                "F",
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
             label: "Feeds",
           ),
@@ -78,7 +79,7 @@ class _DashboardscreenState extends State<Dashboardscreen> {
               ),
               padding: EdgeInsets.all(8),
               child: Image.asset(
-                "assets/Group 2.png",  // Replace with your Account icon
+                "assets/Group 2.png",
                 width: 28,
                 height: 28,
                 fit: BoxFit.contain,
@@ -94,7 +95,7 @@ class _DashboardscreenState extends State<Dashboardscreen> {
               ),
               padding: EdgeInsets.all(8),
               child: Image.asset(
-                "assets/TbListDetails.png",  // Replace with your Profile icon
+                "assets/TbListDetails.png",
                 width: 28,
                 height: 28,
                 fit: BoxFit.contain,
@@ -104,19 +105,7 @@ class _DashboardscreenState extends State<Dashboardscreen> {
           ),
         ],
       ),
-
-      // Body of the page to show the pages in PageView
-      body:
-         pages[currentIndex],
-      //  PageView(
-      //   controller: pageController,
-      //   onPageChanged: (value) {
-      //     setState(() {
-      //       currentIndex = value;
-      //     });
-      //   },
-      //   children: pages,
-      // ),
+      body: pages[currentIndex],
     );
   }
 }

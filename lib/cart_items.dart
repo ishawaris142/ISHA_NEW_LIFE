@@ -65,11 +65,49 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+  // Function to show a confirmation popup if the item is out of stock
+  Future<bool?> _showOutOfStockPopup(BuildContext context, String itemName) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Item Out of Stock'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('The item "$itemName" is out of stock.'),
+              const SizedBox(height: 16),
+              const Text('Do you want to keep the item in the cart?'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true); // Keep the item in the cart
+              },
+              child: const Text('Yes'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false); // Remove the item from the cart
+              },
+              child: const Text('No'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _checkout() async {
     String? userId = getUserID();
     if (userId != null) {
-      // Fetch the user's cart items
-      final cartItems = await FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').get();
+      final cartItems = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('cart')
+          .get();
+
       if (cartItems.docs.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No items in the cart to checkout')),
@@ -83,17 +121,64 @@ class _CartScreenState extends State<CartScreen> {
       List<double> prices = [];
       List<int> quantities = [];
       List<int> points = [];
+      List<String> outOfStockItems = []; // List to keep track of out-of-stock items
+
+      WriteBatch batch = FirebaseFirestore.instance.batch();
 
       for (var doc in cartItems.docs) {
-        var data = doc.data() as Map<String, dynamic>; // Cast data to Map<String, dynamic>
+        var data = doc.data() as Map<String, dynamic>;
+        String productId = doc['productId'];
+
         imageUrls.add(data['imageUrl'] ?? '');
         names.add(data['name'] ?? '');
         descriptions.add(data['description'] ?? '');
         prices.add((data['price'] ?? 0.0).toDouble());
         quantities.add(data['quantity'] ?? 1);
-        num pointsValue = data['points'];
-        points.add((pointsValue).toInt());
+        points.add(data['points'] ?? 0);
+
+        // Check stock for each product in `cart_data`
+        DocumentReference productRef =
+        FirebaseFirestore.instance.collection('cart_data').doc(productId);
+        DocumentSnapshot productSnapshot = await productRef.get();
+
+        if (!productSnapshot.exists) {
+          outOfStockItems.add(data['name']); // Add to out-of-stock list
+          continue;
+        }
+
+        int currentStock = productSnapshot['quantity'];
+        int quantityToBuy = data['quantity'];
+
+        if (currentStock < quantityToBuy) {
+          // Show popup if out of stock and take action based on the user's choice
+          bool? keepItem = await _showOutOfStockPopup(context, data['name']);
+          if (keepItem == false) {
+            await _deleteItem(doc.id, data['name']); // Remove from cart
+          }
+          outOfStockItems.add(data['name']); // Add to out-of-stock list
+          continue; // Skip this item if there's not enough stock
+        }
+
+        int newStock = currentStock - quantityToBuy;
+
+        if (newStock == 0) {
+          // If all stock is bought, remove the product from `cart_data`
+          batch.delete(productRef);
+        } else {
+          // Otherwise, update the stock in `cart_data`
+          batch.update(productRef, {'quantity': newStock});
+        }
+
+        // Remove the product from the user's cart after checkout
+        batch.delete(FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('cart')
+            .doc(doc.id));
       }
+
+      // Commit the batch write to update stock and clear cart
+      await batch.commit();
 
       // Add the cart items to the history collection
       await historyCollection.add({
@@ -109,46 +194,42 @@ class _CartScreenState extends State<CartScreen> {
         'userId': userId
       });
 
-      // Clear the user's cart after checkout
-      WriteBatch batch = FirebaseFirestore.instance.batch();
-      for (var doc in cartItems.docs) {
-        batch.delete(FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').doc(doc.id));
-      }
-      await batch.commit();
-
-      // Store totalPoints in the user's document
+      // Update total points for the user
       final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
-
-      // Retrieve the current total points stored in the user's document
       DocumentSnapshot userSnapshot = await userDoc.get();
       if (userSnapshot.exists) {
-        var userData = userSnapshot.data() as Map<String, dynamic>?; // Explicitly cast the snapshot data
-        int currentPoints = userData?['totalPoints'] ?? 0;
-
-        // Update the user's total points by adding the new points
+        var userData = userSnapshot.data() as Map<String, dynamic>;
+        int currentPoints = userData['totalPoints'] ?? 0;
         await userDoc.update({
           'totalPoints': currentPoints + _totalPoints,
         });
       } else {
-        // If the user document doesn't exist, create it and store the points
         await userDoc.set({
           'totalPoints': _totalPoints,
         });
       }
 
-      // Reset the total amount and points in the UI
+      // Reset totalAmount and totalPoints in the UI
       setState(() {
         _totalAmount = 0.0;
         _totalPoints = 0;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Checkout successful. Items moved to history and points updated')),
-      );
+      if (outOfStockItems.isNotEmpty) {
+        // Notify user about out-of-stock items
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Out of stock: ${outOfStockItems.join(', ')}'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Checkout successful. Items moved to history and points updated')),
+        );
+      }
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +247,6 @@ class _CartScreenState extends State<CartScreen> {
           Padding(
             padding: const EdgeInsets.only(top: 40),
             child: Row(
-
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
@@ -177,15 +257,21 @@ class _CartScreenState extends State<CartScreen> {
                     );
                   },
                 ),
-                SizedBox(width: 50),
-                Text('Cart',style: TextStyle(color: Colors.white,fontSize: 30),),
-
+                const SizedBox(width: 50),
+                const Text(
+                  'Cart',
+                  style: TextStyle(color: Colors.white, fontSize: 30),
+                ),
               ],
             ),
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(userId)
+                  .collection('cart')
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(child: Text("Error: ${snapshot.error}"));
@@ -310,10 +396,9 @@ class _CartScreenState extends State<CartScreen> {
                 Text(
                   'Total Points: $_totalPoints',
                   style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18),
                 ),
               ],
             ),

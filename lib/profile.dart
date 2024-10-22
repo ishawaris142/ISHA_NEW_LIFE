@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:red_coprative/account.dart';
 import 'package:red_coprative/login.dart';
 
+import 'edit_profile_screen.dart';
+
 class Profilescreen extends StatefulWidget {
   const Profilescreen({super.key});
 
@@ -108,7 +110,17 @@ class _ProfilescreenState extends State<Profilescreen> {
                 ],
               ),
 
-              trailing: Image.asset("assets/BiSolidEditAlt.png"),
+              trailing: IconButton(
+                icon: Image.asset("assets/BiSolidEditAlt.png"),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditProfileScreen(userData: userData!), // Pass user data to EditProfileScreen
+                    ),
+                  );
+                },
+              ),
             )
                 :const CircularProgressIndicator(), // Show a loading spinner while data is being fetched
             const SizedBox(height: 40),

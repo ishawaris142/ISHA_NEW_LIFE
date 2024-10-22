@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'add_to_cart.dart';
+import 'dashboard.dart';
 import 'viewproducts.dart';
 import 'logoscreen.dart';
+import 'cart_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()), // Initialize CartProvider here
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,15 +30,16 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 61, 25, 124)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 61, 25, 124)),
         useMaterial3: true,
       ),
-      // Use the home property instead of the initial route
-      home: Logoscreen(),
+      home: const Logoscreen(), // You can keep the logo screen here
       routes: {
-        '/viewproducts': (context) => ViewproductScreen(),
-        '/cart': (context) => AddToCart(),
+        '/dashboard': (context) => const Dashboardscreen(), // Navigate to Dashboard first
+        '/viewproducts': (context) => const ViewproductScreen(),
+        '/cart': (context) => const AddToCart(),
       },
     );
   }
 }
+

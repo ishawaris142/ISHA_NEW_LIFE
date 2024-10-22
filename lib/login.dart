@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
-import 'package:red_coprative/signup_screen.dart'; // Import the signup screen
-import 'package:red_coprative/dashboard.dart'; // Import your dashboard
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:red_coprative/signup_screen.dart';
+import 'package:red_coprative/dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,17 +13,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool rememberMe = false;
 
-  // Controllers to retrieve input values
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // Firebase Auth instance
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Password visibility toggle
   bool _obscureText = true;
 
-  // Method to handle login
   Future<void> _login() async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
@@ -31,13 +27,11 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text.trim(),
       );
 
-      // Access user info if needed
       User? user = userCredential.user;
       if (user != null) {
         print('Logged in as: ${user.email}');
       }
 
-      // Navigate to the dashboard on successful login
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -45,7 +39,6 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } on FirebaseAuthException catch (e) {
-      // Show error message if login fails
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message ?? 'An error occurred'),
@@ -53,6 +46,93 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     }
+  }
+
+  // Function to show the reset password popup
+  Future<void> _showResetPasswordPopup(BuildContext context) async {
+    final TextEditingController _newPasswordController = TextEditingController();
+    final TextEditingController _confirmPasswordController = TextEditingController();
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Reset Password'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _newPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'New Password',
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _confirmPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm Password',
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Save'),
+              onPressed: () async {
+                String newPassword = _newPasswordController.text.trim();
+                String confirmPassword = _confirmPasswordController.text.trim();
+
+                if (newPassword.isNotEmpty && confirmPassword.isNotEmpty && newPassword == confirmPassword) {
+                  try {
+                    User? user = _auth.currentUser;
+                    if (user != null) {
+                      await user.updatePassword(newPassword);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Password updated successfully"),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("No authenticated user found"),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Passwords do not match"),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -100,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Password Field with eye button
               TextField(
                 controller: _passwordController,
-                obscureText: _obscureText, // Use the obscureText variable
+                obscureText: _obscureText,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.grey[800],
@@ -111,7 +191,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  // Eye icon button for showing/hiding password
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureText ? Icons.visibility : Icons.visibility_off,
@@ -119,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     onPressed: () {
                       setState(() {
-                        _obscureText = !_obscureText; // Toggle visibility
+                        _obscureText = !_obscureText;
                       });
                     },
                   ),
@@ -150,7 +229,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      // Forgot Password logic
+                      // Trigger the reset password popup
+                      _showResetPasswordPopup(context);
                     },
                     child: const Text(
                       "Forgot Password?",
