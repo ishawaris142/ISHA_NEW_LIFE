@@ -2,9 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:red_coprative/viewproducts.dart';
-import 'feeds.dart';  // Assuming you have this screen
-import 'cart_items.dart';  // Assuming you have this screen
-import 'cash_withdraw.dart';  // Assuming you have this screen
+import 'covert_points.dart';
+import 'feeds.dart';
+import 'cart_items.dart';
+import 'cash_withdraw.dart';
 import 'history.dart';
 import 'models/accountgridmodelclass.dart';  // Assuming you have this screen
 
@@ -91,10 +92,14 @@ class _AccountscreenState extends State<Accountscreen> {
               ),
             ),
 
-            // Profile info card
+            // Profile info card with reduced width and centered
             Container(
-              width: double.infinity,
-              color: Colors.white, // Background color of the profile section
+              alignment: Alignment.center,
+              width: MediaQuery.of(context).size.width * 0.9, // Adjusted width to 90% of screen
+              decoration: BoxDecoration(
+                color: Colors.white, // Background color of the profile section
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(12),topRight: Radius.circular(12)), // Rounded corners
+              ),
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,20 +184,21 @@ class _AccountscreenState extends State<Accountscreen> {
               ),
             ),
 
-            // Cash Withdraw and History buttons
+            // Cash Withdraw and History buttons, styled similarly to profile ca
             Container(
+              alignment: Alignment.center,
+              width: MediaQuery.of(context).size.width * 0.9, // Adjusted width to 90% of screen
               decoration: BoxDecoration(
                 color: Colors.red.shade900,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(12),bottomRight: Radius.circular(12)),
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade900,
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(10),
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(12),
                         ),
                       ),
                       child: TextButton(
@@ -225,10 +231,9 @@ class _AccountscreenState extends State<Accountscreen> {
                   ),
                   Expanded(
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade900,
-                        borderRadius: const BorderRadius.only(
-                          bottomRight: Radius.circular(10),
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          bottomRight: Radius.circular(12),
                         ),
                       ),
                       child: TextButton(
@@ -264,7 +269,7 @@ class _AccountscreenState extends State<Accountscreen> {
               style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 255, 255, 255)),
             ),
 
-            // GridView with Expanded
+            // GridView with reduced spacing and smaller images
             Expanded(
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -272,50 +277,51 @@ class _AccountscreenState extends State<Accountscreen> {
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 1,
+                    crossAxisSpacing: 5,  // Reduced spacing between grid items
+                    mainAxisSpacing: 5,  // Reduced spacing between rows
+                    childAspectRatio: 1, // Adjust the aspect ratio for smaller grids
                   ),
                   itemCount: accountgridmodelclasslist.length,
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () {
-                        if (accountgridmodelclasslist[index].text ==
-                            "View Products") {
+                        if (accountgridmodelclasslist[index].text == "View Products") {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                              const ViewproductScreen(),
+                              builder: (context) => const ViewproductScreen(),
                             ),
                           );
-                        } else if (accountgridmodelclasslist[index]
-                            .text ==
-                            "Popular Products") {
+                        } else if (accountgridmodelclasslist[index].text == "Cart") {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => CartScreen(),
                             ),
                           );
+                        } else if (accountgridmodelclasslist[index].text == "Convert Points") {
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => ConvertPointsScreen(),),);
                         }
                       },
                       child: Container(
-                        padding:
-                        const EdgeInsets.symmetric(vertical: 25),
-                        margin: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 8), // Reduced padding
+                        margin: const EdgeInsets.symmetric(vertical: 8), // Reduced margin
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(38, 255, 255, 255),
-                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.transparent, // Removed background color
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
                           children: [
                             Image.asset(
                               "${accountgridmodelclasslist[index].image}",
+                              height: 40, // Smaller icon size
                             ),
+                            const SizedBox(height: 8),
                             Text(
                               "${accountgridmodelclasslist[index].text}",
                               style: const TextStyle(
-                                  fontSize: 15, color: Colors.white),
+                                  fontSize: 14, color: Colors.white),
                             ),
                           ],
                         ),

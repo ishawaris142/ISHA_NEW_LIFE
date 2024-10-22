@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'cart_provider.dart';
 import 'login.dart';
 
@@ -43,7 +44,6 @@ class _ViewproductScreenState extends State<ViewproductScreen> {
     String? userId = getUserID();
     if (userId != null) {
       try {
-        // Add the product details to the user's specific cart in Firestore
         await FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').add({
           'productId': productId,
           'name': name,
@@ -69,6 +69,64 @@ class _ViewproductScreenState extends State<ViewproductScreen> {
         );
       }
     }
+  }
+
+  // Function to make a phone call
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    await launchUrl(launchUri);
+  }
+
+  // Function to show the contact options in a modal bottom sheet
+  void _showCallInfo(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color.fromARGB(255, 30, 30, 30),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Call Support',
+                style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              const ListTile(
+                leading: Icon(Icons.phone, color: Colors.green),
+                title: Text('Support: +1234567890', style: TextStyle(color: Colors.white)),
+                subtitle: Text('Available 24/7', style: TextStyle(color: Colors.white70)),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  _makePhoneCall('+1234567890'); // Replace with your support number
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
+                child: const Text('Call Now', style: TextStyle(color: Colors.white)),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context), // Close the bottom sheet
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                ),
+                child: const Text('Close', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -144,6 +202,14 @@ class _ViewproductScreenState extends State<ViewproductScreen> {
             ),
           ],
         ),
+      ),
+      // Floating action button to open the call info
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showCallInfo(context);
+        },
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.phone),
       ),
     );
   }
