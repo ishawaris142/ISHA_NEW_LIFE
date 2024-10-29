@@ -1,9 +1,5 @@
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:red_coprative/cash_withdraw.dart';
-import 'package:red_coprative/history.dart';
+import 'package:red_coprative/models/homescreengrid.dart';
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
@@ -13,298 +9,317 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
-  // PageController to keep track of the current page
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
-
-  // Variable to hold user data
-  Map<String, dynamic>? userData;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchUserData(); // Fetch user data when the screen initializes
-  }
-
-  // Function to fetch user data from Firestore
-  Future<void> fetchUserData() async {
-    try {
-      // Get the currently logged-in user
-      User? user = FirebaseAuth.instance.currentUser;
-
-      if (user != null) {
-        // Fetch the user's document from Firestore
-        DocumentSnapshot doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid) // Use the UID to get the document
-            .get();
-
-        // Check if the document exists and contains data
-        if (doc.exists) {
-          setState(() {
-            userData = doc.data() as Map<String, dynamic>?; // Store the data in the state
-          });
-        }
-      }
-    } catch (e) {
-      print("Error fetching user data: $e");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    var searchbar = TextEditingController();
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: userData == null
-          ? const Center(child: CircularProgressIndicator()) // Show loading if userData is null
-          : SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 6),
-          margin: EdgeInsets.only(top: 25),
-          child: Column(
-            children: [
-              // Top section with app name and QR code icon
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "ISH NEW LIFE",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Icon(
-                      Icons.qr_code_scanner_sharp,
-                      size: 28,
-                      color: Colors.white,
-                    ),
-                  ],
+      body: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        child: Stack(
+          children: [
+            Container(
+              height: height,
+              width: width,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/backk.png"),
+                  fit: BoxFit.cover,
                 ),
               ),
-
-              // Profile info card
-              Container(
-                width: double.infinity,
-                color: Colors.white, // Background color of the profile section
-                padding: const EdgeInsets.all(16.0),
+            ),
+            Container(
+              height: height * 0.321,
+              width: width,
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 172, 31, 37),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
+                ),
+                border: Border(
+                  bottom: BorderSide(
+                    color: const Color.fromARGB(255, 8, 8, 8),
+                    width: 1,
+                  )
+                )
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Profile info row
+                    // Top Row with Logo, Search, and Icon
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
+                        // Logo on the left
+                        Image.asset("assets/smalllogo.png", height: 60),
+                        // Center search bar
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Dynamically display user's name
-                              Text(
-                                userData?['full_name'] ?? "Name not available",
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 12, 12, 12),
-                                ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 30),
+                            child: Container(
+                              
+                              height: 40,
+                              margin: const EdgeInsets.only(left: 15, right: 10),
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 32, 32, 32),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: const Color.fromARGB(255, 97, 92, 86))
                               ),
-                              Row(
+                              child: Row(
                                 children: [
-                                  const Icon(
-                                    Icons.location_on_outlined,
-                                    color: Color.fromARGB(255, 165, 6, 13),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  // Dynamically display user's location
-                                  Text(
-                                    userData?['address'] ?? "Lahore",
-                                    style: const TextStyle(
-                                      color: Color.fromARGB(255, 12, 12, 12),
-                                      fontSize: 16,
+                                  // Text Field for Search
+                                  Expanded(
+                                    child: Container(
+                                      child: TextField(
+                                        controller: searchbar,
+                                        style: const TextStyle(color: Colors.white),
+                                        decoration: InputDecoration(
+                                          hintText: "Search",fillColor: Colors.white,
+                                          hintStyle: const TextStyle(color: Color.fromARGB(128, 255, 255, 255)),
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
                                     ),
                                   ),
+                                  // Search Icon
+                                  IconButton(
+                                    onPressed: () {
+                                      print("Search");
+                                    },
+                                    icon: const Icon(Icons.search, color: Colors.white),
+                                  ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              // Dynamically display user's account type
-                              Text(
-                                userData?['account_type'] ?? "Account type not available",
-                                style: const TextStyle(
-                                  color: Color.fromARGB(255, 12, 12, 12),
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 27),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Dynamically display user's points, defaulting to 0 if not available
-                              Text(
-                                "${userData?['totalPoints'] ?? 0}",
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
+                        // Menu Icon on the right side
+                        Image.asset("assets/homeicon.png"),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    // Divider above greeting and buttons
+                    const Divider(color: Colors.black),
+                    const SizedBox(height: 10),
+            
+                    // Greeting Row with Withdraw and History Buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // Greeting Text
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Hello, Talha Zahid",
+                              style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255), fontSize: 16, fontWeight: FontWeight.w500),
+                            ),
+                            Row(
+                              children: [
+                                Image(image: AssetImage("assets/mechanic.png")),
+                                SizedBox(width: 5),
+                                Text(
+                                  "Mechanics Account",
+                                  style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255), fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 15), // Adjusted spacing
+                        // Withdraw Button
+                        SizedBox(
+                          height: 40, // Smaller height for the button
+                          child: ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: Image.asset("assets/coins.png"),
+                            label: const Text("Withdraw", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(255, 32, 32, 32),
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6), 
+                       
+                        SizedBox(
+                          height: 40, 
+                          child: ElevatedButton(
+                            onPressed: () {},
+                            child: const Text("History", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(255, 32, 32, 32),
+                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        ),
+                       // const SizedBox(width: 1), 
+                        // Image Icon
+                        IconButton(
+                          onPressed: () {},
+                          icon: Image(image: AssetImage("assets/again.png")),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                   
+                    const Divider(color: Colors.black),
+                    const SizedBox(height: 10),
+            
+                   
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              "My Points",
+                              style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 8),
+                            ),
+                            Text(
+                              "490.00",
+                              style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 24, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              height: 40,
+                              child: ElevatedButton.icon(
+                                onPressed: () {},
+                                icon: Image.asset("assets/coins.png"),
+                                label: const Text("Convert Points", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.fromARGB(255, 32, 32, 32),
+                                  minimumSize: const Size(90, 30),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                                 ),
                               ),
-                              const Row(
-                                children: [
-                                  Icon(
-                                    Icons.blur_circular_rounded,
-                                    size: 16,
-                                    color: Color.fromARGB(255, 165, 6, 13),
-                                  ),
-                                  SizedBox(width: 3),
-                                  Text(
-                                    "Points",
-                                    style: TextStyle(fontSize: 12),
-                                  ),
-                                ],
+                            ),
+                            const SizedBox(width: 5),
+                            SizedBox(
+                              height: 40,
+                              child: ElevatedButton(
+                                onPressed: () {},
+                                child: const Text("History", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.fromARGB(255, 32, 32, 32),
+                                  minimumSize: const Size(60, 30),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                                ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
+            ),
+          
+            Positioned(
+              top: height * 0.333, // Adjusted positioning to move items higher
+              left: 10,
+              right: 10,
+              child: Column(
 
-              // Cash Withdraw and History buttons
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.red.shade900,
-                  borderRadius: BorderRadius.circular(10), // Rounded outer corners
-                ),
-                child: Row(
-                  children: [
-                    // Cash Withdraw button
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade900, // Same red color
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(10),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Text(
+                    "Explore ISH",
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 255, 255, 255),
+                      fontSize: 12,
+                      //fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                 
+                  GridView.builder(
+                   
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 13,
+                      childAspectRatio: 1.2,
+                    ),
+                    itemCount: homescreenmodelclasslist.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: const Color.fromARGB(255, 97, 92, 86))
                           ),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CashWithdrawScreen()),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                          ),
-                          child: const Text(
-                            "Cash Withdraw",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Column(
+                                children: [
+                                  Image.asset("${homescreenmodelclasslist[index].image}",height: 55,),
+                                  SizedBox(height: 3),
+                                  Text(
+                                    "${homescreenmodelclasslist[index].text}",
+                                    style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255), fontSize: 10),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    // Vertical divider
-                    Container(
-                      height: 45, // Same height as the buttons
-                      width: 1,
-                      color: Colors.white, // Divider color
-                    ),
-                    // History button
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade900, // Same red color
-                          borderRadius: const BorderRadius.only(
-                            bottomRight: Radius.circular(10),
-                          ),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Historyscreen()),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                          ),
-                          child: const Text(
-                            "History",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                      );
+                    },
+                  ),
+               
+                ],
               ),
-
-              // PageView with Dots Indicator
-              const SizedBox(height: 16),
-              Container(
-                height: 400, // Set a fixed height for the page view
-                child: PageView(
-                  controller: _pageController,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentPage = index;
-                    });
-                  },
-                  children: [
-                    Image.asset(
-                      "assets/technology.jpg", // First image
-                      fit: BoxFit.cover,
+            ),
+           
+            Positioned(
+              top: height * 0.620,
+              left: 10,
+              right: 10,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Promotions",
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 255, 255, 255),
+                      fontSize: 12,
+                      //fontWeight: FontWeight.bold,
                     ),
-                    Image.asset(
-                      "assets/technology.jpg", // Second image
-                      fit: BoxFit.cover,
-                    ),
-                    Image.asset(
-                      "assets/technology.jpg", // Third image
-                      fit: BoxFit.cover,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Dot Indicators
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(3, (index) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: 10,
-                    height: 10,
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    height: 180,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _currentPage == index
-                          ? Colors.red // Active dot color
-                          : Colors.grey, // Inactive dot color
+                      image: DecorationImage(image: AssetImage("assets/homelist.png")),
                     ),
-                  );
-                }),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
-}
+} 

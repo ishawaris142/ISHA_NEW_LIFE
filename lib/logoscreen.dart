@@ -23,14 +23,15 @@ class _LogoscreenState extends State<Logoscreen> {
 
   @override
   Widget build(BuildContext context) {
+    var height= MediaQuery.of(context).size.height;
+    var width= MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 165, 6, 13), // Background color of the splash screen
-      body: Center(
-        child: Image.asset(
-          'assets/Logo.png', // Replace with your logo image path
-          height: 150, // Adjust the logo size
-        ),
-      ),
+      backgroundColor: const Color.fromARGB(255, 172, 31, 37),
+      body: Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/ish logo.png"),fit: BoxFit.cover)),
+      )
     );
   }
 }
