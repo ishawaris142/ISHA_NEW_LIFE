@@ -34,7 +34,7 @@ class _HomescreenState extends State<Homescreen> {
               ),
             ),
             Container(
-              height: height * 0.321,
+              height: height * 0.312,
               width: width,
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 172, 31, 37),
@@ -135,43 +135,31 @@ class _HomescreenState extends State<Homescreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(width: 19), // Adjusted spacing
+                        const SizedBox(width: 17), // Adjusted spacing
                         // Withdraw Button
                         CustomButton(
                           onTap: () {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => CashWithdrawScreen(),));
                           },
                          
-                          margin: EdgeInsets.symmetric(horizontal: 5),
-                          padding: EdgeInsets.symmetric(horizontal: 10,vertical: 8),
+                          margin: EdgeInsets.symmetric(horizontal: 3),
+                          padding: EdgeInsets.symmetric(horizontal: 6,vertical: 8),
                           
                           decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: Color.fromARGB(255, 32, 32, 32)),
                            child: Row(
                              children: [
-                              Image.asset("assets/coins.png",height: 25,),
+                              Image.asset("assets/coins.png",height: 22,),
                                Text("Withdraw",style:TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12),),
                              ],
                            ),
                         ),
-                        // SizedBox(
-                        //   height: 40, // Smaller height for the button
-                        //   child: ElevatedButton.icon(
-                        //     onPressed: () {},
-                        //     icon: Image.asset("assets/coins.png",height: 25,),
-                        //     label: const Text("Withdraw", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
-                        //     style: ElevatedButton.styleFrom(
-                        //       backgroundColor: const Color.fromARGB(255, 32, 32, 32),
-                        //       padding: const EdgeInsets.symmetric(horizontal: 6),
-                        //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        //     ),
-                        //   ),
-                        // ),
+                        
                        
                        CustomButton(
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => Historyscreen(),));
                         },
-                        margin: EdgeInsets.symmetric(horizontal: 5),
+                        margin: EdgeInsets.symmetric(horizontal: 2),
                         padding: EdgeInsets.symmetric(horizontal: 10,vertical: 11),
                         child: Text("History",style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12),),
                         
@@ -179,18 +167,7 @@ class _HomescreenState extends State<Homescreen> {
                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: Color.fromARGB(255, 32, 32, 32),),
                            
                        ),
-                        // SizedBox(
-                        //   height: 40, 
-                        //   child: ElevatedButton(
-                        //     onPressed: () {},
-                        //     child:  Text("History", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
-                        //     style: ElevatedButton.styleFrom(
-                        //       backgroundColor: const Color.fromARGB(255, 32, 32, 32),
-                        //       padding: const EdgeInsets.symmetric(horizontal: 4),
-                        //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        //     ),
-                        //   ),
-                        // ),
+                       
 
 
                         
@@ -223,33 +200,35 @@ class _HomescreenState extends State<Homescreen> {
                         ),
                         Row(
                           children: [
-                            SizedBox(
-                              height: 40,
-                              child: ElevatedButton.icon(
-                                onPressed: () {},
-                                icon: Image.asset("assets/coins.png",height: 25,),
-                                label: const Text("Convert Points", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromARGB(255, 32, 32, 32),
-                                  minimumSize: const Size(90, 30),
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            SizedBox(
-                              height: 40,
-                              child: ElevatedButton(
-                                onPressed: () {},
-                                child: const Text("History", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromARGB(255, 32, 32, 32),
-                                  minimumSize: const Size(60, 30),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                                ),
-                              ),
-                            ),
+                            CustomButton(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => CashWithdrawScreen(),));
+                          },
+                         
+                          margin: EdgeInsets.symmetric(horizontal: 3),
+                          padding: EdgeInsets.symmetric(horizontal: 6,vertical: 8),
+                          
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: Color.fromARGB(255, 32, 32, 32)),
+                           child: Row(
+                             children: [
+                              Image.asset("assets/coins.png",height: 22,),
+                               Text("Convert Points",style:TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12),),
+                             ],
+                           ),
+                        ),
+                            //const SizedBox(width: 5),
+                            CustomButton(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => Historyscreen(),));
+                        },
+                        margin: EdgeInsets.symmetric(horizontal: 2),
+                        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 11),
+                        child: Text("History",style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12),),
+                        
+                           
+                           decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: Color.fromARGB(255, 32, 32, 32),),
+                           
+                       ),
                           ],
                         ),
                       ],
@@ -260,7 +239,7 @@ class _HomescreenState extends State<Homescreen> {
             ),
           
             Positioned(
-              top: height * 0.333, // Adjusted positioning to move items higher
+              top: height * 0.325, // Adjusted positioning to move items higher
               left: 10,
               right: 10,
               child: Column(
@@ -286,12 +265,12 @@ class _HomescreenState extends State<Homescreen> {
                       crossAxisCount: 3,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 13,
-                      childAspectRatio: 1.2,
+                      childAspectRatio: 1.1,
                     ),
                     itemCount: homescreenmodelclasslist.length,
                     itemBuilder: (context, index) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
                         child: Container(
                           decoration: BoxDecoration(
                             color: const Color.fromARGB(255, 30, 28, 27),
@@ -300,7 +279,7 @@ class _HomescreenState extends State<Homescreen> {
                           ),
                           child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               child: Column(
                                 children: [
                                   Image.asset("${homescreenmodelclasslist[index].image}",height: 55,),

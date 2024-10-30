@@ -41,10 +41,12 @@ class _CartScreenState extends State<CartScreen> {
         totalPoints += (pointsValue * doc['quantity']).toInt();
       }
 
-      setState(() {
-        _totalAmount = totalAmount;
-        _totalPoints = totalPoints;
-      });
+      if (mounted) {
+        setState(() {
+          _totalAmount = totalAmount;
+          _totalPoints = totalPoints;
+        });
+      }
     }
   }
 
@@ -54,18 +56,21 @@ class _CartScreenState extends State<CartScreen> {
       try {
         await FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').doc(docId).delete();
         _calculateTotals();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$name has been removed from the cart')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$name has been removed from the cart')),
+          );
+        }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete item: $e')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to delete item: $e')),
+          );
+        }
       }
     }
   }
 
-  // Function to show a confirmation popup if the item is out of stock
   Future<bool?> _showOutOfStockPopup(BuildContext context, String itemName) async {
     return showDialog<bool>(
       context: context,
@@ -109,9 +114,11 @@ class _CartScreenState extends State<CartScreen> {
           .get();
 
       if (cartItems.docs.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No items in the cart to checkout')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No items in the cart to checkout')),
+          );
+        }
         return;
       }
 
@@ -121,7 +128,7 @@ class _CartScreenState extends State<CartScreen> {
       List<double> prices = [];
       List<int> quantities = [];
       List<int> points = [];
-      List<String> outOfStockItems = []; // List to keep track of out-of-stock items
+      List<String> outOfStockItems = [];
 
       WriteBatch batch = FirebaseFirestore.instance.batch();
 
@@ -136,13 +143,11 @@ class _CartScreenState extends State<CartScreen> {
         quantities.add(data['quantity'] ?? 1);
         points.add(data['points'] ?? 0);
 
-        // Check stock for each product in `cart_data`
-        DocumentReference productRef =
-        FirebaseFirestore.instance.collection('cart_data').doc(productId);
+        DocumentReference productRef = FirebaseFirestore.instance.collection('cart_data').doc(productId);
         DocumentSnapshot productSnapshot = await productRef.get();
 
         if (!productSnapshot.exists) {
-          outOfStockItems.add(data['name']); // Add to out-of-stock list
+          outOfStockItems.add(data['name']);
           continue;
         }
 
@@ -150,37 +155,27 @@ class _CartScreenState extends State<CartScreen> {
         int quantityToBuy = data['quantity'];
 
         if (currentStock < quantityToBuy) {
-          // Show popup if out of stock and take action based on the user's choice
           bool? keepItem = await _showOutOfStockPopup(context, data['name']);
           if (keepItem == false) {
-            await _deleteItem(doc.id, data['name']); // Remove from cart
+            await _deleteItem(doc.id, data['name']);
           }
-          outOfStockItems.add(data['name']); // Add to out-of-stock list
-          continue; // Skip this item if there's not enough stock
+          outOfStockItems.add(data['name']);
+          continue;
         }
 
         int newStock = currentStock - quantityToBuy;
 
         if (newStock == 0) {
-          // If all stock is bought, remove the product from `cart_data`
           batch.delete(productRef);
         } else {
-          // Otherwise, update the stock in `cart_data`
           batch.update(productRef, {'quantity': newStock});
         }
 
-        // Remove the product from the user's cart after checkout
-        batch.delete(FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .collection('cart')
-            .doc(doc.id));
+        batch.delete(FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').doc(doc.id));
       }
 
-      // Commit the batch write to update stock and clear cart
       await batch.commit();
 
-      // Add the cart items to the history collection
       await historyCollection.add({
         'imageUrls': imageUrls,
         'names': names,
@@ -194,7 +189,6 @@ class _CartScreenState extends State<CartScreen> {
         'userId': userId
       });
 
-      // Update total points for the user
       final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
       DocumentSnapshot userSnapshot = await userDoc.get();
       if (userSnapshot.exists) {
@@ -209,24 +203,28 @@ class _CartScreenState extends State<CartScreen> {
         });
       }
 
-      // Reset totalAmount and totalPoints in the UI
-      setState(() {
-        _totalAmount = 0.0;
-        _totalPoints = 0;
-      });
+      if (mounted) {
+        setState(() {
+          _totalAmount = 0.0;
+          _totalPoints = 0;
+        });
+      }
 
       if (outOfStockItems.isNotEmpty) {
-        // Notify user about out-of-stock items
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Out of stock: ${outOfStockItems.join(', ')}'),
-            duration: const Duration(seconds: 3),
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Out of stock: ${outOfStockItems.join(', ')}'),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Checkout successful. Items moved to history and points updated')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Checkout successful. Items moved to history and points updated')),
+          );
+        }
       }
     }
   }
