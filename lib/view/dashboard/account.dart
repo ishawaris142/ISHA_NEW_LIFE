@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:red_coprative/viewproducts.dart';
+import 'package:red_coprative/view/dashboard/support/viewproducts.dart';
 import 'feeds.dart';  // Assuming you have this screen
-import 'cart_items.dart';  // Assuming you have this screen
-import 'cash_withdraw.dart';  // Assuming you have this screen
-import 'history.dart';
-import 'models/accountgridmodelclass.dart';  // Assuming you have this screen
+import 'support/cart_items.dart';  // Assuming you have this screen
+import 'support/cash_withdraw.dart';  // Assuming you have this screen
+import 'support/history.dart';
+import '../../models/accountgridmodelclass.dart';  // Assuming you have this screen
 
 class Accountscreen extends StatefulWidget {
   const Accountscreen({super.key});

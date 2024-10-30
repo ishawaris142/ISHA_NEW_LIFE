@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:red_coprative/cash_withdraw.dart';
-import 'package:red_coprative/history.dart';
+import 'package:red_coprative/view/dashboard/support/cash_withdraw.dart';
+import 'package:red_coprative/view/dashboard/support/history.dart';
 
 class Feedsscreen extends StatefulWidget {
   const Feedsscreen({super.key});

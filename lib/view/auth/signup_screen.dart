@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
-import 'package:red_coprative/login.dart'; // Import the login screen
+import 'package:red_coprative/view/auth/login.dart'; // Import the login screen
 import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore (optional for saving other fields)
 
 class SignupScreen extends StatefulWidget {

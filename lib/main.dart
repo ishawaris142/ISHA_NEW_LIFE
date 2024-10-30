@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:red_coprative/homescreen.dart';
-import 'package:red_coprative/login.dart';
-import 'add_to_cart.dart';
-import 'dashboard.dart';
-import 'viewproducts.dart';
-import 'logoscreen.dart';
-import 'cart_provider.dart';
+import 'package:red_coprative/view/dashboard/homescreen.dart';
+import 'package:red_coprative/view/auth/login.dart';
+import 'view/dashboard/support/add_to_cart.dart';
+import 'view/dashboard/dashboard.dart';
+import 'view/dashboard/support/viewproducts.dart';
+import 'view/splash/logoscreen.dart';
+import 'data/cart_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:red_coprative/models/homescreengrid.dart';
+import 'package:red_coprative/utils/custom_button.dart';
+import 'package:red_coprative/view/dashboard/support/cash_withdraw.dart';
+import 'package:red_coprative/view/dashboard/support/history.dart';
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
@@ -76,15 +79,15 @@ class _HomescreenState extends State<Homescreen> {
                                   Expanded(
                                     child: Container(
                                       child: TextField(
-                                        controller: searchbar,
-                                        style: const TextStyle(color: Colors.white),
-                                        decoration: InputDecoration(
-                                          hintText: "Search",fillColor: Colors.white,
-                                          hintStyle: const TextStyle(color: Color.fromARGB(128, 255, 255, 255)),
-                                          contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                                          border: InputBorder.none,
-                                        ),
-                                      ),
+  controller: searchbar,
+  style: const TextStyle(color: Colors.white),
+  decoration: InputDecoration(
+    hintText: "Search",
+    hintStyle: const TextStyle(color: Color.fromARGB(128, 255, 255, 255)),
+    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+    border: InputBorder.none,
+  ),
+),
                                     ),
                                   ),
                                   // Search Icon
@@ -132,41 +135,68 @@ class _HomescreenState extends State<Homescreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(width: 15), // Adjusted spacing
+                        const SizedBox(width: 19), // Adjusted spacing
                         // Withdraw Button
-                        SizedBox(
-                          height: 40, // Smaller height for the button
-                          child: ElevatedButton.icon(
-                            onPressed: () {},
-                            icon: Image.asset("assets/coins.png"),
-                            label: const Text("Withdraw", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 32, 32, 32),
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            ),
-                          ),
+                        CustomButton(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => CashWithdrawScreen(),));
+                          },
+                         
+                          margin: EdgeInsets.symmetric(horizontal: 5),
+                          padding: EdgeInsets.symmetric(horizontal: 10,vertical: 8),
+                          
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: Color.fromARGB(255, 32, 32, 32)),
+                           child: Row(
+                             children: [
+                              Image.asset("assets/coins.png",height: 25,),
+                               Text("Withdraw",style:TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12),),
+                             ],
+                           ),
                         ),
-                        const SizedBox(width: 6), 
+                        // SizedBox(
+                        //   height: 40, // Smaller height for the button
+                        //   child: ElevatedButton.icon(
+                        //     onPressed: () {},
+                        //     icon: Image.asset("assets/coins.png",height: 25,),
+                        //     label: const Text("Withdraw", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
+                        //     style: ElevatedButton.styleFrom(
+                        //       backgroundColor: const Color.fromARGB(255, 32, 32, 32),
+                        //       padding: const EdgeInsets.symmetric(horizontal: 6),
+                        //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        //     ),
+                        //   ),
+                        // ),
                        
-                        SizedBox(
-                          height: 40, 
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            child: const Text("History", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 32, 32, 32),
-                              padding: const EdgeInsets.symmetric(horizontal: 5),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            ),
-                          ),
-                        ),
-                       // const SizedBox(width: 1), 
-                        // Image Icon
-                        IconButton(
-                          onPressed: () {},
-                          icon: Image(image: AssetImage("assets/again.png")),
-                        ),
+                       CustomButton(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => Historyscreen(),));
+                        },
+                        margin: EdgeInsets.symmetric(horizontal: 5),
+                        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 11),
+                        child: Text("History",style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12),),
+                        
+                           
+                           decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: Color.fromARGB(255, 32, 32, 32),),
+                           
+                       ),
+                        // SizedBox(
+                        //   height: 40, 
+                        //   child: ElevatedButton(
+                        //     onPressed: () {},
+                        //     child:  Text("History", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
+                        //     style: ElevatedButton.styleFrom(
+                        //       backgroundColor: const Color.fromARGB(255, 32, 32, 32),
+                        //       padding: const EdgeInsets.symmetric(horizontal: 4),
+                        //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        //     ),
+                        //   ),
+                        // ),
+
+
+                        
+                       const SizedBox(width: 5), 
+                       
+                       Image.asset("assets/again.png",height: 20,),
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -197,7 +227,7 @@ class _HomescreenState extends State<Homescreen> {
                               height: 40,
                               child: ElevatedButton.icon(
                                 onPressed: () {},
-                                icon: Image.asset("assets/coins.png"),
+                                icon: Image.asset("assets/coins.png",height: 25,),
                                 label: const Text("Convert Points", style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 12)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color.fromARGB(255, 32, 32, 32),
@@ -264,7 +294,7 @@ class _HomescreenState extends State<Homescreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.black,
+                            color: const Color.fromARGB(255, 30, 28, 27),
                             borderRadius: BorderRadius.circular(15),
                             border: Border.all(color: const Color.fromARGB(255, 97, 92, 86))
                           ),
@@ -293,7 +323,7 @@ class _HomescreenState extends State<Homescreen> {
             ),
            
             Positioned(
-              top: height * 0.620,
+              top: height * 0.630,
               left: 10,
               right: 10,
               child: Column(

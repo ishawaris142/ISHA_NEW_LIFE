@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:red_coprative/account.dart';
-import 'package:red_coprative/login.dart';
+import 'package:red_coprative/view/dashboard/account.dart';
+import 'package:red_coprative/view/auth/login.dart';
 
-import 'edit_profile_screen.dart';
+import '../profile/edit_profile_screen.dart';
 
 class Profilescreen extends StatefulWidget {
   const Profilescreen({super.key});

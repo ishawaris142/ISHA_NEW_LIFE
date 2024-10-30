@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'account.dart';
+import '../account.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
