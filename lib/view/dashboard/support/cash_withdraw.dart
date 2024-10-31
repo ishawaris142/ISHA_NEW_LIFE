@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,8 +15,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
   final TextEditingController _mobileNumberController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   String _selectedAccountType = 'JazzCash'; // Default selected option
-  double _walletBalance = 0.0; // Initialize the wallet balance
-  double _pointsInRupees = 0.0; // Variable to store points converted to rupees
+  double _walletBalance = 0.0; // Initialize the wallet balance in rupees
   num totalPoints = 0; // Variable to hold total points from Firestore
 
   @override
@@ -24,13 +24,12 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
     _fetchUserPoints(); // Fetch user points when the screen initializes
   }
 
-  // Function to fetch user's total points from Firestore
+  // Function to fetch user's total points from Firestore and convert to rupees
   Future<void> _fetchUserPoints() async {
     try {
       User? user = FirebaseAuth.instance.currentUser; // Get the currently logged-in user
 
       if (user != null) {
-        // Fetch user's document from Firestore
         DocumentSnapshot doc = await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
@@ -40,11 +39,9 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
           Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
           totalPoints = data['totalPoints'] ?? 0; // Fetch totalPoints from the document
 
-          // Convert points to rupees (10 points = 1 rupee)
-          _pointsInRupees = totalPoints / 10;
-
+          // Convert points to rupees (assuming 10 points = 1 rupee)
           setState(() {
-            _walletBalance = _pointsInRupees; // Update the wallet balance
+            _walletBalance = totalPoints / 10; // Update the wallet balance
           });
         }
       }
@@ -53,22 +50,20 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
     }
   }
 
-  // Function to update the remaining points after withdrawal
+  // Function to update the remaining points in Firestore after withdrawal
   Future<void> _updateRemainingPoints(double remainingRupees) async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      // Convert remaining rupees back to points
-      int remainingPoints = (remainingRupees * 10).toInt();
+      int remainingPoints = (remainingRupees * 10).toInt(); // Convert rupees back to points
 
-      // Update the user's points in Firestore
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-        'totalPoints': remainingPoints, // Update the totalPoints field with new points
-      });
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({'totalPoints': remainingPoints});
 
-      // Update the local state
       setState(() {
-        totalPoints = remainingPoints; // Update the total points locally
+        totalPoints = remainingPoints; // Update local points state
       });
 
       print('Updated total points: $remainingPoints');
@@ -79,7 +74,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 30, 30, 30),
-      resizeToAvoidBottomInset: true, // Allow screen to resize when keyboard appears
+      resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 40),
         child: Column(
@@ -366,7 +361,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white, // Button background color
+        backgroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -374,7 +369,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.red, size: 18), // Smaller icon
+          Icon(icon, color: Colors.red, size: 18),
           const SizedBox(width: 10),
           Text(
             label,

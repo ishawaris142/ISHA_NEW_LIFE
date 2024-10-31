@@ -10,10 +10,8 @@ class UserDataService {
     String? cachedUserData = prefs.getString('userData');
 
     if (cachedUserData != null) {
-      // Load from cache
       return jsonDecode(cachedUserData);
     } else {
-      // Fetch from Firestore
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         DocumentSnapshot doc = await FirebaseFirestore.instance
@@ -23,7 +21,7 @@ class UserDataService {
 
         if (doc.exists) {
           Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
-          await prefs.setString('userData', jsonEncode(userData)); // Cache data
+          await prefs.setString('userData', jsonEncode(userData));
           return userData;
         }
       }
@@ -37,10 +35,8 @@ class UserDataService {
     String? cachedTotalPoints = prefs.getString('totalPoints');
 
     if (cachedTotalPoints != null) {
-      // Load total points from cache
-      return num.tryParse(cachedTotalPoints) ?? 0; // Handle null case by returning 0
+      return num.tryParse(cachedTotalPoints) ?? 0;
     } else {
-      // Fetch total points from Firestore
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         DocumentSnapshot doc = await FirebaseFirestore.instance
@@ -50,22 +46,42 @@ class UserDataService {
 
         if (doc.exists) {
           Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
-          num totalPoints = userData['totalPoints'] ?? 0; // Default to 0 if null
+          num totalPoints = userData['totalPoints'] ?? 0;
 
-          // Cache total points
           await prefs.setString('totalPoints', totalPoints.toString());
-
           return totalPoints;
         }
       }
     }
-    return 0; // Return 0 if something fails
+    return 0;
   }
 
-  // Clear the cache if needed (e.g., on logout)
+  // Deduct points based on the withdrawn amount (convert currency to points)
+  Future<void> deductPointsForWithdrawal(double withdrawAmount) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    int pointsToDeduct = (withdrawAmount * 10).toInt();
+    num updatedPoints = await fetchTotalPoints() - pointsToDeduct;
+
+    if (updatedPoints < 0) {
+      updatedPoints = 0; // Ensure points don't go below zero
+    }
+
+    // Update Firestore and cache
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .update({'totalPoints': updatedPoints});
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('totalPoints', updatedPoints.toString());
+  }
+
+  // Clear cache
   Future<void> clearCache() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('userData');
-    await prefs.remove('totalPoints'); // Clear total points cache as well
+    await prefs.remove('totalPoints');
   }
 }

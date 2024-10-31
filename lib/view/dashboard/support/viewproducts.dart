@@ -321,7 +321,7 @@ class _ProductItemState extends State<ProductItem> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        widget.product['description'],
+                       widget.product['name'],
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
@@ -369,7 +369,7 @@ class _ProductItemState extends State<ProductItem> {
                       widget.addToCart(
                         widget.product.id,
                         widget.product['name'],
-                        widget.product['description'],
+                        widget.product['name'],
                         widget.product['price'],
                         quantity,
                         points,

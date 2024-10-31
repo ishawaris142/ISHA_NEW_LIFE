@@ -76,7 +76,7 @@ class _ProfilescreenState extends State<Profilescreen> {
                   IconButton(
                     icon: Image.asset("assets/profilelogout.png"),
                     onPressed: () async {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen(),));
+                      Navigator.pop(context, MaterialPageRoute(builder: (context) => LoginScreen(),));
                     },
                   ),
                 ],

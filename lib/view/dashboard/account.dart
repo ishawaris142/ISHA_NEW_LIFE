@@ -75,7 +75,7 @@ class _AccountscreenState extends State<Accountscreen> {
                         color: Colors.white, size: 32),
                     onPressed: () {
                       // Navigate to the Feedsscreen
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => const Feedsscreen()),
