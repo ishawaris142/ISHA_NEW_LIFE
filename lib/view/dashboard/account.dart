@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:red_coprative/view/dashboard/support/view_products.dart';
+
 import 'package:red_coprative/view/dashboard/support/viewproducts.dart';
 import 'feeds.dart';  // Assuming you have this screen
 import 'support/cart_items.dart';  // Assuming you have this screen
@@ -279,7 +281,8 @@ class _AccountscreenState extends State<Accountscreen> {
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () {
-                        if (accountgridmodelclasslist[index].text ==
+                        if (accountgridmodelclasslist[index]
+                            .text ==
                             "View Products") {
                           Navigator.push(
                             context,
@@ -295,6 +298,15 @@ class _AccountscreenState extends State<Accountscreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => CartScreen(),
+                            ),
+                          );
+                        }  else if (accountgridmodelclasslist[index]
+                            .text ==
+                            "Bundles") {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Prodectview(),
                             ),
                           );
                         }

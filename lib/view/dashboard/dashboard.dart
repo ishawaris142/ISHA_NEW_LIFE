@@ -27,18 +27,21 @@ class _DashboardscreenState extends State<Dashboardscreen> {
       extendBody: true, // Extends body behind BottomAppBar for transparency
       backgroundColor: Colors.transparent,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print('Center QR button tapped');
-        },
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: CircleAvatar(
-          radius: 45,
-          backgroundColor: Colors.white,
-          child: Image.asset(
-            "assets/navQR.png",
-            height: 40,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        child: FloatingActionButton(
+          onPressed: () {
+            print('Center QR button tapped');
+          },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: CircleAvatar(
+            radius: 45,
+            backgroundColor: Colors.white,
+            child: Image.asset(
+              "assets/navQR.png",
+              height: 40,
+            ),
           ),
         ),
       ),
@@ -64,7 +67,7 @@ class _DashboardscreenState extends State<Dashboardscreen> {
                   children: <Widget>[
                     _buildBottomNavItem("assets/nav1.png", 'Home', 0),
                     _buildBottomNavItem("assets/nav2.png", 'Feeds', 1),
-                    const SizedBox(width: 50), // Space for the floating button
+                    const SizedBox(width: 65), // Space for the floating button
                     _buildBottomNavItem("assets/nav3.png", 'Support', 2),
                     _buildBottomNavItem("assets/nav4.png", 'Profile', 3),
                   ],
@@ -85,6 +88,7 @@ class _DashboardscreenState extends State<Dashboardscreen> {
   }
 
   Widget _buildBottomNavItem(String image, String label, int index) {
+    // ignore: unused_local_variable
     final bool isSelected = currentIndex == index;
     return GestureDetector(
       onTap: () => setState(() => currentIndex = index),
