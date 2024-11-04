@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:red_coprative/view/auth/login.dart';
-import 'package:red_coprative/view/dashboard/dashboard.dart';
-import 'package:red_coprative/view/dashboard/homescreen.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Make sure to import your login screen
 
 class Logoscreen extends StatefulWidget {
   const Logoscreen({super.key});

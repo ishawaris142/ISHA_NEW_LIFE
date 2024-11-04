@@ -14,32 +14,27 @@ class Profilescreen extends StatefulWidget {
 }
 
 class _ProfilescreenState extends State<Profilescreen> {
-  // Create a variable to store user details
   Map<String, dynamic>? userData;
 
   @override
   void initState() {
     super.initState();
-    fetchUserData(); // Fetch user data when the screen is initialized
+    fetchUserData();
   }
 
-  // Function to fetch user data from Firestore
   Future<void> fetchUserData() async {
     try {
-      // Get the currently logged-in user
       User? user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
-        // Fetch the user's document from Firestore
         DocumentSnapshot doc = await FirebaseFirestore.instance
             .collection('users')
-            .doc(user.uid) // Use UID to identify the user's document
+            .doc(user.uid)
             .get();
 
-        // Check if the document exists and contains data
         if (doc.exists) {
           setState(() {
-            userData = doc.data() as Map<String, dynamic>?; // Store the data in the state
+            userData = doc.data() as Map<String, dynamic>?;
           });
         }
       }
@@ -50,96 +45,104 @@ class _ProfilescreenState extends State<Profilescreen> {
 
   @override
   Widget build(BuildContext context) {
+     var height = MediaQuery.of(context).size.height;
+  var width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Colors.black,
+     
       body: Container(
-        padding:const EdgeInsets.symmetric(horizontal: 6),
-        margin:const EdgeInsets.only(top: 25),
+           height: height,
+          width: width,
+          decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.cover)),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        margin: const EdgeInsets.only(top: 25),
         child: Column(
           children: [
-            // Top section with app name and logout icon
             Padding(
-              padding:const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon:const Icon(Icons.arrow_back, color: Colors.white, size: 32),
+                    icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
                     onPressed: () {
-                      // Navigate to the Accountscreen
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => Accountscreen()),
                       );
                     },
                   ),
-                  IconButton(
-                    icon: Image.asset("assets/profilelogout.png"),
-                    onPressed: () async {
-                      Navigator.pop(context, MaterialPageRoute(builder: (context) => LoginScreen(),));
-                    },
-                  ),
+                 IconButton(
+  icon: Image.asset("assets/profilelogout.png"),
+ onPressed: () async {
+  print("Logout button pressed");
+  await FirebaseAuth.instance.signOut();
+  print("User signed out");
+  
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => LoginScreen()),
+    (Route<dynamic> route) => false, // Ensures all routes are removed.
+  );
+},
+),
                 ],
               ),
             ),
             const SizedBox(height: 17),
-            // If the data has been fetched, display it
             userData != null
                 ? ListTile(
-              leading:const CircleAvatar(
-                radius: 30,
-                backgroundImage: AssetImage("assets/Kid.png"),
-              ),
-              title: Text(
-                userData?['full_name'] ?? "Name not available",
-                style:const TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
-              subtitle: Row(
-                children: [
-                  const Icon(Icons.access_time_filled, color: Colors.white),
-                  Text(
-                    userData?['account_type'] ?? "Account type not available", // Dynamically display the account type
-                    style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white),
-                  )
-                ],
-              ),
-
-              trailing: IconButton(
-                icon: Image.asset("assets/BiSolidEditAlt.png"),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EditProfileScreen(userData: userData!), // Pass user data to EditProfileScreen
+                    leading: const CircleAvatar(
+                      radius: 30,
+                      backgroundImage: AssetImage("assets/Kid.png"),
                     ),
-                  );
-                },
-              ),
-            )
-                :const CircularProgressIndicator(), // Show a loading spinner while data is being fetched
+                    title: Text(
+                      userData?['full_name'] ?? "Name not available",
+                      style: const TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                    subtitle: Row(
+                      children: [
+                        const Icon(Icons.access_time_filled, color: Colors.white),
+                        Text(
+                          userData?['account_type'] ?? "Account type not available",
+                          style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white),
+                        )
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: Image.asset("assets/BiSolidEditAlt.png"),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditProfileScreen(userData: userData!),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                : const CircularProgressIndicator(),
             const SizedBox(height: 40),
-            // Display the rest of the user details
             if (userData != null)
               Container(
-                margin:const EdgeInsets.only(left: 25),
+                margin: const EdgeInsets.only(left: 25),
                 child: Column(
                   children: [
                     Row(
                       children: [
                         const Icon(
                           Icons.mail_outline,
-                          color:  Color.fromARGB(255, 211, 35, 23),
+                          color: Color.fromARGB(255, 211, 35, 23),
                         ),
                         const SizedBox(width: 3),
                         Text(
                           userData?['email'] ?? "Email not available",
-                          style:const TextStyle(color: Colors.white, fontSize: 16),
+                          style: const TextStyle(color: Colors.white, fontSize: 16),
                         )
                       ],
                     ),
@@ -148,12 +151,12 @@ class _ProfilescreenState extends State<Profilescreen> {
                       children: [
                         const Icon(
                           Icons.phone,
-                          color: const Color.fromARGB(255, 211, 35, 23),
+                          color: Color.fromARGB(255, 211, 35, 23),
                         ),
                         const SizedBox(width: 3),
                         Text(
                           userData?['phone'] ?? "Phone not available",
-                          style:const TextStyle(color: Colors.white, fontSize: 16),
+                          style: const TextStyle(color: Colors.white, fontSize: 16),
                         )
                       ],
                     ),
@@ -166,8 +169,8 @@ class _ProfilescreenState extends State<Profilescreen> {
                         ),
                         const SizedBox(width: 3),
                         Text(
-                           userData?['cnic'] ?? "CNIC not available",
-                          style:const TextStyle(color: Colors.white, fontSize: 16),
+                          userData?['cnic'] ?? "CNIC not available",
+                          style: const TextStyle(color: Colors.white, fontSize: 16),
                         )
                       ],
                     ),

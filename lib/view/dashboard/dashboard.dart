@@ -3,8 +3,6 @@ import 'package:red_coprative/view/dashboard/account.dart';
 import 'package:red_coprative/view/dashboard/feeds.dart';
 import 'package:red_coprative/view/dashboard/homescreen.dart';
 import 'package:red_coprative/view/dashboard/profile.dart';
-import 'package:red_coprative/view/dashboard/support/view_products.dart';
-import 'package:red_coprative/models/homescreengrid.dart';
 
 class Dashboardscreen extends StatefulWidget {
   const Dashboardscreen({Key? key}) : super(key: key);
@@ -31,26 +29,26 @@ class _DashboardscreenState extends State<Dashboardscreen> {
       backgroundColor: Colors.transparent,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 2),
         child: FloatingActionButton(
           onPressed: () {
-            // Navigate to ProductView with dummy productData
-            final productData = Homescreenmodelclass(
-              image: "assets/sample_image.png",
-              text: "Sample Product",
-            );
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => ProductView(productData: productData),
-            ));
+            // // Navigate to ProductView with dummy productData
+            // final productData = Homescreenmodelclass(
+            //   image: "assets/sample_image.png",
+            //   text: "Sample Product",
+            // );
+            // Navigator.of(context).push(MaterialPageRoute(
+            //   builder: (context) => ProductView(productData: productData),
+            // ));
           },
           backgroundColor: Colors.transparent,
           elevation: 0,
           child: CircleAvatar(
-            radius: 45,
+            radius: 55,
             backgroundColor: Colors.white,
             child: Image.asset(
               "assets/navQR.png",
-              height: 40,
+              height: 48,
             ),
           ),
         ),

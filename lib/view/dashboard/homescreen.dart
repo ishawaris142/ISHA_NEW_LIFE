@@ -39,24 +39,31 @@ class _HomescreenState extends State<Homescreen> {
     totalPoints = await userDataService.fetchTotalPoints();
     setState(() {});
   }
-  @override
-  Widget build(BuildContext context) {
-    var searchbar = TextEditingController();
-    var height = MediaQuery.of(context).size.height;
-    var width = MediaQuery.of(context).size.width;
+ @override
+Widget build(BuildContext context) {
+  var searchbar = TextEditingController();
+  var height = MediaQuery.of(context).size.height;
+  var width = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-
-      body: Container(
+  return Scaffold(
+    body: GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus(); // Unfocus to dismiss the keyboard
+      },
+      child: Container(
         height: height,
         width: width,
-        decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.cover)),
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/backk.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: SingleChildScrollView(
           child: Column(
             children: [
               Stack(
                 children: [
-
                   Container(
                     height: height * 0.302,
                     width: width,
@@ -77,7 +84,6 @@ class _HomescreenState extends State<Homescreen> {
                       margin: EdgeInsets.only(top: 20),
                       padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Column(
-                        //padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
@@ -86,7 +92,7 @@ class _HomescreenState extends State<Homescreen> {
                               Image.asset("assets/smalllogo.png", height: 60),
                               Expanded(
                                 child: Padding(
-                                  padding: const EdgeInsets.only(left: 45),
+                                  padding: const EdgeInsets.only(left: 10),
                                   child: Container(
                                     height: 37,
                                     margin: const EdgeInsets.only(left: 15, right: 10),
@@ -94,7 +100,8 @@ class _HomescreenState extends State<Homescreen> {
                                       color: const Color.fromARGB(255, 32, 32, 32),
                                       borderRadius: BorderRadius.circular(10),
                                       border: Border.all(
-                                          color: const Color.fromARGB(255, 97, 92, 86)),
+                                        color: const Color.fromARGB(255, 97, 92, 86),
+                                      ),
                                     ),
                                     child: Row(
                                       children: [
@@ -105,9 +112,12 @@ class _HomescreenState extends State<Homescreen> {
                                             decoration: InputDecoration(
                                               hintText: "Search",
                                               hintStyle: const TextStyle(
-                                                  color: Color.fromARGB(128, 255, 255, 255)),
+                                                color: Color.fromARGB(128, 255, 255, 255),
+                                              ),
                                               contentPadding: const EdgeInsets.symmetric(
-                                                  vertical: 10, horizontal: 10),
+                                                vertical: 10,
+                                                horizontal: 10,
+                                              ),
                                               border: InputBorder.none,
                                             ),
                                           ),
@@ -123,7 +133,9 @@ class _HomescreenState extends State<Homescreen> {
                                   ),
                                 ),
                               ),
-                              Image.asset("assets/homeicon.png",height: 34,),
+                              Image.asset("assets/cartpic.png", height: 34),
+                              SizedBox(width: 10),
+                              Image.asset("assets/homeicon.png", height: 34),
                             ],
                           ),
                           const SizedBox(height: 10),
@@ -138,9 +150,10 @@ class _HomescreenState extends State<Homescreen> {
                                   Text(
                                     "${userData?['full_name'] ?? 'User'}",
                                     style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500),
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                   Row(
                                     children: [
@@ -148,7 +161,10 @@ class _HomescreenState extends State<Homescreen> {
                                       SizedBox(width: 5),
                                       Text(
                                         "${userData?['account_type'] ?? 'Account'}",
-                                        style: TextStyle(color: Colors.white, fontSize: 12),
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -167,8 +183,9 @@ class _HomescreenState extends State<Homescreen> {
                                 margin: EdgeInsets.symmetric(horizontal: 3),
                                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
                                 decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Color.fromARGB(255, 32, 32, 32)),
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Color.fromARGB(255, 32, 32, 32),
+                                ),
                                 child: Row(
                                   children: [
                                     Image.asset("assets/coins.png", height: 22),
@@ -195,11 +212,12 @@ class _HomescreenState extends State<Homescreen> {
                                   style: TextStyle(color: Colors.white, fontSize: 12),
                                 ),
                                 decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Color.fromARGB(255, 32, 32, 32)),
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Color.fromARGB(255, 32, 32, 32),
+                                ),
                               ),
                               SizedBox(width: 4),
-                              Image.asset("assets/again.png",height: 20,),
+                              Image.asset("assets/again.png", height: 20),
                             ],
                           ),
                           const SizedBox(height: 9),
@@ -216,7 +234,7 @@ class _HomescreenState extends State<Homescreen> {
                                     style: TextStyle(color: Colors.white, fontSize: 8),
                                   ),
                                   Text(
-                                    totalPoints.toStringAsFixed(2), // Using toStringAsFixed(2) to format
+                                    totalPoints.toStringAsFixed(2),
                                     style: TextStyle(
                                       color: Color.fromARGB(255, 255, 255, 255),
                                       fontSize: 24,
@@ -239,8 +257,9 @@ class _HomescreenState extends State<Homescreen> {
                                 margin: EdgeInsets.symmetric(horizontal: 3),
                                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
                                 decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Color.fromARGB(255, 32, 32, 32)),
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Color.fromARGB(255, 32, 32, 32),
+                                ),
                                 child: Row(
                                   children: [
                                     Image.asset("assets/coins.png", height: 22),
@@ -267,12 +286,12 @@ class _HomescreenState extends State<Homescreen> {
                                   style: TextStyle(color: Colors.white, fontSize: 12),
                                 ),
                                 decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Color.fromARGB(255, 32, 32, 32)),
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Color.fromARGB(255, 32, 32, 32),
+                                ),
                               ),
                             ],
                           ),
-
                         ],
                       ),
                     ),
@@ -288,66 +307,64 @@ class _HomescreenState extends State<Homescreen> {
                       "Explore ISH",
                       style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
-                 GridView.builder(
-  padding: EdgeInsets.symmetric(vertical: 10),
-  shrinkWrap: true,
-  physics: NeverScrollableScrollPhysics(),
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 3,
-    crossAxisSpacing: 10,
-    mainAxisSpacing: 13,
-    childAspectRatio: 1.1,
-  ),
-  itemCount: homescreenmodelclasslist.length,
-  itemBuilder: (context, index) {
-    return GestureDetector(
-      onTap: () {
-        if (index == 0) { 
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductView(
-                productData: homescreenmodelclasslist[index],
-              ),
-            ),
-          );
-        } else {
-          print("Tapped on ${homescreenmodelclasslist[index].text}");
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 30, 28, 27),
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: const Color.fromARGB(255, 97, 92, 86),
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                "${homescreenmodelclasslist[index].image}",
-                height: 55,
-              ),
-              SizedBox(height: 3),
-              Text(
-                "${homescreenmodelclasslist[index].text}",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  },
-),
-
-
+                    GridView.builder(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 13,
+                        childAspectRatio: 1.1,
+                      ),
+                      itemCount: homescreenmodelclasslist.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            if (index == 0) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProductView(
+                                    productData: homescreenmodelclasslist[index],
+                                  ),
+                                ),
+                              );
+                            } else {
+                              print("Tapped on ${homescreenmodelclasslist[index].text}");
+                            }
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 30, 28, 27),
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(
+                                color: const Color.fromARGB(255, 97, 92, 86),
+                              ),
+                            ),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "${homescreenmodelclasslist[index].image}",
+                                    height: 55,
+                                  ),
+                                  SizedBox(height: 3),
+                                  Text(
+                                    "${homescreenmodelclasslist[index].text}",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                     Text(
                       "Promotions",
                       style: TextStyle(color: Colors.white, fontSize: 12),
@@ -368,6 +385,7 @@ class _HomescreenState extends State<Homescreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

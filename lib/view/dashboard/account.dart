@@ -53,6 +53,8 @@ class _AccountscreenState extends State<Accountscreen> {
 
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
+  var width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.black,
       body: userData == null // Show loading indicator if data is still being fetched
@@ -60,6 +62,9 @@ class _AccountscreenState extends State<Accountscreen> {
         child: CircularProgressIndicator(),
       )
           : Container(
+            height: height,
+            width: width,
+            decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.cover)),
         padding: const EdgeInsets.symmetric(horizontal: 6),
         margin: const EdgeInsets.only(top: 25),
         child: Column(

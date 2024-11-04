@@ -77,12 +77,17 @@ class _FeedsscreenState extends State<Feedsscreen> {
 
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
+  var width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.black,
       body: isLoading
           ? const Center(child: CircularProgressIndicator()) // Show loading indicator while data is being fetched
           : SingleChildScrollView(
         child: Container(
+          height: height,
+          width: width,
+          decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.cover)),
           padding: EdgeInsets.symmetric(horizontal: 6),
           margin: EdgeInsets.only(top: 25),
           child: Column(
@@ -280,19 +285,7 @@ class _FeedsscreenState extends State<Feedsscreen> {
                 ),
                 child: Column(
                   children: [
-                    Container(
-                      height: 362, // Adjust the height accordingly
-                      width: 400,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage("assets/technology (1).jpg"), // Image asset
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
+                   
                     const Text(
                       "CAM GEAR SET FIBER CG 125",
                       style: TextStyle(
