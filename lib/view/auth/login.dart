@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:red_coprative/view/auth/signup_screen.dart';
 import 'package:red_coprative/view/dashboard/dashboard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  
 
   bool _obscureText = true;
 
@@ -29,6 +31,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
       User? user = userCredential.user;
       if (user != null) {
+        // SharedPreferences _pref =await SharedPreferences.getInstance();
+        // _pref.setString("token", user.uid);
+
+    
+
         print('Logged in as: ${user.email}');
       }
 

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:red_coprative/view/dashboard/support/view_products.dart';
 
 import 'package:red_coprative/view/dashboard/support/viewproducts.dart';
 import 'feeds.dart';  // Assuming you have this screen
@@ -306,7 +305,7 @@ class _AccountscreenState extends State<Accountscreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Prodectview(),
+                              builder: (context) => Feedsscreen(),
                             ),
                           );
                         }
@@ -339,7 +338,4 @@ class _AccountscreenState extends State<Accountscreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
+          ));}}

@@ -45,6 +45,7 @@ dependencies {
     // Add other Firebase products as necessary
     implementation 'com.google.firebase:firebase-auth'  // Example for Firebase Auth
     implementation 'com.google.firebase:firebase-appcheck-playintegrity:16.0.0-beta01'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
 
 }
 

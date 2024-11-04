@@ -3,6 +3,8 @@ import 'package:red_coprative/view/dashboard/account.dart';
 import 'package:red_coprative/view/dashboard/feeds.dart';
 import 'package:red_coprative/view/dashboard/homescreen.dart';
 import 'package:red_coprative/view/dashboard/profile.dart';
+import 'package:red_coprative/view/dashboard/support/view_products.dart';
+import 'package:red_coprative/models/homescreengrid.dart';
 
 class Dashboardscreen extends StatefulWidget {
   const Dashboardscreen({Key? key}) : super(key: key);
@@ -13,7 +15,8 @@ class Dashboardscreen extends StatefulWidget {
 
 class _DashboardscreenState extends State<Dashboardscreen> {
   int currentIndex = 0;
-  final pages = [
+
+  final List<Widget> pages = [
     const Homescreen(),
     const Feedsscreen(),
     const Accountscreen(),
@@ -24,14 +27,21 @@ class _DashboardscreenState extends State<Dashboardscreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      extendBody: true, // Extends body behind BottomAppBar for transparency
+      extendBody: true,
       backgroundColor: Colors.transparent,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5),
         child: FloatingActionButton(
           onPressed: () {
-            print('Center QR button tapped');
+            // Navigate to ProductView with dummy productData
+            final productData = Homescreenmodelclass(
+              image: "assets/sample_image.png",
+              text: "Sample Product",
+            );
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ProductView(productData: productData),
+            ));
           },
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -45,19 +55,25 @@ class _DashboardscreenState extends State<Dashboardscreen> {
           ),
         ),
       ),
-      body: pages[currentIndex],
+      body: Navigator(
+        onGenerateRoute: (settings) {
+          return MaterialPageRoute(
+            builder: (context) => pages[currentIndex],
+          );
+        },
+      ),
       bottomNavigationBar: Stack(
         alignment: Alignment.center,
         clipBehavior: Clip.antiAlias,
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(30), // Rounded top corners
+              topLeft: Radius.circular(30),
               topRight: Radius.circular(30),
             ),
             child: BottomAppBar(
               elevation: 0,
-              color: const Color.fromARGB(255, 172, 31,37), // Set the color of BottomAppBar directly
+              color: const Color.fromARGB(255, 172, 31, 37),
               shape: const CircularNotchedRectangle(),
               notchMargin: 5.0,
               child: Padding(
@@ -67,7 +83,7 @@ class _DashboardscreenState extends State<Dashboardscreen> {
                   children: <Widget>[
                     _buildBottomNavItem("assets/nav1.png", 'Home', 0),
                     _buildBottomNavItem("assets/nav2.png", 'Feeds', 1),
-                    const SizedBox(width: 65), // Space for the floating button
+                    const SizedBox(width: 65),
                     _buildBottomNavItem("assets/nav3.png", 'Support', 2),
                     _buildBottomNavItem("assets/nav4.png", 'Profile', 3),
                   ],
@@ -76,7 +92,7 @@ class _DashboardscreenState extends State<Dashboardscreen> {
             ),
           ),
           Positioned(
-            bottom: 19, // Adjust for QR Code text position
+            bottom: 19,
             child: const Text(
               "Scan QR Code",
               style: TextStyle(color: Colors.white, fontSize: 12),
@@ -88,7 +104,6 @@ class _DashboardscreenState extends State<Dashboardscreen> {
   }
 
   Widget _buildBottomNavItem(String image, String label, int index) {
-    // ignore: unused_local_variable
     final bool isSelected = currentIndex == index;
     return GestureDetector(
       onTap: () => setState(() => currentIndex = index),
@@ -99,8 +114,8 @@ class _DashboardscreenState extends State<Dashboardscreen> {
           Image.asset(image, height: 24),
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.grey,
               fontSize: 12,
             ),
           ),

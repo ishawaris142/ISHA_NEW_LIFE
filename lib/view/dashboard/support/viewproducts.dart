@@ -321,7 +321,7 @@ class _ProductItemState extends State<ProductItem> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                       widget.product['name'],
+                        widget.product['name'],
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:red_coprative/view/auth/login.dart'; // Make sure to import your login screen
+import 'package:red_coprative/view/auth/login.dart';
+import 'package:red_coprative/view/dashboard/dashboard.dart';
+import 'package:red_coprative/view/dashboard/homescreen.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Make sure to import your login screen
 
 class Logoscreen extends StatefulWidget {
   const Logoscreen({super.key});
@@ -13,12 +16,25 @@ class _LogoscreenState extends State<Logoscreen> {
   void initState() {
     super.initState();
     // Delay for 3 seconds and then navigate to the login screen
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-    });
+    Future.delayed(const Duration(seconds: 3), () async {
+      //   SharedPreferences _pref =await SharedPreferences.getInstance();
+      // final token =  _pref.getString("token");
+      // if(token!=null){
+      //   Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => const Dashboardscreen()),
+      // );
+      // }else{
+      //     Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => const LoginScreen()),
+      // );
+
+      // }
+   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen(),));
+    
+    }
+    );
   }
 
   @override

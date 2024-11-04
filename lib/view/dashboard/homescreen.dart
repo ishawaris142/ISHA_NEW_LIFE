@@ -3,6 +3,7 @@ import 'package:red_coprative/models/homescreengrid.dart';
 import 'package:red_coprative/utils/custom_button.dart';
 import 'package:red_coprative/view/dashboard/support/cash_withdraw.dart';
 import 'package:red_coprative/view/dashboard/support/history.dart';
+import 'package:red_coprative/view/dashboard/support/view_products.dart';
 import '../../data/services/user_service.dart';
 
 
@@ -15,17 +16,17 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
-   final UserDataService userDataService = UserDataService(); // Initialize the UserDataService
+  final UserDataService userDataService = UserDataService(); // Initialize the UserDataService
   Map<String, dynamic>? userData;
   num totalPoints = 0;
   bool isLoading = true;
-   @override
+  @override
   void initState() {
     super.initState();
     fetchUserData();
   }
 
-  
+
   Future<void> fetchUserData() async {
     setState(() => isLoading = true);
     userData = await userDataService.fetchUserData();
@@ -45,17 +46,17 @@ class _HomescreenState extends State<Homescreen> {
     var width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      
+
       body: Container(
         height: height,
-              width: width,
-              decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.cover)),
+        width: width,
+        decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.cover)),
         child: SingleChildScrollView(
           child: Column(
             children: [
               Stack(
                 children: [
-                 
+
                   Container(
                     height: height * 0.302,
                     width: width,
@@ -76,7 +77,7 @@ class _HomescreenState extends State<Homescreen> {
                       margin: EdgeInsets.only(top: 20),
                       padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Column(
-                          //padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                        //padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
@@ -135,7 +136,7 @@ class _HomescreenState extends State<Homescreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                     "${userData?['full_name'] ?? 'User'}",
+                                    "${userData?['full_name'] ?? 'User'}",
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,
@@ -146,7 +147,7 @@ class _HomescreenState extends State<Homescreen> {
                                       Image(image: AssetImage("assets/mechanic.png")),
                                       SizedBox(width: 5),
                                       Text(
-                                    "${userData?['account_type'] ?? 'Account'}",
+                                        "${userData?['account_type'] ?? 'Account'}",
                                         style: TextStyle(color: Colors.white, fontSize: 12),
                                       ),
                                     ],
@@ -204,75 +205,74 @@ class _HomescreenState extends State<Homescreen> {
                           const SizedBox(height: 9),
                           const Divider(color: Colors.black),
                           const SizedBox(height: 9),
-                       Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-          const Text(
-            "My Points",
-            style: TextStyle(color: Colors.white, fontSize: 8),
-          ),
-          Text(
-            totalPoints.toStringAsFixed(2), // Using toStringAsFixed(2) to format
-            style: TextStyle(
-              color: Color.fromARGB(255, 255, 255, 255),
-              fontSize: 24,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-                ],
-              ),
-              Spacer(),
-              CustomButton(
-                 onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CashWithdrawScreen(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "My Points",
+                                    style: TextStyle(color: Colors.white, fontSize: 8),
+                                  ),
+                                  Text(
+                                    totalPoints.toStringAsFixed(2), // Using toStringAsFixed(2) to format
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Spacer(),
+                              CustomButton(
+                                onTap: () async {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const CashWithdrawScreen(),
+                                    ),
+                                  );
+                                  await refreshPoints();
+                                },
+                                margin: EdgeInsets.symmetric(horizontal: 3),
+                                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Color.fromARGB(255, 32, 32, 32)),
+                                child: Row(
+                                  children: [
+                                    Image.asset("assets/coins.png", height: 22),
+                                    Text(
+                                      "Convert Points",
+                                      style: TextStyle(color: Colors.white, fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              CustomButton(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Historyscreen(),
+                                    ),
+                                  );
+                                },
+                                margin: EdgeInsets.symmetric(horizontal: 5),
+                                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                                child: Text(
+                                  "History",
+                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                ),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Color.fromARGB(255, 32, 32, 32)),
+                              ),
+                            ],
                           ),
-                        );
-                        // Refresh points after returning from CashWithdrawScreen
-                        await refreshPoints();
-                      },
-                margin: EdgeInsets.symmetric(horizontal: 3),
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Color.fromARGB(255, 32, 32, 32)),
-                child: Row(
-          children: [
-            Image.asset("assets/coins.png", height: 22),
-            Text(
-              "Convert Points",
-              style: TextStyle(color: Colors.white, fontSize: 12),
-            ),
-          ],
-                ),
-              ),
-              CustomButton(
-                onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Historyscreen(),
-            ),
-          );
-                },
-                margin: EdgeInsets.symmetric(horizontal: 5),
-                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-                child: Text(
-          "History",
-          style: TextStyle(color: Colors.white, fontSize: 12),
-                ),
-                decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Color.fromARGB(255, 32, 32, 32)),
-              ),
-            ],
-          ),
-          
+
                         ],
                       ),
                     ),
@@ -288,45 +288,66 @@ class _HomescreenState extends State<Homescreen> {
                       "Explore ISH",
                       style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
-                    GridView.builder(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 13,
-                        childAspectRatio: 1.1,
-                      ),
-                      itemCount: homescreenmodelclasslist.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 30, 28, 27),
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                                color: const Color.fromARGB(255, 97, 92, 86)),
-                          ),
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  "${homescreenmodelclasslist[index].image}",
-                                  height: 55,
-                                ),
-                                SizedBox(height: 3),
-                                Text(
-                                  "${homescreenmodelclasslist[index].text}",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 10),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                 GridView.builder(
+  padding: EdgeInsets.symmetric(vertical: 10),
+  shrinkWrap: true,
+  physics: NeverScrollableScrollPhysics(),
+  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 3,
+    crossAxisSpacing: 10,
+    mainAxisSpacing: 13,
+    childAspectRatio: 1.1,
+  ),
+  itemCount: homescreenmodelclasslist.length,
+  itemBuilder: (context, index) {
+    return GestureDetector(
+      onTap: () {
+        if (index == 0) { 
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductView(
+                productData: homescreenmodelclasslist[index],
+              ),
+            ),
+          );
+        } else {
+          print("Tapped on ${homescreenmodelclasslist[index].text}");
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 30, 28, 27),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: const Color.fromARGB(255, 97, 92, 86),
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                "${homescreenmodelclasslist[index].image}",
+                height: 55,
+              ),
+              SizedBox(height: 3),
+              Text(
+                "${homescreenmodelclasslist[index].text}",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  },
+),
+
+
                     Text(
                       "Promotions",
                       style: TextStyle(color: Colors.white, fontSize: 12),

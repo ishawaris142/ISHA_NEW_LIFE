@@ -93,188 +93,211 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var height= MediaQuery.of(context).size.height;
+    var width= MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: const Color(0xFF1E1C1B),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
+    
+      // appBar: AppBar(
+      
+      //   elevation: 0,
+      //   leading: IconButton(
+      //     icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 174, 40, 40)),
+      //     onPressed: () {
+      //       Navigator.pop(context); // Go back to the previous screen
+      //     },
+      //   ),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.check, color: Color.fromARGB(255, 223, 31, 31)),
+      //       onPressed: _updateProfile, // Save the profile changes
+      //     ),
+      //   ],
+      // ),
+      body: Container(
+        height: height,
+        width: width,
+        decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.cover)),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                     IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context); // Go back to the previous screen
           },
         ),
-        actions: [
-          IconButton(
+        IconButton(
             icon: const Icon(Icons.check, color: Colors.white),
-            onPressed: _updateProfile, // Save the profile changes
+      onPressed: _updateProfile, // Save the profile changes
+         ),
+        
+                ],
+              ),
+              const SizedBox(height: 10),
+              Center(
+                child: Image.asset(
+                  'assets/Kid.png', // Your profile image here
+                  height: 100,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Edit your Profile",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+        
+              // Account Type Dropdown
+              DropdownButtonFormField<String>(
+                value: selectedAccountType,
+                hint: const Text("Select Account Type",
+                    style: TextStyle(color: Colors.white54)),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                  labelText: "Account Type",
+                  labelStyle: const TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                dropdownColor: Colors.grey[800],
+                style: const TextStyle(color: Colors.white),
+                items: accountTypes.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(type, style: const TextStyle(color: Colors.white)),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedAccountType = newValue;
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+        
+              // Full Name
+              TextField(
+                controller: fullNameController,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                  hintText: "Full Name",
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  labelText: "Full Name",
+                  labelStyle: const TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 20),
+        
+              // Phone
+              TextField(
+                controller: phoneController,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                  hintText: "+92 312 3456789",
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  labelText: "Phone",
+                  labelStyle: const TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 20),
+        
+              // CNIC
+              TextField(
+                controller: cnicController,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                  hintText: "35123 - 4567891 - 0",
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  labelText: "CNIC",
+                  labelStyle: const TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 20),
+        
+              // Address
+              TextField(
+                controller: addressController,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                  hintText: "Your address",
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  labelText: "Address",
+                  labelStyle: const TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 20),
+        
+              // Password Field
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                  hintText: "New Password",
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  labelText: "New Password",
+                  labelStyle: const TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 20),
+        
+              // Confirm Password Field
+              TextField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                  hintText: "Confirm Password",
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  labelText: "Confirm Password",
+                  labelStyle: const TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            Center(
-              child: Image.asset(
-                'assets/Kid.png', // Your profile image here
-                height: 100,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Edit your Profile",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Account Type Dropdown
-            DropdownButtonFormField<String>(
-              value: selectedAccountType,
-              hint: const Text("Select Account Type",
-                  style: TextStyle(color: Colors.white54)),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[800],
-                labelText: "Account Type",
-                labelStyle: const TextStyle(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              dropdownColor: Colors.grey[800],
-              style: const TextStyle(color: Colors.white),
-              items: accountTypes.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type, style: const TextStyle(color: Colors.white)),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  selectedAccountType = newValue;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-
-            // Full Name
-            TextField(
-              controller: fullNameController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[800],
-                hintText: "Full Name",
-                hintStyle: const TextStyle(color: Colors.white54),
-                labelText: "Full Name",
-                labelStyle: const TextStyle(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 20),
-
-            // Phone
-            TextField(
-              controller: phoneController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[800],
-                hintText: "+92 312 3456789",
-                hintStyle: const TextStyle(color: Colors.white54),
-                labelText: "Phone",
-                labelStyle: const TextStyle(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              style: const TextStyle(color: Colors.white),
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 20),
-
-            // CNIC
-            TextField(
-              controller: cnicController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[800],
-                hintText: "35123 - 4567891 - 0",
-                hintStyle: const TextStyle(color: Colors.white54),
-                labelText: "CNIC",
-                labelStyle: const TextStyle(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              style: const TextStyle(color: Colors.white),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 20),
-
-            // Address
-            TextField(
-              controller: addressController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[800],
-                hintText: "Your address",
-                hintStyle: const TextStyle(color: Colors.white54),
-                labelText: "Address",
-                labelStyle: const TextStyle(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 20),
-
-            // Password Field
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[800],
-                hintText: "New Password",
-                hintStyle: const TextStyle(color: Colors.white54),
-                labelText: "New Password",
-                labelStyle: const TextStyle(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 20),
-
-            // Confirm Password Field
-            TextField(
-              controller: confirmPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[800],
-                hintText: "Confirm Password",
-                hintStyle: const TextStyle(color: Colors.white54),
-                labelText: "Confirm Password",
-                labelStyle: const TextStyle(color: Colors.white),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
         ),
       ),
     );
