@@ -96,7 +96,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     var height= MediaQuery.of(context).size.height;
     var width= MediaQuery.of(context).size.width;
     return Scaffold(
-    
+     resizeToAvoidBottomInset: false,
       // appBar: AppBar(
       
       //   elevation: 0,

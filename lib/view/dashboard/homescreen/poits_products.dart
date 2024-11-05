@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Feedsscreen extends StatefulWidget {
-  const Feedsscreen({super.key});
+class Pointsproduct extends StatefulWidget {
+  const Pointsproduct({super.key});
 
   @override
-  State<Feedsscreen> createState() => _FeedsscreenState();
+  State<Pointsproduct> createState() => _PointsproductState();
 }
 
-class _FeedsscreenState extends State<Feedsscreen> {
+class _PointsproductState extends State<Pointsproduct> {
   @override
   Widget build(BuildContext context) {
     var height= MediaQuery.of(context).size.height;

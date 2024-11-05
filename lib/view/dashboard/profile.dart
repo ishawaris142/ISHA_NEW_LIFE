@@ -48,11 +48,11 @@ class _ProfilescreenState extends State<Profilescreen> {
      var height = MediaQuery.of(context).size.height;
   var width = MediaQuery.of(context).size.width;
     return Scaffold(
-     
+      resizeToAvoidBottomInset: false,
       body: Container(
            height: height,
           width: width,
-          decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.cover)),
+          decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.fill)),
         padding: const EdgeInsets.symmetric(horizontal: 6),
         margin: const EdgeInsets.only(top: 25),
         child: Column(
@@ -60,17 +60,17 @@ class _ProfilescreenState extends State<Profilescreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => Accountscreen()),
-                      );
-                    },
-                  ),
+                  // IconButton(
+                  //   icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
+                  //   onPressed: () {
+                  //     Navigator.pushReplacement(
+                  //       context,
+                  //       MaterialPageRoute(builder: (context) => Accountscreen()),
+                  //     );
+                  //   },
+                  // ),
                  IconButton(
   icon: Image.asset("assets/profilelogout.png"),
  onPressed: () async {
@@ -78,10 +78,10 @@ class _ProfilescreenState extends State<Profilescreen> {
   await FirebaseAuth.instance.signOut();
   print("User signed out");
   
-  Navigator.pushAndRemoveUntil(
+  Navigator.push(
     context,
     MaterialPageRoute(builder: (context) => LoginScreen()),
-    (Route<dynamic> route) => false, // Ensures all routes are removed.
+    // (Route<dynamic> route) => false, // Ensures all routes are removed.
   );
 },
 ),
@@ -104,7 +104,8 @@ class _ProfilescreenState extends State<Profilescreen> {
                     ),
                     subtitle: Row(
                       children: [
-                        const Icon(Icons.access_time_filled, color: Colors.white),
+                         Image.asset("assets/mechanic.png"),
+                         SizedBox(width: 4),
                         Text(
                           userData?['account_type'] ?? "Account type not available",
                           style: const TextStyle(

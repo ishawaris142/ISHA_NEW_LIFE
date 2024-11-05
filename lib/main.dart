@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 // ignore: unused_import
-import 'package:red_coprative/view/dashboard/homescreen.dart';
+import 'package:red_coprative/view/dashboard/homescreen/homescreen.dart';
 // ignore: unused_import
 import 'package:red_coprative/view/auth/login.dart';
 import 'view/dashboard/support/add_to_cart.dart';

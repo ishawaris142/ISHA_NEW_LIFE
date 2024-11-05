@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:red_coprative/view/dashboard/account.dart';
 import 'package:red_coprative/view/dashboard/feeds.dart';
-import 'package:red_coprative/view/dashboard/homescreen.dart';
+import 'package:red_coprative/view/dashboard/homescreen/homescreen.dart';
 import 'package:red_coprative/view/dashboard/profile.dart';
 
 class Dashboardscreen extends StatefulWidget {
@@ -53,13 +53,14 @@ class _DashboardscreenState extends State<Dashboardscreen> {
           ),
         ),
       ),
-      body: Navigator(
-        onGenerateRoute: (settings) {
-          return MaterialPageRoute(
-            builder: (context) => pages[currentIndex],
-          );
-        },
-      ),
+      body:pages[currentIndex],
+      //  Navigator(
+      //   onGenerateRoute: (settings) {
+      //     return MaterialPageRoute(
+      //       builder: (context) => 
+      //     );
+      //   },
+      // ),
       bottomNavigationBar: Stack(
         alignment: Alignment.center,
         clipBehavior: Clip.antiAlias,

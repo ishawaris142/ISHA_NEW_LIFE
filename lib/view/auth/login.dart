@@ -149,6 +149,7 @@ Widget build(BuildContext context) {
   var width = MediaQuery.of(context).size.width;
   
   return Scaffold(
+     resizeToAvoidBottomInset: false,
     body: GestureDetector(
       onTap: () {
          FocusScope.of(context).unfocus();
@@ -159,7 +160,7 @@ Widget build(BuildContext context) {
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/backk.png"),
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
           ),
         ),
         child: SingleChildScrollView(
