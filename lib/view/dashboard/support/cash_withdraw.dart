@@ -141,33 +141,33 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                         ],
                       ),
                       const SizedBox(height: 50), // Adjusted for better spacing
-                      Row(
-                        children: [
-                          _buildSmallButton(
-                            icon: Icons.send,
-                            label: "Send",
-                            onPressed: () {
-                              print('Sending cash...');
-                            },
-                          ),
-                          const SizedBox(width: 5),
-                          _buildSmallButton(
-                            icon: Icons.branding_watermark_sharp,
-                            label: "Withdraw",
-                            onPressed: () {
-                              print('Cash Withdraw...');
-                            },
-                          ),
-                          const SizedBox(width: 5),
-                          _buildSmallButton(
-                            icon: Icons.contact_page,
-                            label: "View History",
-                            onPressed: () {
-                              print('Viewing account history...');
-                            },
-                          ),
-                        ],
-                      ),
+                      // Row(
+                      //   children: [
+                      //     _buildSmallButton(
+                      //       icon: Icons.send,
+                      //       label: "Send",
+                      //       onPressed: () {
+                      //         print('Sending cash...');
+                      //       },
+                      //     ),
+                      //     const SizedBox(width: 5),
+                      //     _buildSmallButton(
+                      //       icon: Icons.branding_watermark_sharp,
+                      //       label: "Withdraw",
+                      //       onPressed: () {
+                      //         print('Cash Withdraw...');
+                      //       },
+                      //     ),
+                      //     const SizedBox(width: 5),
+                      //     _buildSmallButton(
+                      //       icon: Icons.contact_page,
+                      //       label: "View History",
+                      //       onPressed: () {
+                      //         print('Viewing account history...');
+                      //       },
+                      //     ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),

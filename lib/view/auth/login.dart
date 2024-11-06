@@ -193,7 +193,7 @@ Widget build(BuildContext context) {
                   controller: _emailController,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color.fromARGB(255, 8, 8, 8),
+                     fillColor: const Color.fromARGB(255, 8, 8, 8),
                     hintText: "name@example.com",
                     hintStyle: const TextStyle(color: Colors.white),
                     border: OutlineInputBorder(
@@ -210,7 +210,7 @@ Widget build(BuildContext context) {
                   obscureText: _obscureText,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color.fromARGB(255, 8, 8, 8),
+                     fillColor: const Color.fromARGB(255, 8, 8, 8),
                     hintText: "Enter your password",
                     hintStyle: const TextStyle(color: Colors.white),
                     border: OutlineInputBorder(

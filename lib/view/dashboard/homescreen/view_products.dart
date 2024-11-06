@@ -310,7 +310,7 @@ class _ProductViewState extends State<ProductView> {
                                         );
                                       } else {
                                         return Container(
-                                          height: 123,
+                                          height: 132,
                                           width: 119,
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(10),
@@ -325,7 +325,7 @@ class _ProductViewState extends State<ProductView> {
                                   ),
                                   Expanded(
                                     child: Padding(
-                                      padding: const EdgeInsets.only(left: 10, top: 5),
+                                      padding: const EdgeInsets.only(left: 10, top: 4),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -337,7 +337,7 @@ class _ProductViewState extends State<ProductView> {
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          const SizedBox(height: 2),
+                                        //  const SizedBox(height: 2),
                                           Text(
                                             selectedDescription,
                                             style: const TextStyle(
@@ -345,7 +345,7 @@ class _ProductViewState extends State<ProductView> {
                                               color: Colors.white70,
                                             ),
                                           ),
-                                          const SizedBox(height: 2),
+                                         // const SizedBox(height: 2),
                                           const Row(
                                             mainAxisAlignment: MainAxisAlignment.start,
                                             children: [
@@ -372,7 +372,7 @@ class _ProductViewState extends State<ProductView> {
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Container(
-                                                width: 140,
+                                                width: 130,
                                                 height: 38,
                                                 padding: const EdgeInsets.symmetric(horizontal: 5),
                                                 decoration: BoxDecoration(
@@ -394,7 +394,7 @@ class _ProductViewState extends State<ProductView> {
                                                       fontSize: 14,
                                                     ),
                                                     itemHeight: 50,
-                                                    menuMaxHeight: 150,
+                                                    menuMaxHeight: 200,
                                                     items: models.asMap().entries.map((entry) {
                                                       int idx = entry.key;
                                                       String model = entry.value;
@@ -433,13 +433,14 @@ class _ProductViewState extends State<ProductView> {
                                               ),
                                             ],
                                           ),
+                                          SizedBox(height: 4),
                                             Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   if (availableQuantity > 0)
                                     CustomButton(
                                      height: 38,
-                                     width: 99,
+                                     width: 110,
                                       padding: const EdgeInsets.symmetric(horizontal: 2,vertical: 7),
                                       decoration: BoxDecoration(
                                         color: Colors.black,
@@ -449,7 +450,7 @@ class _ProductViewState extends State<ProductView> {
                                         ),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                                         //crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           GestureDetector(
@@ -481,7 +482,8 @@ class _ProductViewState extends State<ProductView> {
                                     ),
                                   if (availableQuantity > 0)
                                     CustomButton(
-                                     
+                                     height: 37,
+                                     width: 96,
                                       decoration: BoxDecoration(
                                         color: const Color.fromARGB(255, 172, 31, 37),
                                         borderRadius: BorderRadius.circular(6),

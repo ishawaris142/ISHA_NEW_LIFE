@@ -70,112 +70,119 @@ class _HistoryscreenState extends State<Historyscreen> {
         child: Text('You need to be logged in to view purchase history.'),
       );
     }
-
+     var height= MediaQuery.of(context).size.height;
+    var width= MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-            decoration: const BoxDecoration(
-              color: Colors.black,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                const Icon(Icons.commit, size: 30, color: Colors.white),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                userData?['full_name'] ?? "Name not available",
-                style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+      
+      backgroundColor: Colors.red,
+      body: Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.fill)),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+              decoration: const BoxDecoration(
+                
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const Icon(Icons.commit, size: 30, color: Colors.white),
+                ],
               ),
             ),
-          ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: StreamBuilder<QuerySnapshot>(
-                stream: historyCollection.where('userId', isEqualTo: user.uid).snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text("Error: ${snapshot.error}", style: const TextStyle(color: Colors.white)),
-                    );
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  var historyItems = snapshot.data!.docs;
-
-                  if (historyItems.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "No purchase history",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    itemCount: historyItems.length,
-                    itemBuilder: (context, index) {
-                      var historyItem = historyItems[index];
-                      Timestamp? timestamp = historyItem['timestamp'] as Timestamp?;
-                      double totalAmount = historyItem['totalAmount'];
-                      int totalPoints = historyItem['totalPoints'];
-                      String docId = historyItem.id;
-                      Map<String, dynamic> purchaseData = historyItem.data() as Map<String, dynamic>;
-
-                      return GestureDetector(
-                        onTap: () {
-                          showPurchaseDetails(context, purchaseData);
-                        },
-                        child: Card(
-                          margin: const EdgeInsets.only(bottom: 8.0),
-                          color: const Color.fromARGB(38, 255, 255, 255),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ListTile(
-                            title: Text(
-                              'Date of Purchase: ${formatDate(timestamp)}',
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Total Points: $totalPoints', style: const TextStyle(color: Colors.white)),
-                                Text('Amount of Purchase: \$${totalAmount.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white)),
-                              ],
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => _deleteHistoryItem(docId),
-                            ),
-                          ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  userData?['full_name'] ?? "Name not available",
+                  style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: historyCollection.where('userId', isEqualTo: user.uid).snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text("Error: ${snapshot.error}", style: const TextStyle(color: Colors.white)),
+                      );
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+        
+                    var historyItems = snapshot.data!.docs;
+        
+                    if (historyItems.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "No purchase history",
+                          style: TextStyle(color: Colors.white),
                         ),
                       );
-                    },
-                  );
-                },
+                    }
+        
+                    return ListView.builder(
+                      itemCount: historyItems.length,
+                      itemBuilder: (context, index) {
+                        var historyItem = historyItems[index];
+                        Timestamp? timestamp = historyItem['timestamp'] as Timestamp?;
+                        double totalAmount = historyItem['totalAmount'];
+                        int totalPoints = historyItem['totalPoints'];
+                        String docId = historyItem.id;
+                        Map<String, dynamic> purchaseData = historyItem.data() as Map<String, dynamic>;
+        
+                        return GestureDetector(
+                          onTap: () {
+                            showPurchaseDetails(context, purchaseData);
+                          },
+                          child: Card(
+                            margin: const EdgeInsets.only(bottom: 8.0),
+                            color: const Color.fromARGB(38, 255, 255, 255),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ListTile(
+                              title: Text(
+                                'Date of Purchase: ${formatDate(timestamp)}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Total Points: $totalPoints', style: const TextStyle(color: Colors.white)),
+                                  Text('Amount of Purchase: \$${totalAmount.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white)),
+                                ],
+                              ),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => _deleteHistoryItem(docId),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

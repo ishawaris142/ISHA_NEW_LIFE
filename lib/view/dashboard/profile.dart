@@ -53,12 +53,12 @@ class _ProfilescreenState extends State<Profilescreen> {
            height: height,
           width: width,
           decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.fill)),
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        margin: const EdgeInsets.only(top: 25),
+     //   padding: const EdgeInsets.symmetric(horizontal: 1),
+       
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

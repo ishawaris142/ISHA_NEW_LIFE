@@ -17,6 +17,13 @@ class _FeedsscreenState extends State<Feedsscreen> {
       height: height,
       width: width,
       decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.fill)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Feed Screen",style: TextStyle(fontSize: 40,color: Colors.white),)
+        ],
+      ),
      ),
     );
   }
