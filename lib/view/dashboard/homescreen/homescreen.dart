@@ -4,11 +4,11 @@ import 'package:red_coprative/utils/custom_button.dart';
 import 'package:red_coprative/view/dashboard/homescreen/bundles_product.dart';
 import 'package:red_coprative/view/dashboard/homescreen/convert_point_products.dart';
 import 'package:red_coprative/view/dashboard/homescreen/new_updates.dart';
+import 'package:red_coprative/view/dashboard/homescreen/view_products.dart';
 import 'package:red_coprative/view/dashboard/support/cash_withdraw.dart';
 import 'package:red_coprative/view/dashboard/support/history.dart';
-import 'package:red_coprative/view/dashboard/homescreen/poits_products.dart';
+import 'package:red_coprative/view/dashboard/homescreen/points_products.dart';
 import 'package:red_coprative/view/dashboard/homescreen/popular_product.dart';
-import 'package:red_coprative/view/dashboard/homescreen/view_products.dart';
 import '../../../data/services/user_service.dart';
 
 
@@ -445,7 +445,7 @@ Widget build(BuildContext context) {
           ),
         ),
      
-      _isViewProduct ? const ProductView(): SizedBox.shrink(),
+      _isViewProduct ? ProductView(): SizedBox.shrink(),
       _isPopularProduct? const Popularproduct(): SizedBox.shrink(),
       _isPointProduct? const Pointsproduct(): SizedBox.shrink(),
       _isBundleProduct? const BundlesProduct():SizedBox.shrink(),

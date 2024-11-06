@@ -3,8 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:red_coprative/view/dashboard/account.dart';
 import 'package:red_coprative/view/auth/login.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../profile/edit_profile_screen.dart';
+import '../auth/edit_profile_screen.dart';
 
 class Profilescreen extends StatefulWidget {
   const Profilescreen({super.key});
@@ -45,78 +46,68 @@ class _ProfilescreenState extends State<Profilescreen> {
 
   @override
   Widget build(BuildContext context) {
-     var height = MediaQuery.of(context).size.height;
-  var width = MediaQuery.of(context).size.width;
+    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true, splitScreenMode: true);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
-           height: height,
-          width: width,
-          decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.fill)),
-     //   padding: const EdgeInsets.symmetric(horizontal: 1),
-       
+        height: 1.sh,
+        width: 1.sw,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/backk.png"),
+            fit: BoxFit.fill,
+          ),
+        ),
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+              padding: EdgeInsets.symmetric(vertical: 28.h, horizontal: 16.w),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // IconButton(
-                  //   icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
-                  //   onPressed: () {
-                  //     Navigator.pushReplacement(
-                  //       context,
-                  //       MaterialPageRoute(builder: (context) => Accountscreen()),
-                  //     );
-                  //   },
-                  // ),
-                 IconButton(
-  icon: Image.asset("assets/profilelogout.png"),
- onPressed: () async {
-  print("Logout button pressed");
-  await FirebaseAuth.instance.signOut();
-  print("User signed out");
-  
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => LoginScreen()),
-    // (Route<dynamic> route) => false, // Ensures all routes are removed.
-  );
-},
-),
+                  IconButton(
+                    icon: Image.asset("assets/profilelogout.png"),
+                    onPressed: () async {
+                      await FirebaseAuth.instance.signOut();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 17),
+            SizedBox(height: 17.h),
             userData != null
                 ? ListTile(
-                    leading: const CircleAvatar(
-                      radius: 30,
+                    leading: CircleAvatar(
+                      radius: 30.r,
                       backgroundImage: AssetImage("assets/Kid.png"),
                     ),
                     title: Text(
                       userData?['full_name'] ?? "Name not available",
-                      style: const TextStyle(
-                          fontSize: 25,
+                      style: TextStyle(
+                          fontSize: 25.sp,
                           fontWeight: FontWeight.bold,
                           color: Colors.white),
                     ),
                     subtitle: Row(
                       children: [
-                         Image.asset("assets/mechanic.png"),
-                         SizedBox(width: 4),
+                        Image.asset("assets/mechanic.png", height: 20.h, width: 20.w),
+                        SizedBox(width: 4.w),
                         Text(
                           userData?['account_type'] ?? "Account type not available",
-                          style: const TextStyle(
-                              fontSize: 15,
+                          style: TextStyle(
+                              fontSize: 15.sp,
                               fontWeight: FontWeight.w400,
                               color: Colors.white),
                         )
                       ],
                     ),
                     trailing: IconButton(
-                      icon: Image.asset("assets/BiSolidEditAlt.png"),
+                      icon: Image.asset("assets/BiSolidEditAlt.png", height: 24.h, width: 24.w),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -128,73 +119,42 @@ class _ProfilescreenState extends State<Profilescreen> {
                     ),
                   )
                 : const CircularProgressIndicator(),
-            const SizedBox(height: 40),
+            SizedBox(height: 40.h),
             if (userData != null)
               Container(
-                margin: const EdgeInsets.only(left: 25),
+                margin: EdgeInsets.only(left: 25.w),
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.mail_outline,
-                          color: Color.fromARGB(255, 211, 35, 23),
-                        ),
-                        const SizedBox(width: 3),
-                        Text(
-                          userData?['email'] ?? "Email not available",
-                          style: const TextStyle(color: Colors.white, fontSize: 16),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.phone,
-                          color: Color.fromARGB(255, 211, 35, 23),
-                        ),
-                        const SizedBox(width: 3),
-                        Text(
-                          userData?['phone'] ?? "Phone not available",
-                          style: const TextStyle(color: Colors.white, fontSize: 16),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.credit_card_rounded,
-                          color: Color.fromARGB(255, 211, 35, 23),
-                        ),
-                        const SizedBox(width: 3),
-                        Text(
-                          userData?['cnic'] ?? "CNIC not available",
-                          style: const TextStyle(color: Colors.white, fontSize: 16),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on_outlined,
-                          color: Color.fromARGB(255, 211, 35, 23),
-                        ),
-                        const SizedBox(width: 3),
-                        Text(
-                          userData?['address'] ?? "Address not available",
-                          style: const TextStyle(color: Colors.white, fontSize: 16),
-                        )
-                      ],
-                    ),
+                    _buildUserInfoRow(Icons.mail_outline, userData?['email'] ?? "Email not available"),
+                    SizedBox(height: 15.h),
+                    _buildUserInfoRow(Icons.phone, userData?['phone'] ?? "Phone not available"),
+                    SizedBox(height: 15.h),
+                    _buildUserInfoRow(Icons.credit_card_rounded, userData?['cnic'] ?? "CNIC not available"),
+                    SizedBox(height: 15.h),
+                    _buildUserInfoRow(Icons.location_on_outlined, userData?['address'] ?? "Address not available"),
                   ],
                 ),
-              )
+              ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildUserInfoRow(IconData icon, String info) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          color: Color.fromARGB(255, 211, 35, 23),
+          size: 20.w,
+        ),
+        SizedBox(width: 3.w),
+        Text(
+          info,
+          style: TextStyle(color: Colors.white, fontSize: 16.sp),
+        )
+      ],
     );
   }
 }

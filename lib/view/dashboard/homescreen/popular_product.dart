@@ -17,6 +17,7 @@ class _PopularproductState extends State<Popularproduct> {
       height: height,
       width: width,
       decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.fill)),
+      
      ),
     );
   }

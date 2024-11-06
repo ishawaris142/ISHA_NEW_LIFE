@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CashWithdrawScreen extends StatefulWidget {
   const CashWithdrawScreen({super.key});
@@ -24,7 +24,6 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
     _fetchUserPoints(); // Fetch user points when the screen initializes
   }
 
-  // Function to fetch user's total points from Firestore and convert to rupees
   Future<void> _fetchUserPoints() async {
     try {
       User? user = FirebaseAuth.instance.currentUser; // Get the currently logged-in user
@@ -39,7 +38,6 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
           Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
           totalPoints = data['totalPoints'] ?? 0; // Fetch totalPoints from the document
 
-          // Convert points to rupees (assuming 10 points = 1 rupee)
           setState(() {
             _walletBalance = totalPoints / 10; // Update the wallet balance
           });
@@ -50,12 +48,11 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
     }
   }
 
-  // Function to update the remaining points in Firestore after withdrawal
   Future<void> _updateRemainingPoints(double remainingRupees) async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      int remainingPoints = (remainingRupees * 10).toInt(); // Convert rupees back to points
+      int remainingPoints = (remainingRupees * 10).toInt();
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -63,241 +60,248 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
           .update({'totalPoints': remainingPoints});
 
       setState(() {
-        totalPoints = remainingPoints; // Update local points state
+        totalPoints = remainingPoints;
       });
-
-      print('Updated total points: $remainingPoints');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-     var height = MediaQuery.of(context).size.height;
-  var width = MediaQuery.of(context).size.width;
+    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true, splitScreenMode: true);
+
     return Scaffold(
-      
-      resizeToAvoidBottomInset: true,
-      body: Container(
-           height: height,
-          width: width,
-          decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/backk.png"),fit: BoxFit.cover)),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 40),
-          child: Column(
-            children: [
-              // Top section with back button and QR code icon
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const Icon(
-                    Icons.qr_code_scanner_sharp,
-                    size: 28,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-        
-              // Wallet balance section
-              Container(
-                width: double.infinity,
-                height: 210,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 165, 6, 13),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Cash Wallet",
-                        style: TextStyle(fontSize: 15, color: Colors.white),
-                      ),
-                      Row(
-                        children: [
-                          const Text(
-                            "Rs",
-                            style: TextStyle(
-                                fontSize: 32,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            _walletBalance.toStringAsFixed(2), // Display wallet balance in rupees
-                            style: const TextStyle(
-                                fontSize: 32,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 50), // Adjusted for better spacing
-                      // Row(
-                      //   children: [
-                      //     _buildSmallButton(
-                      //       icon: Icons.send,
-                      //       label: "Send",
-                      //       onPressed: () {
-                      //         print('Sending cash...');
-                      //       },
-                      //     ),
-                      //     const SizedBox(width: 5),
-                      //     _buildSmallButton(
-                      //       icon: Icons.branding_watermark_sharp,
-                      //       label: "Withdraw",
-                      //       onPressed: () {
-                      //         print('Cash Withdraw...');
-                      //       },
-                      //     ),
-                      //     const SizedBox(width: 5),
-                      //     _buildSmallButton(
-                      //       icon: Icons.contact_page,
-                      //       label: "View History",
-                      //       onPressed: () {
-                      //         print('Viewing account history...');
-                      //       },
-                      //     ),
-                      //   ],
-                      // ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-        
-              const Text(
-                "Withdraw Cash",
-                style: TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-        
-              // Withdraw Form
-              Form(
-                child: Column(
+      resizeToAvoidBottomInset: false,
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Container(
+          height: 1.sh,
+          width: 1.sw,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/backk.png"),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 40.h),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Account Title
-                    _buildTextField(
-                      controller: _accountTitleController,
-                      label: 'Account Title',
-                      hintText: 'eg Ahmad Hassan',
-                    ),
-                    const SizedBox(height: 10),
-        
-                    // Mobile Number
-                    _buildTextField(
-                      controller: _mobileNumberController,
-                      label: 'Mobile Number',
-                      hintText: '0300 1234567',
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 10),
-        
-                    // Account Type Label
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Account Type',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-        
-                    // Account Type with Radio Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildAccountTypeOption('EasyPaisa'),
-                        const SizedBox(width: 20),
-                        _buildAccountTypeOption('JazzCash'),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-        
-                    // Amount
-                    _buildTextField(
-                      controller: _amountController,
-                      label: 'Amount (Rs)',
-                      hintText: 'eg 1200',
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 20),
-        
-                    // Withdraw Button
-                    ElevatedButton(
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
                       onPressed: () {
-                        final accountTitle = _accountTitleController.text;
-                        final mobileNumber = _mobileNumberController.text;
-                        final amount = _amountController.text;
-        
-                        if (accountTitle.isNotEmpty && mobileNumber.isNotEmpty && amount.isNotEmpty) {
-                          double withdrawAmount = double.parse(amount);
-                          if (withdrawAmount <= _walletBalance) {
-                            setState(() {
-                              _walletBalance -= withdrawAmount; // Deduct the amount from the balance
-                            });
-        
-                            double remainingRupees = _walletBalance; // Calculate remaining rupees
-                            _updateRemainingPoints(remainingRupees); // Update remaining points in Firestore
-        
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Withdrawing Rs. $withdrawAmount via $_selectedAccountType',
-                                ),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Insufficient balance. Your balance is Rs. $_walletBalance'),
-                              ),
-                            );
-                          }
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please fill in all fields.'),
-                            ),
-                          );
-                        }
+                        Navigator.pop(context);
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 165, 6, 13),
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text(
-                        'Withdraw Cash',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
+                    ),
+                    const Icon(
+                      Icons.qr_code_scanner_sharp,
+                      size: 28,
+                      color: Colors.white,
                     ),
                   ],
                 ),
-              ),
-            ],
+                SizedBox(height: 20.h),
+
+                // Wallet balance section
+                Container(
+                  width: double.infinity,
+                  height: 210.h,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 165, 6, 13),
+                    borderRadius: BorderRadius.circular(14.r),
+                    border: Border.all(color: Colors.white54),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 19.w, vertical: 14.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              children: [
+                                const Text(
+                                  "Cash Wallet",
+                                  style: TextStyle(fontSize: 15, color: Colors.white),
+                                ),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Rs",
+                                      style: TextStyle(
+                                          fontSize: 32,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(width: 2.w),
+                                    Text(
+                                      _walletBalance.toStringAsFixed(2),
+                                      style: const TextStyle(
+                                          fontSize: 32,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                const Text(
+                                  "Points",
+                                  style: TextStyle(fontSize: 15, color: Colors.white),
+                                ),
+                                const Text(
+                                  "130",
+                                  style: TextStyle(
+                                      fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 35.h),
+                        Row(
+                          children: [
+                            _buildSmallButton(
+                              icon: Icons.contact_page,
+                              label: "View History",
+                              onPressed: () {
+                                print('Viewing account history...');
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20.h),
+
+                const Text(
+                  "Withdraw Cash",
+                  style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                SizedBox(height: 20.h),
+
+                // Withdraw Form
+                Form(
+                  child: Column(
+                    children: [
+                      _buildTextField(
+                        controller: _accountTitleController,
+                        label: 'Account Title',
+                        hintText: 'eg Ahmad Hassan',
+                      ),
+                      SizedBox(height: 10.h),
+
+                      _buildTextField(
+                        controller: _mobileNumberController,
+                        label: 'Mobile Number',
+                        hintText: '0300 1234567',
+                        keyboardType: TextInputType.phone,
+                      ),
+                      SizedBox(height: 10.h),
+
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Account Type',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10.h),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildAccountTypeOption('EasyPaisa'),
+                          SizedBox(width: 20.w),
+                          _buildAccountTypeOption('JazzCash'),
+                        ],
+                      ),
+                      SizedBox(height: 10.h),
+
+                      _buildTextField(
+                        controller: _amountController,
+                        label: 'Amount (Rs)',
+                        hintText: 'eg 1200',
+                        keyboardType: TextInputType.number,
+                      ),
+                      SizedBox(height: 20.h),
+
+                      ElevatedButton(
+                        onPressed: () {
+                          final accountTitle = _accountTitleController.text;
+                          final mobileNumber = _mobileNumberController.text;
+                          final amount = _amountController.text;
+
+                          if (accountTitle.isNotEmpty && mobileNumber.isNotEmpty && amount.isNotEmpty) {
+                            double withdrawAmount = double.parse(amount);
+                            if (withdrawAmount <= _walletBalance) {
+                              setState(() {
+                                _walletBalance -= withdrawAmount;
+                              });
+
+                              double remainingRupees = _walletBalance;
+                              _updateRemainingPoints(remainingRupees);
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Withdrawing Rs. $withdrawAmount via $_selectedAccountType',
+                                  ),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Insufficient balance. Your balance is Rs. $_walletBalance'),
+                                ),
+                              );
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please fill in all fields.'),
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 18, 18, 18),
+                          padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 15.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            side: BorderSide(color: Colors.white54),
+                          ),
+                        ),
+                        child: const Text(
+                          'Withdraw Cash',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // Helper methods for text fields, account type options, and buttons
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -311,15 +315,17 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Colors.white),
+        filled: true,
+        fillColor: const Color.fromARGB(255, 8, 8, 8),
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.grey),
         enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.white54),
+          borderRadius: BorderRadius.circular(10.r),
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: const BorderSide(color: Color.fromARGB(255, 165, 6, 13)),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
         ),
       ),
     );
@@ -333,26 +339,28 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: _selectedAccountType == type ? Colors.red : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.red),
+          color: _selectedAccountType == type
+              ? Color.fromARGB(255, 198, 28, 28)
+              : Color.fromARGB(255, 18, 18, 18),
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: Colors.white54),
         ),
         child: Row(
           children: [
             Text(
               type,
               style: TextStyle(
-                color: _selectedAccountType == type ? Colors.white : Colors.red,
-                fontSize: 16,
+                color: _selectedAccountType == type ? Colors.white : const Color.fromARGB(255, 230, 227, 227),
+                fontSize: 16.sp,
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10.w),
             Icon(
               Icons.circle,
               color: _selectedAccountType == type ? Colors.white : Colors.red,
-              size: 18,
+              size: 18.r,
             ),
           ],
         ),
@@ -368,19 +376,20 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+        backgroundColor: Colors.black,
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 10.h),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
+          side: BorderSide(color: Colors.white54),
         ),
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.red, size: 18),
-          const SizedBox(width: 10),
+          Icon(icon, color: Colors.white, size: 18.r),
+          SizedBox(width: 10.w),
           Text(
             label,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.red),
+            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ],
       ),

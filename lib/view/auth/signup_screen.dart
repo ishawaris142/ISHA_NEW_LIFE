@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'package:red_coprative/view/auth/login.dart'; // Import the login screen
 import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore (optional for saving other fields)
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import flutter_screenutil
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -33,7 +34,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
   // Method to handle signup
   Future<void> _signup() async {
-    // Check if account type is selected
     if (selectedAccountType == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -44,7 +44,6 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    // Check if passwords match
     if (passwordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -55,7 +54,6 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    // Check if terms are accepted
     if (!acceptTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -66,16 +64,14 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    // Try to create a user with Firebase Authentication
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
-      // Store additional user info in Firestore (Optional)
       await _firestore.collection('users').doc(userCredential.user?.uid).set({
-        'account_type': selectedAccountType, // Store account type
+        'account_type': selectedAccountType,
         'full_name': fullNameController.text.trim(),
         'email': emailController.text.trim(),
         'phone': phoneController.text.trim(),
@@ -83,13 +79,11 @@ class _SignupScreenState extends State<SignupScreen> {
         'address': addressController.text.trim(),
       });
 
-      // Navigate to login screen after successful signup
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
     } on FirebaseAuthException catch (e) {
-      // Show error message if signup fails
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message ?? 'An error occurred'),
@@ -101,24 +95,13 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-     var height = MediaQuery.of(context).size.height;
-  var width = MediaQuery.of(context).size.width;
+    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true, splitScreenMode: true);
+    
     return Scaffold(
-       resizeToAvoidBottomInset: false,
-     
-      // appBar: AppBar(
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      //   leading: IconButton(
-      //     icon: const Icon(Icons.arrow_back, color: Colors.white),
-      //     onPressed: () {
-      //       Navigator.pop(context); // Go back to the login screen
-      //     },
-      //   ),
-      // ),
+      resizeToAvoidBottomInset: false,
       body: Container(
-         height: height,
-        width: width,
+        height: 1.sh,
+        width: 1.sw,
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/backk.png"),
@@ -126,34 +109,33 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white,size: 30),
-          onPressed: () {
-            Navigator.pop(context); // Go back to the login screen
-          },
-        ),
-              const SizedBox(height: 10),
+              IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              SizedBox(height: 10.h),
               Center(
                 child: Image.asset(
-                  'assets/Logo.png', // Make sure this image is in your assets folder
-                  height: 100,
+                  'assets/Logo.png',
+                  height: 100.h,
                 ),
               ),
-              const SizedBox(height: 20),
-              const Text(
+              SizedBox(height: 20.h),
+              Text(
                 "Create your Account",
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 20),
-              // Account Type Dropdown
+              SizedBox(height: 20.h),
               DropdownButtonFormField<String>(
                 value: selectedAccountType,
                 hint: const Text("Select Account Type", style: TextStyle(color: Colors.white54)),
@@ -180,138 +162,21 @@ class _SignupScreenState extends State<SignupScreen> {
                   });
                 },
               ),
-              const SizedBox(height: 20),
-              // Full Name
-              TextField(
-                controller: fullNameController,
-                decoration: InputDecoration(
-                  filled: true,
-                   fillColor: const Color.fromARGB(255, 8, 8, 8),
-                  hintText: "Full Name",
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  labelText: "Full Name",
-                  labelStyle: const TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-              // Email
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  filled: true,
-                    fillColor: const Color.fromARGB(255, 8, 8, 8),
-                  hintText: "name@example.com",
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  labelText: "Email",
-                  labelStyle: const TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-              // Phone (numbers only)
-              TextField(
-                controller: phoneController,
-                decoration: InputDecoration(
-                  filled: true,
-                   fillColor: const Color.fromARGB(255, 8, 8, 8),
-                  hintText: "+92 312 3456789",
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  labelText: "Phone",
-                  labelStyle: const TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-                keyboardType: TextInputType.phone,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly, // Allow only numbers
-                ],
-              ),
-              const SizedBox(height: 20),
-              // CNIC (13 digits only)
-              TextField(
-                controller: cnicController,
-                decoration: InputDecoration(
-                  filled: true,
-                    fillColor: const Color.fromARGB(255, 8, 8, 8),
-                  hintText: "35123 - 4567891 - 0",
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  labelText: "CNIC",
-                  labelStyle: const TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly, // Only allow digits
-                  LengthLimitingTextInputFormatter(13),   // Limit to 13 digits
-                ],
-              ),
-              const SizedBox(height: 20),
-              // Address
-              TextField(
-                controller: addressController,
-                decoration: InputDecoration(
-                  filled: true,
-                    fillColor: const Color.fromARGB(255, 8, 8, 8),
-                  hintText: "Your address",
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  labelText: "Address",
-                  labelStyle: const TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-              // Password
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  filled: true,
-                    fillColor: const Color.fromARGB(255, 8, 8, 8),
-                  hintText: "********",
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  labelText: "Password",
-                  labelStyle: const TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-              // Confirm Password
-              TextField(
-                controller: confirmPasswordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  filled: true,
-                    fillColor: const Color.fromARGB(255, 8, 8, 8),
-                  hintText: "********",
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  labelText: "Confirm Password",
-                  labelStyle: const TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-              // Checkbox for terms and conditions
+              SizedBox(height: 20.h),
+              _buildTextField(fullNameController, "Full Name", "Full Name"),
+              SizedBox(height: 20.h),
+              _buildTextField(emailController, "name@example.com", "Email"),
+              SizedBox(height: 20.h),
+              _buildTextField(phoneController, "+92 312 3456789", "Phone", keyboardType: TextInputType.phone, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
+              SizedBox(height: 20.h),
+              _buildTextField(cnicController, "35123 - 4567891 - 0", "CNIC", keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(13)]),
+              SizedBox(height: 20.h),
+              _buildTextField(addressController, "Your address", "Address"),
+              SizedBox(height: 20.h),
+              _buildTextField(passwordController, "********", "Password", obscureText: true),
+              SizedBox(height: 20.h),
+              _buildTextField(confirmPasswordController, "********", "Confirm Password", obscureText: true),
+              SizedBox(height: 20.h),
               Row(
                 children: [
                   Checkbox(
@@ -330,24 +195,22 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              // Create Account Button
+              SizedBox(height: 20.h),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _signup, // Call Firebase signup method
+                  onPressed: _signup,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16.h),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Create Account",
-                    style: TextStyle(fontSize: 18),
+                    style: TextStyle(fontSize: 18.sp),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
-              // Login navigation
+              SizedBox(height: 20.h),
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -379,4 +242,27 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
+
+  Widget _buildTextField(TextEditingController controller, String hint, String label,
+      {bool obscureText = false, TextInputType keyboardType = TextInputType.text, List<TextInputFormatter>? inputFormatters}) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: const Color.fromARGB(255, 8, 8, 8),
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.white54),
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+      ),
+      style: const TextStyle(color: Colors.white),
+    );
+  }
 }
+

@@ -5,9 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:red_coprative/view/dashboard/homescreen/homescreen.dart';
 // ignore: unused_import
 import 'package:red_coprative/view/auth/login.dart';
+import 'package:red_coprative/view/dashboard/support/cash_withdraw.dart';
 import 'view/dashboard/support/add_to_cart.dart';
 import 'view/dashboard/dashboard.dart';
-import 'view/dashboard/support/viewproducts.dart';
+
 import 'view/splash/logoscreen.dart';
 import 'data/cart_provider.dart';
 
@@ -40,8 +41,9 @@ class MyApp extends StatelessWidget {
       home: const Logoscreen(), // You can keep the logo screen here
       routes: {
         '/dashboard': (context) => const Dashboardscreen(), // Navigate to Dashboard first
-        '/viewproducts': (context) => const ViewproductScreen(),
+        
         '/cart': (context) => const AddToCart(),
+         
       },
     );
   }

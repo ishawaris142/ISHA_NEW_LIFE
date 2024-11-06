@@ -311,7 +311,7 @@ class _ProductViewState extends State<ProductView> {
                                       } else {
                                         return Container(
                                           height: 132,
-                                          width: 119,
+                                          width: 132,
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(10),
                                             image: DecorationImage(
@@ -483,7 +483,7 @@ class _ProductViewState extends State<ProductView> {
                                   if (availableQuantity > 0)
                                     CustomButton(
                                      height: 37,
-                                     width: 96,
+                                     width: 83,
                                       decoration: BoxDecoration(
                                         color: const Color.fromARGB(255, 172, 31, 37),
                                         borderRadius: BorderRadius.circular(6),
@@ -518,7 +518,7 @@ class _ProductViewState extends State<ProductView> {
                                           
                                           child: const Text(
                                             "Add to cart",
-                                            style: TextStyle(color: Colors.white,fontSize: 14),
+                                            style: TextStyle(color: Colors.white,fontSize: 10),
                                           ),
                                         ),
                                       ),
