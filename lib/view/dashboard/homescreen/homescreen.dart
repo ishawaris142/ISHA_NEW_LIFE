@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:red_coprative/models/homescreengrid.dart';
 import 'package:red_coprative/utils/custom_button.dart';
+import 'package:red_coprative/view/auth/edit_profile_screen.dart';
 import 'package:red_coprative/view/dashboard/homescreen/bundles_product.dart';
 import 'package:red_coprative/view/dashboard/homescreen/convert_point_products.dart';
 import 'package:red_coprative/view/dashboard/homescreen/new_updates.dart';
 import 'package:red_coprative/view/dashboard/homescreen/view_products.dart';
+import 'package:red_coprative/view/dashboard/support/add_to_cart.dart';
 import 'package:red_coprative/view/dashboard/support/cash_withdraw.dart';
 import 'package:red_coprative/view/dashboard/support/history.dart';
 import 'package:red_coprative/view/dashboard/homescreen/points_products.dart';
-import 'package:red_coprative/view/dashboard/homescreen/popular_product.dart';
+import 'package:red_coprative/view/dashboard/homescreen/popular_products.dart';
 import '../../../data/services/user_service.dart';
-
+import '../../../view/dashboard/homescreen/cart/cart_items.dart';
 
 
 class Homescreen extends StatefulWidget {
@@ -31,6 +33,10 @@ class _HomescreenState extends State<Homescreen> {
     bool _isBundleProduct= false;
     bool _isNewupdateProduct=false;
     bool _isConvertpoints=false;
+    bool _isCash_withdraw=false;
+    bool _isHistoryScreen=false;
+    bool _isAddtocart=false;
+   
                              /////////////////////////////////////////////////////////////////////
   @override
   void initState() {
@@ -146,7 +152,17 @@ Widget build(BuildContext context) {
                                     ),
                                   ),
                                 ),
-                                Image.asset("assets/cartpic.png", height: 34),
+                              
+                                  GestureDetector(
+                                    onTap: () {
+                                     setState(() {
+                                       _isAddtocart=true;
+                                     });
+                                    },
+                                    child: Image.asset("assets/cartpic.png", height: 34),
+                                  ),
+                              //  Image.asset("assets/cartpic.png", height: 34),
+                              
                                 SizedBox(width: 10),
                                 Image.asset("assets/homeicon.png", height: 34),
                               ],
@@ -186,12 +202,9 @@ Widget build(BuildContext context) {
                                 const Spacer(),
                                 CustomButton(
                                   onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => CashWithdrawScreen(),
-                                      ),
-                                    );
+                                    setState(() {
+                                      _isCash_withdraw=true;
+                                    });
                                   },
                                   margin: EdgeInsets.symmetric(horizontal: 3),
                                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
@@ -211,12 +224,9 @@ Widget build(BuildContext context) {
                                 ),
                                 CustomButton(
                                   onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Historyscreen(),
-                                      ),
-                                    );
+                                   setState(() {
+                                     _isHistoryScreen=true;
+                                   });
                                   },
                                   margin: EdgeInsets.symmetric(horizontal: 5),
                                   padding: EdgeInsets.symmetric(horizontal: 14, vertical: 11),
@@ -258,14 +268,11 @@ Widget build(BuildContext context) {
                                 ),
                                 Spacer(),
                                 CustomButton(
-                                  onTap: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const CashWithdrawScreen(),
-                                      ),
-                                    );
-                                    await refreshPoints();
+                                  onTap: ()  {
+                                     setState(() {
+                                       _isCash_withdraw=true;
+                                     });
+                                     refreshPoints();
                                   },
                                   margin: EdgeInsets.symmetric(horizontal: 3),
                                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
@@ -285,12 +292,9 @@ Widget build(BuildContext context) {
                                 ),
                                 CustomButton(
                                   onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Historyscreen(),
-                                      ),
-                                    );
+                                    setState(() {
+                                      _isHistoryScreen=true;
+                                    });
                                   },
                                   margin: EdgeInsets.symmetric(horizontal: 5),
                                   padding: EdgeInsets.symmetric(horizontal: 14, vertical: 11),
@@ -334,14 +338,7 @@ Widget build(BuildContext context) {
                         itemBuilder: (context, index) {
                           return GestureDetector(
                             onTap: () {
-                              setState(() {
-                                _isViewProduct = true;
-                                _isPopularProduct=true;
-                                _isPointProduct=true;
-                                _isBundleProduct=true;
-                                _isNewupdateProduct=true;
-                                _isConvertpoints=true;
-                              });
+                             
                           setState(() {
                             
                             if (index == 0) {
@@ -445,13 +442,16 @@ Widget build(BuildContext context) {
           ),
         ),
      
-      _isViewProduct ? ProductView(): SizedBox.shrink(),
-      _isPopularProduct? const Popularproduct(): SizedBox.shrink(),
+      _isViewProduct? const ProductView(): SizedBox.shrink(),
+      _isPopularProduct? const PopularProductsView(): SizedBox.shrink(),
       _isPointProduct? const Pointsproduct(): SizedBox.shrink(),
       _isBundleProduct? const BundlesProduct():SizedBox.shrink(),
       _isNewupdateProduct? const Newupdates():SizedBox.shrink(),
-      _isConvertpoints? const Convertpoints():SizedBox.shrink()
-      
+      _isConvertpoints? const Convertpoints():SizedBox.shrink(),
+      _isCash_withdraw? const CashWithdrawScreen():SizedBox.shrink(),
+      _isHistoryScreen? const Historyscreen(): SizedBox.shrink(),
+        _isAddtocart? const CartScreen():SizedBox.shrink(),
+   
       ////////////////////////////////////////////////////////////////////////////////////////
       ],
     ),

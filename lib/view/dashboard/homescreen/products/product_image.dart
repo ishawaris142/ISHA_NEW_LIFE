@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProductImage extends StatelessWidget {
   final Future<String>? imageUrl;
 
-  const ProductImage({Key? key, required this.imageUrl}) : super(key: key);
+  const ProductImage({Key? key, this.imageUrl}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,26 +13,26 @@ class ProductImage extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Container(
-            height: 132,
-            width: 132,
+            height: 100.h,
+            width: 100.h,
             child: const Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
           return Container(
-            height: 132,
-            width: 132,
+            height: 100.h,
+            width: 100.h,
             color: Colors.grey,
             child: const Icon(Icons.error, color: Colors.red),
           );
         } else {
           return Container(
-            height: 132,
-            width: 132,
+            height: 100.h,
+            width: 100.h,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
               image: DecorationImage(
                 image: NetworkImage(snapshot.data!),
-                fit: BoxFit.fill,
+                fit: BoxFit.cover,
               ),
             ),
           );

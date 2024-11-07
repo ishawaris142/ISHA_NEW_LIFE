@@ -149,7 +149,7 @@ class _ProductViewState extends State<ProductView> {
             ),
           ),
           child: Container(
-            margin: const EdgeInsets.only(top: 30),
+            margin: const EdgeInsets.only(top: 30,bottom: 0),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Column(
               children: [
@@ -310,8 +310,8 @@ class _ProductViewState extends State<ProductView> {
                                         );
                                       } else {
                                         return Container(
-                                          height: 132,
-                                          width: 132,
+                                          height: 137,
+                                          width: 137,
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(10),
                                             image: DecorationImage(
@@ -439,8 +439,8 @@ class _ProductViewState extends State<ProductView> {
                                 children: [
                                   if (availableQuantity > 0)
                                     CustomButton(
-                                     height: 38,
-                                     width: 110,
+                                     height: 37,
+                                     width: 99,
                                       padding: const EdgeInsets.symmetric(horizontal: 2,vertical: 7),
                                       decoration: BoxDecoration(
                                         color: Colors.black,
@@ -483,7 +483,7 @@ class _ProductViewState extends State<ProductView> {
                                   if (availableQuantity > 0)
                                     CustomButton(
                                      height: 37,
-                                     width: 83,
+                                     width: 85,
                                       decoration: BoxDecoration(
                                         color: const Color.fromARGB(255, 172, 31, 37),
                                         borderRadius: BorderRadius.circular(6),

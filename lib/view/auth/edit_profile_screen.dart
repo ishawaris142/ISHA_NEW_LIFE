@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:red_coprative/view/dashboard/dashboard.dart';
+import 'package:red_coprative/view/dashboard/profile.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -123,7 +125,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       IconButton(
                         icon: const Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
-                          Navigator.pop(context); // Go back to the previous screen
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => Dashboardscreen()));// Go back to the previous screen
                         },
                       ),
                       IconButton(
@@ -156,7 +158,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     hint: const Text("Select Account Type", style: TextStyle(color: Colors.white54)),
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: Colors.grey[800],
+                      fillColor: const Color.fromARGB(255, 18, 18, 18),
                       labelText: "Account Type",
                       labelStyle: const TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
@@ -223,7 +225,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       keyboardType: keyboardType,
       decoration: InputDecoration(
         filled: true,
-        fillColor: Colors.grey[800],
+        fillColor: const Color.fromARGB(255, 18, 18, 18),
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.white54),
         border: OutlineInputBorder(

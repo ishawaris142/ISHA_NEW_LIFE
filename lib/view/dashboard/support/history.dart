@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:red_coprative/view/dashboard/dashboard.dart';
 import 'history_data.dart';
 
 class Historyscreen extends StatefulWidget {
@@ -93,7 +94,9 @@ class _HistoryscreenState extends State<Historyscreen> {
                   IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
                     onPressed: () {
-                      Navigator.pop(context);
+                       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const Dashboardscreen()),
+                        (Route)=>false,
+                        );
                     },
                   ),
                   const Icon(Icons.commit, size: 30, color: Colors.white),

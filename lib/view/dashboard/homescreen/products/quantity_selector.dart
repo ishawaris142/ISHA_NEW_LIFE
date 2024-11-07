@@ -1,34 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class QuantitySelector extends StatelessWidget {
-  final int quantity;
-  final int availableQuantity;
-  final VoidCallback onIncrement;
-  final VoidCallback onDecrement;
+class QuantitySelector extends StatefulWidget {
+  @override
+  _QuantitySelectorState createState() => _QuantitySelectorState();
+}
 
-  const QuantitySelector({
-    Key? key,
-    required this.quantity,
-    required this.availableQuantity,
-    required this.onIncrement,
-    required this.onDecrement,
-  }) : super(key: key);
+class _QuantitySelectorState extends State<QuantitySelector> {
+  int quantity = 1;
+
+  void _incrementQuantity() {
+    setState(() {
+      quantity += 1;
+    });
+  }
+
+  void _decrementQuantity() {
+    setState(() {
+      if (quantity > 1) quantity -= 1;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        GestureDetector(
-          onTap: quantity > 1 ? onDecrement : null,
-          child: Image.asset("assets/negative.png", height: 22),
+        IconButton(
+          icon: Icon(Icons.remove, color: Colors.white, size: 20.sp),
+          onPressed: _decrementQuantity,
         ),
         Text(
           '$quantity',
-          style: const TextStyle(fontSize: 14, color: Colors.white),
+          style: TextStyle(color: Colors.white, fontSize: 16.sp),
         ),
-        GestureDetector(
-          onTap: quantity < availableQuantity ? onIncrement : null,
-          child: Image.asset("assets/positive.png", height: 22),
+        IconButton(
+          icon: Icon(Icons.add, color: Colors.white, size: 20.sp),
+          onPressed: _incrementQuantity,
         ),
       ],
     );

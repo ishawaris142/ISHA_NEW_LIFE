@@ -139,6 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
     
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.red,
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();

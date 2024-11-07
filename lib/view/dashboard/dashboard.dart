@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:red_coprative/constant/static_veriable.dart';
 import 'package:red_coprative/view/dashboard/account.dart';
 import 'package:red_coprative/view/dashboard/feeds.dart';
 import 'package:red_coprative/view/dashboard/homescreen/homescreen.dart';
@@ -94,7 +97,7 @@ class _DashboardscreenState extends State<Dashboardscreen> {
             bottom: 19,
             child: const Text(
               "Scan QR Code",
-              style: TextStyle(color: Colors.white, fontSize: 12),
+              style: TextStyle(color: Colors.grey, fontSize: 12),
             ),
           ),
         ],
@@ -105,7 +108,17 @@ class _DashboardscreenState extends State<Dashboardscreen> {
   Widget _buildBottomNavItem(String image, String label, int index) {
     final bool isSelected = currentIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => currentIndex = index),
+      onTap: () {
+         
+   if(index==0){
+       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const Dashboardscreen()),
+                        (Route)=>false,
+                        );
+   }
+      setState(() {
+        
+                               currentIndex = index;
+      } );},
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,

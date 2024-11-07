@@ -16,7 +16,7 @@ class Profilescreen extends StatefulWidget {
 
 class _ProfilescreenState extends State<Profilescreen> {
   Map<String, dynamic>? userData;
-
+  bool _isEditprofile=false;
   @override
   void initState() {
     super.initState();
@@ -50,95 +50,104 @@ class _ProfilescreenState extends State<Profilescreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Container(
-        height: 1.sh,
-        width: 1.sw,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/backk.png"),
-            fit: BoxFit.fill,
-          ),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 28.h, horizontal: 16.w),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    icon: Image.asset("assets/profilelogout.png"),
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()),
-                      );
-                    },
-                  ),
-                ],
-              ),
+      body: Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus(); // Unfocus to dismiss the keyboard
+          },
+        child: Container(
+          height: 1.sh,
+          width: 1.sw,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/backk.png"),
+              fit: BoxFit.fill,
             ),
-            SizedBox(height: 17.h),
-            userData != null
-                ? ListTile(
-                    leading: CircleAvatar(
-                      radius: 30.r,
-                      backgroundImage: AssetImage("assets/Kid.png"),
-                    ),
-                    title: Text(
-                      userData?['full_name'] ?? "Name not available",
-                      style: TextStyle(
-                          fontSize: 25.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                    subtitle: Row(
-                      children: [
-                        Image.asset("assets/mechanic.png", height: 20.h, width: 20.w),
-                        SizedBox(width: 4.w),
-                        Text(
-                          userData?['account_type'] ?? "Account type not available",
-                          style: TextStyle(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.white),
-                        )
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: Image.asset("assets/BiSolidEditAlt.png", height: 24.h, width: 24.w),
-                      onPressed: () {
-                        Navigator.push(
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 28.h, horizontal: 16.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: Image.asset("assets/profilelogout.png"),
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+                        Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => EditProfileScreen(userData: userData!),
-                          ),
+                          MaterialPageRoute(builder: (context) => LoginScreen()),
                         );
                       },
                     ),
-                  )
-                : const CircularProgressIndicator(),
-            SizedBox(height: 40.h),
-            if (userData != null)
-              Container(
-                margin: EdgeInsets.only(left: 25.w),
-                child: Column(
-                  children: [
-                    _buildUserInfoRow(Icons.mail_outline, userData?['email'] ?? "Email not available"),
-                    SizedBox(height: 15.h),
-                    _buildUserInfoRow(Icons.phone, userData?['phone'] ?? "Phone not available"),
-                    SizedBox(height: 15.h),
-                    _buildUserInfoRow(Icons.credit_card_rounded, userData?['cnic'] ?? "CNIC not available"),
-                    SizedBox(height: 15.h),
-                    _buildUserInfoRow(Icons.location_on_outlined, userData?['address'] ?? "Address not available"),
                   ],
                 ),
               ),
-          ],
+              SizedBox(height: 17.h),
+              userData != null
+                  ? ListTile(
+                      leading: CircleAvatar(
+                        radius: 30.r,
+                        backgroundImage: AssetImage("assets/Kid.png"),
+                      ),
+                      title: Text(
+                        userData?['full_name'] ?? "Name not available",
+                        style: TextStyle(
+                            fontSize: 25.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                      subtitle: Row(
+                        children: [
+                          Image.asset("assets/mechanic.png", height: 20.h, width: 20.w),
+                          SizedBox(width: 4.w),
+                          Text(
+                            userData?['account_type'] ?? "Account type not available",
+                            style: TextStyle(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white),
+                          )
+                        ],
+                      ),
+                      trailing: GestureDetector(
+                        child: IconButton(
+                          icon: Image.asset("assets/BiSolidEditAlt.png", height: 24.h, width: 24.w),
+                          onPressed: () {
+                           setState(() {
+                             _isEditprofile=true;
+                           });
+                          },
+                        ),
+                      ),
+                    )
+                  : const CircularProgressIndicator(),
+              SizedBox(height: 40.h),
+              if (userData != null)
+                Container(
+                  margin: EdgeInsets.only(left: 25.w),
+                  child: Column(
+                    children: [
+                      _buildUserInfoRow(Icons.mail_outline, userData?['email'] ?? "Email not available"),
+                      SizedBox(height: 15.h),
+                      _buildUserInfoRow(Icons.phone, userData?['phone'] ?? "Phone not available"),
+                      SizedBox(height: 15.h),
+                      _buildUserInfoRow(Icons.credit_card_rounded, userData?['cnic'] ?? "CNIC not available"),
+                      SizedBox(height: 15.h),
+                      _buildUserInfoRow(Icons.location_on_outlined, userData?['address'] ?? "Address not available"),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
-    );
+         _isEditprofile? EditProfileScreen(userData: userData!):const SizedBox.shrink(),
+      ]
+  )
+  );
   }
 
   Widget _buildUserInfoRow(IconData icon, String info) {
