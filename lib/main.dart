@@ -11,7 +11,7 @@ import 'view/dashboard/support/add_to_cart.dart';
 import 'view/dashboard/dashboard.dart';
 
 import 'view/splash/logoscreen.dart';
-import 'data/cart_provider.dart';
+import 'data/services/cart_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

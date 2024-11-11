@@ -1,34 +1,102 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:red_coprative/utils/custom_button.dart';
+import 'package:red_coprative/models/homescreengrid.dart';
 import 'package:red_coprative/view/dashboard/dashboard.dart';
-import '../../../data/services/popular_product_service.dart';
 import 'package:red_coprative/view/dashboard/support/product_description.dart';
+import '../../../../data/services/cart_data_service.dart';
 
-class PopularProductsView extends StatefulWidget {
-  const PopularProductsView({super.key});
+class ProductView extends StatefulWidget {
+  final Homescreenmodelclass? productData;
+
+  const ProductView({Key? key, this.productData}) : super(key: key);
 
   @override
-  _PopularProductsViewState createState() => _PopularProductsViewState();
+  State<ProductView> createState() => _ProductViewState();
 }
 
-class _PopularProductsViewState extends State<PopularProductsView> {
-  final PopularProductsService _popularProductsService = PopularProductsService();
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> products = [];
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> filteredProducts = [];
-  Map<String, Future<String>?> imageUrls = {};
-  Map<String, int> selectedIndexes = {}; // Track selected model index for each product
-  TextEditingController searchController = TextEditingController();
+class _ProductViewState extends State<ProductView> {
+  final CartService _cartService = CartService();
+  List<QueryDocumentSnapshot> products = [];
+  List<QueryDocumentSnapshot> filteredProducts = [];
+  Map<String, int> selectedIndexes = {};
   Map<String, int> quantities = {};
+  Map<String, Future<String>?> imageUrls = {};
   TextEditingController searchbar = TextEditingController();
+
   @override
   void initState() {
     super.initState();
-    _fetchPopularProducts();
+    _fetchProducts();
   }
+
+  Future<void> _fetchProducts() async {
+    List<QueryDocumentSnapshot> fetchedProducts = await _cartService.getProducts();
+    setState(() {
+      products = fetchedProducts;
+      filteredProducts = fetchedProducts;
+    });
+
+    for (var product in fetchedProducts) {
+      setState(() {
+        selectedIndexes[product.id] = 0;
+        quantities[product.id] = 1;
+        imageUrls[product.id] = getDownloadUrl(product['imageUrl']);
+      });
+    }
+  }
+
+  // Fetch public download URL for image stored in Firebase Storage
+  Future<String> getDownloadUrl(String gsUrl) async {
+    try {
+      Reference ref = FirebaseStorage.instance.refFromURL(gsUrl);
+      String downloadUrl = await ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print("Error fetching download URL: $e");
+      return '';
+    }
+  }
+
+  void _addToCart(
+      String productId,
+      String category,
+      List<String> selectedModel,
+      List<String> selectedDescription,
+      List<int> selectedPrice,
+      String imageUrl,
+      int quantity,
+      ) async {
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      print("🥩 Image URL before resolving: $imageUrl"); // Debugging line added here
+      String resolvedImageUrl = await getDownloadUrl(imageUrl);
+      print("Resolved Image URL: $resolvedImageUrl"); // More specific debugging
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('cart')
+          .add({
+        'productId': productId,
+        'category': category,
+        'models': selectedModel,
+        'descriptions': selectedDescription,
+        'prices': selectedPrice,
+        'quantity': quantity,
+        'imageUrl': resolvedImageUrl,
+      })
+          .then((value) {
+        _showTopSnackBar(context, '$category (${selectedModel[0]}) added to cart with $quantity items.');
+      })
+          .catchError((error) {
+        _showTopSnackBar(context, 'Failed to add $category (${selectedModel[0]}) to cart');
+      });
+    }
+  }
+
 
   void _showTopSnackBar(BuildContext context, String message) {
     final overlay = Overlay.of(context);
@@ -60,85 +128,22 @@ class _PopularProductsViewState extends State<PopularProductsView> {
     });
   }
 
-  void _addToCart(String productId, String name, int price, int points, String imageUrl, int quantity, int availableQuantity) async {
-    String? userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId != null) {
-      CollectionReference cartRef = FirebaseFirestore.instance.collection('users').doc(userId).collection('cart');
-
-      try {
-        QuerySnapshot existingProduct = await cartRef.where('productId', isEqualTo: productId).get();
-
-        if (existingProduct.docs.isNotEmpty) {
-          DocumentReference existingDoc = existingProduct.docs.first.reference;
-          int newQuantity = existingProduct.docs.first['quantity'] + quantity;
-          await existingDoc.update({
-            'quantity': newQuantity,
-            'totalPrice': newQuantity * price,
-            'availableQuantity': availableQuantity,
-          });
-          _showTopSnackBar(context, '$name quantity updated in cart');
-        } else {
-          await cartRef.add({
-            'productId': productId,
-            'name': name,
-            'price': price,
-            'quantity': quantity,
-            'totalPrice': price * quantity,
-            'points': points,
-            'imageUrl': imageUrl,  // Make sure this is in the correct format
-            'availableQuantity': availableQuantity,
-          });
-          _showTopSnackBar(context, '$name added to cart with $points points');
-        }
-      } catch (error) {
-        _showTopSnackBar(context, 'Failed to add $name to cart: $error');
-      }
-    }
-  }
-
-  Future<void> _fetchPopularProducts() async {
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> fetchedProducts =
-    await _popularProductsService.getPopularProducts();
-    setState(() {
-      products = fetchedProducts;
-      filteredProducts = fetchedProducts;
-    });
-
-    for (var product in fetchedProducts) {
-      setState(() {
-        imageUrls[product.id] = _getDownloadUrl(product.data()['imageUrl']);
-        selectedIndexes[product.id] = 0; // Default to first model
-      });
-    }
-  }
-
-  Future<String> _getDownloadUrl(String gsUrl) async {
-    try {
-      Reference ref = FirebaseStorage.instance.refFromURL(gsUrl);
-      String downloadUrl = await ref.getDownloadURL();
-      return downloadUrl;
-    } catch (e) {
-      print("Error fetching download URL: $e");
-      return '';
-    }
-  }
-
   void _filterProducts(String query) {
     setState(() {
       if (query.isEmpty) {
         filteredProducts = products;
       } else {
-        filteredProducts = products
-            .where((product) =>
-            product['category'].toString().toLowerCase().contains(query.toLowerCase()))
-            .toList();
+        filteredProducts = products.where((product) {
+          String category = product['category'].toString().toLowerCase();
+          return category.contains(query.toLowerCase());
+        }).toList();
       }
     });
   }
 
   void _clearSearch() {
     setState(() {
-      searchController.clear();
+      searchbar.clear();
       filteredProducts = products;
     });
   }
@@ -182,7 +187,7 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                       ),
                       SizedBox(width: 5.w), // Responsive width
                       Text(
-                        "Popular Products",
+                        "View Products",
                         style: TextStyle(fontSize: 19.sp, color: Colors.white), // Responsive font size
                       ),
                       Expanded(
@@ -509,7 +514,7 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                                                       borderRadius: BorderRadius.circular(6.r), // Responsive radius
                                                     ),
                                                     child: TextButton(
-                                                      onPressed: () {
+                                                      onPressed:  () async  {
                                                         if (availableQuantity <= 0) {
                                                           ScaffoldMessenger.of(context).showSnackBar(
                                                             const SnackBar(content: Text('Out of Stock')),
@@ -521,14 +526,15 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                                                             });
                                                           }
                                                           int points = (pricePerUnit * quantity / 1000).floor();
+                                                          String imageUrl = await imageUrls[product.id] ?? 'not found 404';
                                                           _addToCart(
                                                             product.id,
                                                             product['category'],
-                                                            pricePerUnit,
-                                                            points,
-                                                            imageUrls[product.id]?.toString() ?? '',
+                                                            [descriptions[selectedIndex]],  // Single-element array containing only the selected description
+                                                            [models[selectedIndex]],         // Single-element array containing only the selected model
+                                                            [prices[selectedIndex]],         // Single-element array containing only the selected price
+                                                            imageUrl,
                                                             quantity,
-                                                            availableQuantity
                                                           );
                                                           setState(() {
                                                             quantities[product.id] = 1;

@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:red_coprative/models/homescreengrid.dart';
 import 'package:red_coprative/utils/custom_button.dart';
 import 'package:red_coprative/view/auth/edit_profile_screen.dart';
-import 'package:red_coprative/view/dashboard/homescreen/bundles_product.dart';
-import 'package:red_coprative/view/dashboard/homescreen/convert_point_products.dart';
+import 'package:red_coprative/view/dashboard/homescreen/products/bundles_product.dart';
+import 'package:red_coprative/view/dashboard/homescreen/products/convert_point_products.dart';
 import 'package:red_coprative/view/dashboard/homescreen/new_updates.dart';
-import 'package:red_coprative/view/dashboard/homescreen/view_products.dart';
+import 'package:red_coprative/view/dashboard/homescreen/products/view_products.dart';
 import 'package:red_coprative/view/dashboard/support/add_to_cart.dart';
 import 'package:red_coprative/view/dashboard/support/cash_withdraw.dart';
 import 'package:red_coprative/view/dashboard/support/history.dart';
-import 'package:red_coprative/view/dashboard/homescreen/points_products.dart';
-import 'package:red_coprative/view/dashboard/homescreen/popular_products.dart';
+import 'package:red_coprative/view/dashboard/homescreen/products/points_products.dart';
+import 'package:red_coprative/view/dashboard/homescreen/products/popular_products.dart';
 import '../../../data/services/user_service.dart';
 import '../../../view/dashboard/homescreen/cart/cart_items.dart';
 
@@ -37,7 +37,6 @@ class _HomescreenState extends State<Homescreen> {
     bool _isHistoryScreen=false;
     bool _isAddtocart=false;
    
-                             /////////////////////////////////////////////////////////////////////
   @override
   void initState() {
     super.initState();
