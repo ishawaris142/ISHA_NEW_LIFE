@@ -48,15 +48,13 @@ class _CartScreenState extends State<CartScreen> {
       List<QueryDocumentSnapshot> fetchedCartItems = snapshot.docs;
       Map<String, int> fetchedQuantities = {};
       Map<String, Future<String>?> fetchedImageUrls = {};
-      Map<String, int> fetchedAvailableQuantities = {
-      }; // New map for available quantities
+      Map<String, int> fetchedAvailableQuantities = {}; // New map for available quantities
 
       for (var item in fetchedCartItems) {
         String itemId = item.id;
 
         int availableQuantity = 1; // Default value
-        final itemData = item.data() as Map<String,
-            dynamic>?; // Cast to a map safely
+        final itemData = item.data() as Map<String, dynamic>?; // Cast to a map safely
 
         if (itemData != null && itemData.containsKey('availableQuantity')) {
           availableQuantity = itemData['availableQuantity'] as int;
@@ -68,13 +66,11 @@ class _CartScreenState extends State<CartScreen> {
             ? _getDownloadUrl(item.get('imageUrl'))
             : Future.value('');
         selectedItems[itemId] = false; // Initialize each item as unselected
-
-        print(
-            "Debug: ItemId: $itemId, Available Quantity: ${fetchedAvailableQuantities[itemId]}"); // Debug point
       }
 
       setState(() {
         cartItems = fetchedCartItems;
+        filteredCartItems = fetchedCartItems; // Initialize filteredCartItems with all cart items
         quantities = fetchedQuantities;
         imageUrls = fetchedImageUrls;
         availableQuantities = fetchedAvailableQuantities;
@@ -289,7 +285,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           child: Container(
             margin: const EdgeInsets.only(top: 30),
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.only(left:4,right: 2),
             child: Column(
               children: [
                 Row(
@@ -312,9 +308,10 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsets.only(left: 10.w), // Responsive padding
+                        padding: EdgeInsets.only(left: 70.w), // Responsive padding
                         child: Container(
                           height: 37.h, // Responsive height
+                          // width:10.w,
                           margin: EdgeInsets.only(left: 15.w, right: 10.w), // Responsive margins
                           decoration: BoxDecoration(
                             color: const Color.fromARGB(255, 32, 32, 32),
@@ -482,8 +479,8 @@ class _CartScreenState extends State<CartScreen> {
                                           if (snapshot.connectionState ==
                                               ConnectionState.waiting) {
                                             return Container(
-                                              height: 119.w,
-                                              width: 119.w,
+                                              height: 115.w,
+                                              width: 115.w,
                                               child: const Center(
                                                   child: CircularProgressIndicator()),
                                             );
@@ -532,9 +529,9 @@ class _CartScreenState extends State<CartScreen> {
                                               ),
                                               Container(
                                                 padding: EdgeInsets.symmetric(
-                                                    horizontal: 4.w),
-                                                margin: EdgeInsets.only(
-                                                    top: 8.h),
+                                                    horizontal: 4.w,vertical:2.w),
+                                                // margin: EdgeInsets.only(
+                                                //     top: 2.h),
                                                 child: Text(
                                                   models[selectedIndex],
                                                   style: TextStyle(
@@ -560,9 +557,7 @@ class _CartScreenState extends State<CartScreen> {
                                                                 .fromARGB(
                                                                 255, 97, 92,
                                                                 86)),
-                                                        color: const Color
-                                                            .fromARGB(
-                                                            255, 32, 32, 32),
+                                                        color:  Colors.black,
                                                       ),
                                                       child: Text(
                                                         selectedDescription,
@@ -610,8 +605,7 @@ class _CartScreenState extends State<CartScreen> {
                                                       color: const Color
                                                           .fromARGB(
                                                           255, 97, 92, 86)),
-                                                  color: const Color.fromARGB(
-                                                      255, 32, 32, 32),
+                                                    color:  Colors.black,
                                                 ),
                                                 child: Row(
                                                   mainAxisAlignment: MainAxisAlignment

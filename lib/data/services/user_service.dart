@@ -35,6 +35,7 @@ class UserDataService {
     String? cachedTotalPoints = prefs.getString('totalPoints');
 
     if (cachedTotalPoints != null) {
+      print("Loaded totalPoints from cache: $cachedTotalPoints");
       return num.tryParse(cachedTotalPoints) ?? 0;
     } else {
       User? user = FirebaseAuth.instance.currentUser;
@@ -49,6 +50,7 @@ class UserDataService {
           num totalPoints = userData['totalPoints'] ?? 0;
 
           await prefs.setString('totalPoints', totalPoints.toString());
+          print("Loaded totalPoints from Firestore and cached: $totalPoints");
           return totalPoints;
         }
       }
@@ -83,5 +85,6 @@ class UserDataService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('userData');
     await prefs.remove('totalPoints');
+    await UserDataService().clearCache();
   }
 }

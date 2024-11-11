@@ -186,7 +186,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                                   style: TextStyle(fontSize: 15.sp, color: Colors.white),
                                 ),
                                 Text(
-                                  "130",
+                                  "0",
                                   style: TextStyle(
                                       fontSize: 32.sp, color: Colors.white, fontWeight: FontWeight.bold),
                                 ),

@@ -77,6 +77,7 @@ class _SignupScreenState extends State<SignupScreen> {
         'phone': phoneController.text.trim(),
         'cnic': cnicController.text.trim(),
         'address': addressController.text.trim(),
+        'points': 0,
       });
 
       Navigator.pushReplacement(
