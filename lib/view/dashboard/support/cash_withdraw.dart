@@ -124,17 +124,16 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
+                      icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 32.sp),
                       onPressed: () {
                         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const Dashboardscreen()),
-                        (Route)=>false,
+                              (Route)=>false,
                         );
                       },
                     ),
-                    Text("Cash Withdraw",style: TextStyle(color: Colors.white,fontSize: 16),)
+                    Text("Cash Withdraw", style: TextStyle(color: Colors.white, fontSize: 16.sp))
                   ],
                 ),
-              //  SizedBox(height: 5.h),
 
                 // Wallet balance section
                 Container(
@@ -155,24 +154,24 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                           children: [
                             Column(
                               children: [
-                                const Text(
+                                Text(
                                   "Cash Wallet",
-                                  style: TextStyle(fontSize: 15, color: Colors.white),
+                                  style: TextStyle(fontSize: 15.sp, color: Colors.white),
                                 ),
                                 Row(
                                   children: [
-                                    const Text(
+                                    Text(
                                       "Rs",
                                       style: TextStyle(
-                                          fontSize: 32,
+                                          fontSize: 32.sp,
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     SizedBox(width: 2.w),
                                     Text(
                                       _walletBalance.toStringAsFixed(2),
-                                      style: const TextStyle(
-                                          fontSize: 32,
+                                      style: TextStyle(
+                                          fontSize: 32.sp,
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold),
                                     ),
@@ -182,14 +181,14 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                             ),
                             Column(
                               children: [
-                                const Text(
+                                Text(
                                   "Points",
-                                  style: TextStyle(fontSize: 15, color: Colors.white),
+                                  style: TextStyle(fontSize: 15.sp, color: Colors.white),
                                 ),
-                                const Text(
+                                Text(
                                   "130",
                                   style: TextStyle(
-                                      fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold),
+                                      fontSize: 32.sp, color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -213,24 +212,22 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                 ),
                 SizedBox(height: 10.h),
 
-                const Text(
+                Text(
                   "Withdraw Cash",
                   style: TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                      fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
-               // SizedBox(height: 4.h),
 
                 // Withdraw Form
                 Form(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Account Title',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 14,
-                          
+                          fontSize: 14.sp,
                         ),
                       ),
                       SizedBox(height: 1.h),
@@ -240,12 +237,11 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                       ),
                       SizedBox(height: 10.h),
 
-                      const Text(
+                      Text(
                         'Mobile Number',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 12,
-                         
+                          fontSize: 12.sp,
                         ),
                       ),
                       SizedBox(height: 1.h),
@@ -256,12 +252,11 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                       ),
                       SizedBox(height: 10.h),
 
-                      const Text(
+                      Text(
                         'Account Type',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 12,
-                         
+                          fontSize: 12.sp,
                         ),
                       ),
                       SizedBox(height: 5.h),
@@ -276,12 +271,11 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                       ),
                       SizedBox(height: 10.h),
 
-                      const Text(
+                      Text(
                         'Amount (Rs)',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 12,
-                         
+                          fontSize: 12.sp,
                         ),
                       ),
                       SizedBox(height: 5.h),
@@ -293,45 +287,48 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                       SizedBox(height: 12.h),
 
                       Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            final accountTitle = _accountTitleController.text;
-                            final mobileNumber = _mobileNumberController.text;
-                            final amount = _amountController.text;
-                        
-                            if (accountTitle.isNotEmpty && mobileNumber.isNotEmpty && amount.isNotEmpty) {
-                              double withdrawAmount = double.parse(amount);
-                              if (withdrawAmount <= _walletBalance) {
-                                setState(() {
-                                  _walletBalance -= withdrawAmount;
-                                });
-                        
-                                double remainingRupees = _walletBalance;
-                                _updateRemainingPoints(remainingRupees);
-                        
-                                _showTopSnackBar(context, 'Withdrawing Rs. $withdrawAmount via $_selectedAccountType');
+                        child: Container(
+                          width: double.infinity, // This ensures it matches the width of the parent, which should be the form width.
+                          // padding: EdgeInsets.symmetric(horizontal: 20.w), // This padding controls the width indirectly.
+                          child: ElevatedButton(
+                            onPressed: () {
+                              final accountTitle = _accountTitleController.text;
+                              final mobileNumber = _mobileNumberController.text;
+                              final amount = _amountController.text;
+
+                              if (accountTitle.isNotEmpty && mobileNumber.isNotEmpty && amount.isNotEmpty) {
+                                double withdrawAmount = double.parse(amount);
+                                if (withdrawAmount <= _walletBalance) {
+                                  setState(() {
+                                    _walletBalance -= withdrawAmount;
+                                  });
+
+                                  double remainingRupees = _walletBalance;
+                                  _updateRemainingPoints(remainingRupees);
+
+                                  _showTopSnackBar(context, 'Withdrawing Rs. $withdrawAmount via $_selectedAccountType');
+                                } else {
+                                  _showTopSnackBar(context, 'Insufficient balance. Your balance is Rs. $_walletBalance');
+                                }
                               } else {
-                                _showTopSnackBar(context, 'Insufficient balance. Your balance is Rs. $_walletBalance');
+                                _showTopSnackBar(context, 'Please fill in all fields.');
                               }
-                            } else {
-                              _showTopSnackBar(context, 'Please fill in all fields.');
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(255, 165, 6, 13),
-                            padding: EdgeInsets.symmetric(horizontal: 120.w, vertical: 15.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.r),
-                              side: BorderSide(color: Colors.grey),
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(255, 165, 6, 13),
+                              padding: EdgeInsets.symmetric(vertical: 15.h), // Keep vertical padding only to control the button's height
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.r),
+                                side: BorderSide(color: Colors.grey),
+                              ),
+                            ),
+                            child: Text(
+                              'Withdraw Cash',
+                              style: TextStyle(fontSize: 16.sp, color: Colors.white),
                             ),
                           ),
-                          child: const Text(
-                            'Withdraw Cash',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
-                          ),
                         ),
-                      ),
-                    ],
+                      ),],
                   ),
                 ),
               ],
@@ -349,16 +346,14 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
   }) {
     return TextField(
       controller: controller,
-    
       keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: Colors.white, fontSize: 14.sp),
       decoration: InputDecoration(
         filled: true,
         fillColor: const Color.fromARGB(255, 8, 8, 8),
         hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.grey),
+        hintStyle: TextStyle(color: Colors.grey, fontSize: 12.sp),
         enabledBorder: OutlineInputBorder(
-          
           borderSide: const BorderSide(color: Colors.white54),
           borderRadius: BorderRadius.circular(10.r),
         ),

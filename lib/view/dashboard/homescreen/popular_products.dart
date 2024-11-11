@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:red_coprative/utils/custom_button.dart';
 import 'package:red_coprative/view/dashboard/dashboard.dart';
 import '../../../data/services/popular_product_service.dart';
@@ -28,7 +29,7 @@ class _PopularProductsViewState extends State<PopularProductsView> {
     super.initState();
     _fetchPopularProducts();
   }
-  
+
   void _showTopSnackBar(BuildContext context, String message) {
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
@@ -59,27 +60,24 @@ class _PopularProductsViewState extends State<PopularProductsView> {
     });
   }
 
-  void _addToCart(String productId, String name, int price, int points, String imageUrl, int quantity) async {
+  void _addToCart(String productId, String name, int price, int points, String imageUrl, int quantity, int availableQuantity) async {
     String? userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
-      // Reference to the user's cart collection
       CollectionReference cartRef = FirebaseFirestore.instance.collection('users').doc(userId).collection('cart');
 
       try {
-        // Check if the product is already in the cart
         QuerySnapshot existingProduct = await cartRef.where('productId', isEqualTo: productId).get();
 
         if (existingProduct.docs.isNotEmpty) {
-          // If the product already exists in the cart, update the quantity and total price
           DocumentReference existingDoc = existingProduct.docs.first.reference;
           int newQuantity = existingProduct.docs.first['quantity'] + quantity;
           await existingDoc.update({
             'quantity': newQuantity,
             'totalPrice': newQuantity * price,
+            'availableQuantity': availableQuantity,
           });
           _showTopSnackBar(context, '$name quantity updated in cart');
         } else {
-          // If the product doesn't exist in the cart, add it as a new item
           await cartRef.add({
             'productId': productId,
             'name': name,
@@ -87,7 +85,8 @@ class _PopularProductsViewState extends State<PopularProductsView> {
             'quantity': quantity,
             'totalPrice': price * quantity,
             'points': points,
-            'imageUrl': imageUrl,
+            'imageUrl': imageUrl,  // Make sure this is in the correct format
+            'availableQuantity': availableQuantity,
           });
           _showTopSnackBar(context, '$name added to cart with $points points');
         }
@@ -145,7 +144,6 @@ class _PopularProductsViewState extends State<PopularProductsView> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
@@ -174,26 +172,28 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const Dashboardscreen()),
-                                (Route)=>false,
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => const Dashboardscreen()),
+                                (Route) => false,
                           );
                         },
                         icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
                       ),
-                      const SizedBox(width: 5),
-                      const Text(
+                      SizedBox(width: 5.w), // Responsive width
+                      Text(
                         "Popular Products",
-                        style: TextStyle(fontSize: 19, color: Colors.white),
+                        style: TextStyle(fontSize: 19.sp, color: Colors.white), // Responsive font size
                       ),
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 10),
+                          padding: EdgeInsets.only(left: 10.w), // Responsive padding
                           child: Container(
-                            height: 37,
-                            margin: const EdgeInsets.only(left: 15, right: 10),
+                            height: 37.h, // Responsive height
+                            margin: EdgeInsets.only(left: 15.w, right: 10.w), // Responsive margins
                             decoration: BoxDecoration(
                               color: const Color.fromARGB(255, 32, 32, 32),
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10.r), // Responsive border radius
                               border: Border.all(
                                 color: const Color.fromARGB(255, 97, 92, 86),
                               ),
@@ -204,12 +204,12 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                                   child: TextField(
                                     controller: searchbar,
                                     style: const TextStyle(color: Colors.white),
-                                    decoration: const InputDecoration(
+                                    decoration: InputDecoration(
                                       hintText: "Search",
-                                      hintStyle: TextStyle(
-                                          color: Color.fromARGB(128, 255, 255, 255)),
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical: 10, horizontal: 10),
+                                      hintStyle: const TextStyle(
+                                        color: Color.fromARGB(128, 255, 255, 255),
+                                      ),
+                                      contentPadding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w), // Responsive padding
                                       border: InputBorder.none,
                                     ),
                                     onChanged: _filterProducts,
@@ -293,11 +293,11 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                             );
                           },
                           child: CustomButton(
-                            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                            margin: EdgeInsets.symmetric(vertical: 6.h, horizontal: 4.w), // Responsive margins
+                            padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w), // Responsive padding
                             decoration: BoxDecoration(
                               color: const Color.fromARGB(255, 8, 8, 8),
-                              borderRadius: BorderRadius.circular(15),
+                              borderRadius: BorderRadius.circular(15.r), // Responsive border radius
                               border: Border.all(
                                 color: const Color.fromARGB(255, 97, 92, 86),
                               ),
@@ -313,23 +313,23 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                                       builder: (context, snapshot) {
                                         if (snapshot.connectionState == ConnectionState.waiting) {
                                           return Container(
-                                            height: 119,
-                                            width: 119,
+                                            height: 119.w, // Responsive height
+                                            width: 119.w, // Responsive width
                                             child: const Center(child: CircularProgressIndicator()),
                                           );
                                         } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
                                           return Container(
-                                            height: 119,
-                                            width: 119,
+                                            height: 119.w,
+                                            width: 119.w,
                                             color: Colors.grey,
                                             child: const Icon(Icons.error, color: Colors.red),
                                           );
                                         } else {
                                           return Container(
-                                          height: 137,
-                                          width: 137,
+                                            height: 130.w, // Responsive height
+                                            width: 130.w, // Responsive width
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(10),
+                                              borderRadius: BorderRadius.circular(10.r), // Responsive radius
                                               image: DecorationImage(
                                                 image: NetworkImage(snapshot.data!),
                                                 fit: BoxFit.fill,
@@ -341,43 +341,41 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                                     ),
                                     Expanded(
                                       child: Padding(
-                                        padding: const EdgeInsets.only(left: 10, top: 5),
+                                        padding: EdgeInsets.only(left: 10.w, top: 5.h), // Responsive padding
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               product['category'],
-                                              style: const TextStyle(
-                                                fontSize: 14,
+                                              style: TextStyle(
+                                                fontSize: 14.sp, // Responsive font size
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            // const SizedBox(height: 1),
                                             Text(
                                               selectedDescription,
-                                              style: const TextStyle(
-                                                fontSize: 12,
+                                              style: TextStyle(
+                                                fontSize: 12.sp, // Responsive font size
                                                 color: Colors.white70,
                                               ),
                                             ),
-                                            // const SizedBox(height: 2),
-                                            const Row(
+                                            Row(
                                               mainAxisAlignment: MainAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   "Select Model",
                                                   style: TextStyle(
-                                                    fontSize: 10,
+                                                    fontSize: 10.sp, // Responsive font size
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.w400,
                                                   ),
                                                 ),
-                                                SizedBox(width: 88),
+                                                SizedBox(width: 75.w), // Responsive width
                                                 Text(
                                                   "Price (Rs.)",
                                                   style: TextStyle(
-                                                    fontSize: 8,
+                                                    fontSize: 8.sp, // Responsive font size
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.w400,
                                                   ),
@@ -388,16 +386,17 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
                                                 Container(
-                                                  width: 140,
-                                                  height: 38,
-                                                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                                                  width: 125.w, // Responsive width
+                                                  height: 38.h, // Responsive height
+                                                  padding: EdgeInsets.symmetric(horizontal: 5.w), // Responsive padding
                                                   decoration: BoxDecoration(
                                                     color: Colors.black,
-                                                    borderRadius: BorderRadius.circular(6),
+                                                    borderRadius: BorderRadius.circular(6.r), // Responsive radius
                                                     border: Border.all(color: const Color.fromARGB(255, 97, 92, 86), width: 1),
                                                   ),
                                                   child: DropdownButtonHideUnderline(
-                                                    child: DropdownButton<int>(
+                                                    child:
+                                                    DropdownButton<int>(
                                                       value: selectedIndex,
                                                       dropdownColor: Color(0xFF2C2C2C),
                                                       icon: const Icon(
@@ -405,12 +404,12 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                                                         color: Colors.white,
                                                       ),
                                                       isExpanded: true,
-                                                      style: const TextStyle(
+                                                      style: TextStyle(
                                                         color: Colors.grey,
-                                                        fontSize: 14,
+                                                        fontSize: 13.sp, // Responsive font size
                                                       ),
-                                                      itemHeight: 50,
-                                                      menuMaxHeight: 150,
+                                                      // Remove itemHeight or set to a valid height like 48
+                                                      menuMaxHeight: 150.h, // Responsive max height
                                                       items: models.asMap().entries.map((entry) {
                                                         int idx = entry.key;
                                                         String model = entry.value;
@@ -428,82 +427,86 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                                                     ),
                                                   ),
                                                 ),
-                                                const SizedBox(width: 7),
+                                                SizedBox(width: 7.w), // Responsive width
                                                 Expanded(
                                                   child: CustomButton(
-                                                    padding: const EdgeInsets.symmetric(vertical: 9),
+                                                    padding: EdgeInsets.symmetric(vertical: 9.h), // Responsive vertical padding
                                                     decoration: BoxDecoration(
                                                       border: Border.all(
                                                         color: const Color.fromARGB(255, 97, 92, 86),
                                                         width: 1,
                                                       ),
-                                                      borderRadius: BorderRadius.circular(5),
+                                                      borderRadius: BorderRadius.circular(5.r), // Responsive radius
                                                     ),
                                                     child: Center(
                                                       child: Text(
                                                         "${pricePerUnit * quantity}",
-                                                        style: const TextStyle(fontSize: 12, color: Colors.white),
+                                                        style: TextStyle(fontSize: 12.sp, color: Colors.white), // Responsive font size
                                                       ),
                                                     ),
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                            SizedBox(height: 5),
+                                            SizedBox(height: 5.h), // Responsive height
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
                                                 if (availableQuantity > 0)
                                                   CustomButton(
-                                                    height: 38,
-                                                    width: 99,
-                                                    padding: const EdgeInsets.symmetric(horizontal: 2,vertical: 0),
+                                                    height: 38.h, // Responsive height
+                                                    width: 99.w, // Responsive width
+                                                    padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0), // Responsive padding
                                                     decoration: BoxDecoration(
                                                       color: Colors.black,
-                                                      borderRadius: BorderRadius.circular(6),
+                                                      borderRadius: BorderRadius.circular(6.r), // Responsive radius
                                                       border: Border.all(
                                                         color: const Color.fromARGB(255, 97, 92, 86),
                                                       ),
                                                     ),
-
                                                     child: Row(
                                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      //crossAxisAlignment: CrossAxisAlignment.start,
                                                       children: [
                                                         GestureDetector(
-                                                            onTap: () {
-                                                              if (quantity > 1) {
-                                                                setState(() {
-                                                                  quantities[product.id] = quantity - 1;
-                                                                });
-                                                              }
-                                                            },
-                                                            child: Image.asset("assets/negative.png",height: 22,)
+                                                          onTap: () {
+                                                            if (quantity > 1) {
+                                                              setState(() {
+                                                                quantities[product.id] = quantity - 1;
+                                                              });
+                                                            }
+                                                          },
+                                                          child: Image.asset(
+                                                            "assets/negative.png",
+                                                            height: 22.h, // Responsive height
+                                                          ),
                                                         ),
                                                         Text(
                                                           '$quantity',
-                                                          style: const TextStyle(fontSize: 14, color: Colors.white),
+                                                          style: TextStyle(fontSize: 14.sp, color: Colors.white), // Responsive font size
                                                         ),
                                                         GestureDetector(
-                                                            onTap: () {
-                                                              if (quantity < availableQuantity) {
-                                                                setState(() {
-                                                                  quantities[product.id] = quantity + 1;
-                                                                });
-                                                              }
-                                                            },
-                                                            child:  Image.asset("assets/positive.png",height: 22,)
+                                                          onTap: () {
+                                                            if (quantity < availableQuantity) {
+                                                              setState(() {
+                                                                quantities[product.id] = quantity + 1;
+                                                              });
+                                                            }
+                                                          },
+                                                          child: Image.asset(
+                                                            "assets/positive.png",
+                                                            height: 22.h, // Responsive height
+                                                          ),
                                                         ),
                                                       ],
                                                     ),
                                                   ),
                                                 if (availableQuantity > 0)
                                                   CustomButton(
-                                                   height: 37,
-                                                    width: 85,
+                                                    height: 37.h, // Responsive height
+                                                    width: 77.w, // Responsive width
                                                     decoration: BoxDecoration(
                                                       color: const Color.fromARGB(255, 172, 31, 37),
-                                                      borderRadius: BorderRadius.circular(6),
+                                                      borderRadius: BorderRadius.circular(6.r), // Responsive radius
                                                     ),
                                                     child: TextButton(
                                                       onPressed: () {
@@ -525,28 +528,30 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                                                             points,
                                                             imageUrls[product.id]?.toString() ?? '',
                                                             quantity,
+                                                            availableQuantity
                                                           );
                                                           setState(() {
                                                             quantities[product.id] = 1;
                                                           });
                                                         }
                                                       },
-                                                      child: Container(
-
-                                                        child: const Text(
-                                                          "Add to cart",
-                                                          style: TextStyle(color: Colors.white,fontSize: 11),
-                                                        ),
+                                                      child: Text(
+                                                        "Add to Cart",
+                                                        style: TextStyle(color: Colors.white, fontSize: 10.sp), // Responsive font size
                                                       ),
                                                     ),
                                                   ),
                                                 if (availableQuantity <= 0)
                                                   Expanded(
                                                     child: Padding(
-                                                      padding: const EdgeInsets.only(left: 8.0),
+                                                      padding: EdgeInsets.only(left: 8.w), // Responsive padding
                                                       child: Text(
                                                         "Out of Stock",
-                                                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                                        style: TextStyle(
+                                                          color: Colors.red,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: 14.sp, // Responsive font size
+                                                        ),
                                                         textAlign: TextAlign.right,
                                                       ),
                                                     ),
@@ -559,7 +564,6 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                                     ),
                                   ],
                                 ),
-
                               ],
                             ),
                           ),
@@ -572,6 +576,6 @@ class _PopularProductsViewState extends State<PopularProductsView> {
             ),
           ),
         )
-        );
-        }
-        }
+    );
+  }
+}
