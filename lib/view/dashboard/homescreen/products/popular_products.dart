@@ -290,7 +290,7 @@ class _PopularProductsViewState extends State<PopularProductsView> {
                                         modelName: models[selectedIndex],
                                         imageUrl: snapshot.data!,
                                         price: pricePerUnit,
-                                        availableQuantity: availableQuantity,
+                                        availableQuantity: availableQuantity, selectedDescription: selectedDescription,
                                       );
                                     }
                                   },

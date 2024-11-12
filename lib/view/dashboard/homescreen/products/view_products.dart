@@ -289,7 +289,7 @@ class _ProductViewState extends State<ProductView> {
                                         modelName: models[selectedIndex],
                                         imageUrl: snapshot.data!,
                                         price: pricePerUnit,
-                                        availableQuantity: availableQuantity,
+                                        availableQuantity: availableQuantity, selectedDescription: selectedDescription,
                                       );
                                     }
                                   },

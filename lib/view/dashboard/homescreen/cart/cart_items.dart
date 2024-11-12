@@ -43,6 +43,7 @@ class _CartScreenState extends State<CartScreen> {
           .collection('users')
           .doc(userId)
           .collection('cart')
+          .orderBy('timestamp', descending: true) // Order by timestamp in descending order
           .get();
 
       List<QueryDocumentSnapshot> fetchedCartItems = snapshot.docs;
@@ -86,6 +87,22 @@ class _CartScreenState extends State<CartScreen> {
     } catch (e) {
       print("Error fetching download URL: $e");
       return '';
+    }
+  }
+  Future<void> _deleteSelectedItems() async {
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      for (String itemId in selectedItems.keys) {
+        if (selectedItems[itemId] == true) {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .collection('cart')
+              .doc(itemId)
+              .delete();
+        }
+      }
+      _fetchCartItems();
     }
   }
 
@@ -355,13 +372,27 @@ class _CartScreenState extends State<CartScreen> {
                       'Select All',
                       style: TextStyle(color: Colors.white),
                     ),
+                    SizedBox(width: 190), // Add space between text and delete icon
+                    IconButton(
+                      icon: Icon(Icons.delete, color: Color.fromARGB(255, 172, 31, 37)),
+                      onPressed: () {
+                        if (selectedItems.containsValue(true)) {
+                          _deleteSelectedItems(); // Call function to delete selected items
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("No items selected to delete")),
+                          );
+                        }
+                      },
+                    ),
                     Checkbox(
                       value: isAllSelected,
                       onChanged: (value) => _toggleSelectAll(),
-                      activeColor: Colors.red,
+                      activeColor: Color.fromARGB(255, 172, 31, 37),
                     ),
                   ],
                 ),
+
                 Expanded(
                   child: ListView.builder(
                     itemCount: filteredCartItems.length + 1,
@@ -445,242 +476,213 @@ class _CartScreenState extends State<CartScreen> {
                           ? descriptions[selectedIndex]
                           : "No description available";
 
-                      return CustomButton(
-                        margin: EdgeInsets.symmetric(vertical: 6.h,
-                            horizontal: 4.w),
-                        padding: EdgeInsets.symmetric(vertical: 12.h,
-                            horizontal: 2.w),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 8, 8, 8),
-                          borderRadius: BorderRadius.circular(15.r),
-                          border: Border.all(
-                            color: const Color.fromARGB(255, 97, 92, 86),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            // Individual item checkbox inside the container
-                            Checkbox(
-                              value: selectedItems[itemId] ?? false,
-                              onChanged: (value) => _toggleSelection(itemId),
-                              activeColor: Colors.red,
+// Item container with a positioned delete button at the top-right corner
+                      return Stack(
+                        children: [
+                          CustomButton(
+                            margin: EdgeInsets.symmetric(vertical: 6.h, horizontal: 4.w),
+                            padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 2.w),
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 8, 8, 8),
+                              borderRadius: BorderRadius.circular(15.r),
+                              border: Border.all(
+                                color: const Color.fromARGB(255, 97, 92, 86),
+                              ),
                             ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment
-                                        .spaceBetween,
+                            child: Row(
+                              children: [
+                                Checkbox(
+                                  value: selectedItems[itemId] ?? false,
+                                  onChanged: (value) => _toggleSelection(itemId),
+                                  activeColor: Colors.red,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      FutureBuilder<String>(
-                                        future: imageUrls[itemId],
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return Container(
-                                              height: 115.w,
-                                              width: 115.w,
-                                              child: const Center(
-                                                  child: CircularProgressIndicator()),
-                                            );
-                                          } else if (snapshot.hasError ||
-                                              !snapshot.hasData ||
-                                              snapshot.data!.isEmpty) {
-                                            return Container(
-                                              height: 119.w,
-                                              width: 119.w,
-                                              color: Colors.grey,
-                                              child: const Icon(Icons.error,
-                                                  color: Colors.red),
-                                            );
-                                          } else {
-                                            return Container(
-                                              height: 130.w,
-                                              width: 130.w,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius
-                                                    .circular(10.r),
-                                                image: DecorationImage(
-                                                  image: NetworkImage(
-                                                      snapshot.data!),
-                                                  fit: BoxFit.fill,
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        },
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(left: 10.w),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment
-                                                .start,
-                                            children: [
-                                              Text(
-                                                item['category'] ??
-                                                    "Unnamed Product",
-                                                style: TextStyle(
-                                                  fontSize: 14.sp,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 4.w,vertical:2.w),
-                                                // margin: EdgeInsets.only(
-                                                //     top: 2.h),
-                                                child: Text(
-                                                  models[selectedIndex],
-                                                  style: TextStyle(
-                                                      fontSize: 12.sp,
-                                                      color: Colors.grey),
-                                                ),
-                                              ),
-                                              SizedBox(height: 3.h),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment
-                                                    .spaceBetween,
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          FutureBuilder<String>(
+                                            future: imageUrls[itemId],
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                                return Container(
+                                                  height: 115.w,
+                                                  width: 115.w,
+                                                  child: const Center(
+                                                    child: CircularProgressIndicator(),
+                                                  ),
+                                                );
+                                              } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+                                                return Container(
+                                                  height: 119.w,
+                                                  width: 119.w,
+                                                  color: Colors.grey,
+                                                  child: const Icon(Icons.error, color: Colors.red),
+                                                );
+                                              } else {
+                                                return Container(
+                                                  height: 130.w,
+                                                  width: 130.w,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(10.r),
+                                                    image: DecorationImage(
+                                                      image: NetworkImage(snapshot.data!),
+                                                      fit: BoxFit.fill,
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                          ),
+                                          Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(left: 10.w, right: 5.w),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  Expanded(
-                                                    child: Container(
-                                                      padding: EdgeInsets
-                                                          .symmetric(vertical: 6
-                                                          .h, horizontal: 8.w),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius
-                                                            .circular(5.r),
-                                                        border: Border.all(
-                                                            color: const Color
-                                                                .fromARGB(
-                                                                255, 97, 92,
-                                                                86)),
-                                                        color:  Colors.black,
-                                                      ),
-                                                      child: Text(
-                                                        selectedDescription,
-                                                        style: TextStyle(
-                                                            fontSize: 12.sp,
-                                                            color: Colors
-                                                                .white70),
+                                                  Text(
+                                                    item['category'] ?? "Unnamed Product",
+                                                    style: TextStyle(
+                                                      fontSize: 14.sp,
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.w),
+                                                    child: Text(
+                                                      models[selectedIndex],
+                                                      style: TextStyle(
+                                                        fontSize: 12.sp,
+                                                        color: Colors.grey,
                                                       ),
                                                     ),
                                                   ),
-                                                  SizedBox(width: 5.w),
+                                                  SizedBox(height: 3.h),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Expanded(
+                                                        child: Container(
+                                                          padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 8.w),
+                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(5.r),
+                                                            border: Border.all(color: const Color.fromARGB(255, 97, 92, 86)),
+                                                            color: Colors.black,
+                                                          ),
+                                                          child: Text(
+                                                            selectedDescription,
+                                                            style: TextStyle(
+                                                              fontSize: 12.sp,
+                                                              color: Colors.white70,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 5.w),
+                                                      Container(
+                                                        padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 8.w),
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(5.r),
+                                                          border: Border.all(color: const Color.fromARGB(255, 97, 92, 86)),
+                                                        ),
+                                                        child: Text(
+                                                          "${pricePerUnit * quantity}",
+                                                          style: TextStyle(
+                                                            fontSize: 12.sp,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(height: 5.h),
                                                   Container(
-                                                    padding: EdgeInsets
-                                                        .symmetric(
-                                                        vertical: 6.h,
-                                                        horizontal: 8.w),
+                                                    height: 37.h,
+                                                    width: 130.w,
+                                                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                                     decoration: BoxDecoration(
-                                                      borderRadius: BorderRadius
-                                                          .circular(5.r),
-                                                      border: Border.all(
-                                                          color: const Color
-                                                              .fromARGB(
-                                                              255, 97, 92, 86)),
+                                                      borderRadius: BorderRadius.circular(5.r),
+                                                      border: Border.all(color: const Color.fromARGB(255, 97, 92, 86)),
+                                                      color: Colors.black,
                                                     ),
-                                                    child: Text(
-                                                      "${pricePerUnit *
-                                                          quantity}",
-                                                      style: TextStyle(
-                                                          fontSize: 12.sp,
-                                                          color: Colors.white),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        CustomButton(
+                                                          onTap: () => _decrementQuantity(itemId),
+                                                          padding: EdgeInsets.all(4),
+                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(5),
+                                                            color: const Color.fromARGB(255, 172, 31, 37),
+                                                          ),
+                                                          child: Icon(Icons.remove, size: 16, color: Colors.white),
+                                                        ),
+                                                        Padding(
+                                                          padding: EdgeInsets.symmetric(horizontal: 12.0),
+                                                          child: Container(
+                                                            padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 12.w),
+                                                            child: Text(
+                                                              '$quantity',
+                                                              style: TextStyle(
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        CustomButton(
+                                                          onTap: () {
+                                                            if (quantity < availableQuantity) {
+                                                              _incrementQuantity(itemId);
+                                                            }
+                                                          },
+                                                          padding: EdgeInsets.all(4),
+                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(5),
+                                                            color: const Color.fromARGB(255, 172, 31, 37),
+                                                          ),
+                                                          child: Icon(Icons.add, size: 16, color: Colors.white),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                              SizedBox(height: 5.h),
-                                              Container(
-                                                height: 37.h,
-                                                width: 130.w,
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 6, vertical: 2),
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius
-                                                      .circular(5.r),
-                                                  border: Border.all(
-                                                      color: const Color
-                                                          .fromARGB(
-                                                          255, 97, 92, 86)),
-                                                    color:  Colors.black,
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment
-                                                      .center,
-                                                  children: [
-                                                    CustomButton(
-                                                      onTap: () =>
-                                                          _decrementQuantity(
-                                                              itemId),
-                                                      padding: EdgeInsets.all(
-                                                          4),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius
-                                                            .circular(5),
-                                                        color: const Color
-                                                            .fromARGB(
-                                                            255, 172, 31, 37),
-                                                      ),
-                                                      child: Icon(Icons.remove,
-                                                          size: 16,
-                                                          color: Colors.white),
-                                                    ),
-                                                    Padding(
-                                                      padding: EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 12.0),
-                                                      child: Container(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                            vertical: 6.h,
-                                                            horizontal: 12.w),
-                                                        child: Text(
-                                                          '$quantity',
-                                                          style: TextStyle(
-                                                              fontSize: 14.sp,
-                                                              color: Colors
-                                                                  .white),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    CustomButton(
-                                                      onTap: () {
-                                                        if (quantity <
-                                                            availableQuantity) {
-                                                          _incrementQuantity(
-                                                              itemId);
-                                                        }
-                                                      },
-                                                      padding: EdgeInsets.all(
-                                                          4),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius
-                                                            .circular(5),
-                                                        color: const Color
-                                                            .fromARGB(
-                                                            255, 172, 31, 37),
-                                                      ),
-                                                      child: Icon(
-                                                          Icons.add, size: 16,
-                                                          color: Colors.white),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Positioned Delete Icon at the Top Right
+                          Positioned(
+                            top: 5,
+                            right: 5,
+                            child: GestureDetector(
+                              onTap: () => _deleteItem(itemId),
+                              child: Container(
+                                height: 20.h,
+                                width: 20.w,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color.fromARGB(255, 172, 31, 37),
+                                ),
+                                child: Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 16.sp,
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       );
                     },
                   ),
