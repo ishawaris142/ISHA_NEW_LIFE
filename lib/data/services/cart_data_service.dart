@@ -12,7 +12,7 @@ class CartService {
   Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> getProducts() async {
     try {
       QuerySnapshot<Map<String, dynamic>> snapshot =
-      await _firestore.collection('cart_data').get();
+      await _firestore.collection('products').get();
       return snapshot.docs;
     } catch (e) {
       print('Error fetching products: $e');
@@ -20,21 +20,6 @@ class CartService {
     }
   }
 
-  /// Fetch models for a specific product
-  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> getModels(
-      String productId) async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
-          .collection('cart_data')
-          .doc(productId)
-          .collection('Models')
-          .get();
-      return snapshot.docs;
-    } catch (e) {
-      print('Error fetching models for product $productId: $e');
-      return []; // Return an empty list if there's an error
-    }
-  }
 
   /// Fetch public download URL for image stored in Firebase Storage
   Future<String> getDownloadUrl(String gsUrl) async {
@@ -47,14 +32,14 @@ class CartService {
       return '';
     }
   }
-
   /// Add a product to the user's cart
   Future<void> addToCart({
-    required String productId,
+    required String productid,
     required String category,
     required List<String> selectedModel,
     required List<String> selectedDescription,
     required List<int> selectedPrice,
+    required List<int> selectedPoints,
     required String imageUrl,
     required int quantity,
   }) async {
@@ -66,14 +51,16 @@ class CartService {
 
         // Prepare the cart item data
         Map<String, dynamic> cartItem = {
-          'productId': productId,
+          'productid': productid,
           'category': category,
+          'points':selectedPoints,
           'models': selectedModel,
           'descriptions': selectedDescription,
           'prices': selectedPrice,
           'quantity': quantity,
           'imageUrl': resolvedImageUrl,
-          'timestamp': FieldValue.serverTimestamp(), // Optional: to sort cart items
+          'timestamp': Timestamp.fromDate(DateTime.now()), // Set timestamp here
+          'points': quantity * 10, // Set initial points based on quantity
         };
 
         // Add the cart item to Firestore under the user's cart collection
@@ -81,7 +68,7 @@ class CartService {
             .collection('users')
             .doc(userId)
             .collection('cart')
-            .add(cartItem);
+            .add(cartItem); // Add the item without orderBy
 
         print('Product added to cart successfully.');
       } catch (e) {
@@ -93,6 +80,7 @@ class CartService {
       throw Exception("User not logged in");
     }
   }
+
 
   /// Optional: Fetch cart items for the current user
   Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> getCartItems() async {

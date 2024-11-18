@@ -3,6 +3,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CartProvider with ChangeNotifier {
+
+  bool iseditScreen = false;
+
+  onisEdit(bool b){
+    iseditScreen = b;
+    notifyListeners();
+  }
+
+
   List<QueryDocumentSnapshot> _products = [];
 
   List<QueryDocumentSnapshot> get products => _products;
@@ -18,7 +27,7 @@ class CartProvider with ChangeNotifier {
     if (!_isLoaded) {
       try {
         final CollectionReference productsCollection = FirebaseFirestore
-            .instance.collection('cart_data');
+            .instance.collection('products');
         QuerySnapshot snapshot = await productsCollection.get();
         _products = snapshot.docs;
         _isLoaded = true;
@@ -97,7 +106,7 @@ class CartProvider with ChangeNotifier {
       try {
         await firestore.runTransaction((transaction) async {
           // Get product reference from 'cart_data'
-          DocumentReference productRef = firestore.collection('cart_data').doc(
+          DocumentReference productRef = firestore.collection('products').doc(
               productId);
           DocumentSnapshot productSnapshot = await transaction.get(productRef);
 

@@ -1,5 +1,6 @@
-// File: product_description.dart
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../data/services/cart_data_service.dart';
@@ -11,6 +12,9 @@ class ProductDescriptionPage extends StatefulWidget {
   final int price;
   final int availableQuantity;
   final String selectedDescription;
+  final int points;
+  final String productid;
+
 
   const ProductDescriptionPage({
     Key? key,
@@ -20,6 +24,8 @@ class ProductDescriptionPage extends StatefulWidget {
     required this.price,
     required this.availableQuantity,
     required this.selectedDescription,
+    required this.productid,  // Add this line
+    required this.points,  // Add this line
   }) : super(key: key);
 
   @override
@@ -91,29 +97,40 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage> {
     });
 
     try {
-      // Ensure the image URL is resolved
       if (_resolvedImageUrl == null || _resolvedImageUrl!.isEmpty) {
         throw Exception("Image URL not available.");
       }
 
-      // Prepare the data to add
+      print('😎Debug: Adding to cart with the following details:');
+      print('🤦‍♀️Model Name: ${widget.modelName}');
+      print('🐱‍👤Category: ${widget.categoryName}');
+      print('😂Selected Description: ${widget.selectedDescription}');
+      print('😊Selected Model: ${widget.modelName}');
+      print('🎶🙌Price: ${widget.price}');
+      print('🤦‍♂️Quantity: $_quantity');
+      print('✔✔Resolved Image URL: $_resolvedImageUrl');
+
       await cartService.addToCart(
-        productId: widget.modelName, // Replace with actual product ID if available
+        productid: widget.productid,  // Pass productId as int
         category: widget.categoryName,
-        selectedDescription: [widget.modelName], // Replace with actual description if available
-        selectedModel: [widget.selectedDescription],
+        selectedDescription: [widget.selectedDescription],
+        selectedModel: [widget.modelName],
         selectedPrice: [widget.price],
-        imageUrl: widget.imageUrl, // Pass the original gsUrl; `addToCart` resolves it
+        imageUrl: _resolvedImageUrl!,
         quantity: _quantity,
+        selectedPoints: [widget.points],
       );
 
+      print('Debug: Item added to cart successfully');
       _showTopSnackBar('${widget.modelName} added to cart, Quantity: $_quantity');
     } catch (e) {
+      print('Error: Failed to add to cart: $e');
       _showTopSnackBar('Failed to add to cart: $e', color: Colors.red);
     } finally {
       setState(() {
         _isAddingToCart = false;
       });
+      print('Debug: _isAddingToCart set to false');
     }
   }
 
@@ -144,8 +161,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      icon:
-                      const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                      icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
                     ),
                     const SizedBox(width: 10),
                     Text(
@@ -210,14 +226,13 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage> {
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          color: Colors.black, // Added black background color
+                          color: Colors.black,
                           border: Border.all(color: Colors.grey),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            // Decrement Button with Box Decoration
                             GestureDetector(
                               onTap: () {
                                 setState(() {
@@ -226,7 +241,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage> {
                               },
                               child: Container(
                                 height: 37.h,
-                                width: 40.w, // Adjusted width to fit within parent container
+                                width: 40.w,
                                 decoration: BoxDecoration(
                                   color: const Color.fromARGB(255, 172, 31, 37),
                                   borderRadius: BorderRadius.circular(6.r),
@@ -236,7 +251,6 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage> {
                                 ),
                               ),
                             ),
-                            // Quantity Text
                             Text(
                               '$_quantity',
                               style: const TextStyle(
@@ -244,7 +258,6 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage> {
                                 fontSize: 18,
                               ),
                             ),
-                            // Increment Button with Box Decoration
                             GestureDetector(
                               onTap: () {
                                 setState(() {
@@ -254,7 +267,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage> {
                               },
                               child: Container(
                                 height: 37.h,
-                                width: 40.w, // Adjusted width to fit within parent container
+                                width: 40.w,
                                 decoration: BoxDecoration(
                                   color: const Color.fromARGB(255, 172, 31, 37),
                                   borderRadius: BorderRadius.circular(6.r),
@@ -272,10 +285,8 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage> {
                     Expanded(
                       flex: 1,
                       child: ElevatedButton(
-                        onPressed: () {
-                          _showTopSnackBar('${widget.modelName} added to cart, Quantity: $_quantity');
-                        },
-                        child  : const Text(
+                        onPressed: _addToCart,
+                        child: const Text(
                           'Add to Cart',
                           style: TextStyle(
                               color: Colors.white, fontSize: 18),
@@ -302,8 +313,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage> {
                   child: const Center(
                     child: Text(
                       'Sold Out',
-                      style:
-                      TextStyle(color: Colors.white, fontSize: 18),
+                      style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ),
                 ),

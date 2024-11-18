@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:red_coprative/view/dashboard/dashboard.dart';
 
-class BundlesProduct extends StatefulWidget {
-  const BundlesProduct({super.key});
+class Supportscreen extends StatefulWidget {
+  const Supportscreen({super.key});
 
   @override
-  State<BundlesProduct> createState() => _BundlesProductState();
+  State<Supportscreen> createState() => _SupportscreenState();
 }
 
-class _BundlesProductState extends State<BundlesProduct> {
+class _SupportscreenState extends State<Supportscreen> {
   @override
   Widget build(BuildContext context) {
     var height= MediaQuery.of(context).size.height;
@@ -16,9 +16,8 @@ class _BundlesProductState extends State<BundlesProduct> {
     return WillPopScope(
        onWillPop: () async {
         Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => const Dashboardscreen()),
-                                (Route) => false,
+        context,MaterialPageRoute(builder: (context) => const Dashboardscreen()),
+       (Route) => false,
                           );
       return true; 
     },

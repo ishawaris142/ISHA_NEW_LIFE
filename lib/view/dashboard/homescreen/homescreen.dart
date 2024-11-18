@@ -35,6 +35,9 @@ class _HomescreenState extends State<Homescreen> {
   bool _isCash_withdraw = false;
   bool _isHistoryScreen = false;
   bool _isAddtocart = false;
+  bool _isSearching = false;
+  final TextEditingController searchbar = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode(); // Add FocusNode for text field
 
   @override
   void initState() {
@@ -55,9 +58,14 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    var searchbar = TextEditingController();
+  void dispose() {
+    searchbar.dispose();
+    searchFocusNode.dispose(); // Dispose of the FocusNode
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -65,6 +73,10 @@ class _HomescreenState extends State<Homescreen> {
           GestureDetector(
             onTap: () {
               FocusScope.of(context).unfocus();
+              setState(() {
+                _isSearching =
+                false; // Close the search icon when tapping outside
+              });
             },
             child: Container(
               height: 1.sh,
@@ -104,18 +116,23 @@ class _HomescreenState extends State<Homescreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Image.asset("assets/smalllogo.png", height: 60.h),
+                                  Image.asset("assets/smalllogo.png",
+                                      height: 60.h),
                                   Expanded(
                                     child: Padding(
                                       padding: EdgeInsets.only(left: 50.w),
                                       child: Container(
                                         height: 37.h,
-                                        margin: EdgeInsets.symmetric(horizontal: 10.w),
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 8.w),
                                         decoration: BoxDecoration(
-                                          color: const Color.fromARGB(255, 32, 32, 32),
-                                          borderRadius: BorderRadius.circular(10.r),
+                                          color: const Color.fromARGB(
+                                              255, 32, 32, 32),
+                                          borderRadius:
+                                          BorderRadius.circular(10.r),
                                           border: Border.all(
-                                            color: const Color.fromARGB(255, 97, 92, 86),
+                                            color: const Color.fromARGB(
+                                                255, 97, 92, 86),
                                           ),
                                         ),
                                         child: Row(
@@ -123,19 +140,30 @@ class _HomescreenState extends State<Homescreen> {
                                             Expanded(
                                               child: TextField(
                                                 controller: searchbar,
+                                                focusNode:
+                                                searchFocusNode, // Use the FocusNode here
+                                                onTap: () {
+                                                  setState(() {
+                                                    _isSearching = true;
+                                                  });
+                                                },
                                                 style: TextStyle(
                                                   color: Colors.white,
                                                   fontSize: 14.sp,
+                                                  overflow:
+                                                  TextOverflow.ellipsis,
                                                 ),
                                                 decoration: InputDecoration(
                                                   hintText: "Search",
                                                   hintStyle: TextStyle(
-                                                    color: Color.fromARGB(128, 255, 255, 255),
+                                                    color: Color.fromARGB(
+                                                        128, 255, 255, 255),
                                                     fontSize: 12.sp,
                                                   ),
-                                                  contentPadding: EdgeInsets.symmetric(
-                                                    vertical: 10.h,
-                                                    horizontal: 14.w,
+                                                  contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                    vertical: -17,
+                                                    horizontal: 4.w,
                                                   ),
                                                   border: InputBorder.none,
                                                 ),
@@ -143,9 +171,31 @@ class _HomescreenState extends State<Homescreen> {
                                             ),
                                             IconButton(
                                               onPressed: () {
-                                                print("Search");
+                                                if (searchbar.text.isEmpty) {
+                                                  FocusScope.of(context)
+                                                      .unfocus(); // Close the keyboard if the text field is empty
+                                                  setState(() {
+                                                    _isSearching =
+                                                    false; // Hide the cross icon if not in search mode
+                                                  });
+                                                } else {
+                                                  searchbar
+                                                      .clear(); // Clear text only
+                                                  searchFocusNode
+                                                      .requestFocus(); // Keep the keyboard open by requesting focus
+                                                  setState(() {
+                                                    _isSearching =
+                                                    true; // Ensure search mode remains active
+                                                  });
+                                                }
                                               },
-                                              icon: Icon(Icons.search, color: Colors.white, size: 20.sp),
+                                              icon: Icon(
+                                                _isSearching
+                                                    ? Icons.close
+                                                    : Icons.search,
+                                                color: Colors.white,
+                                                size: 20.sp,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -158,7 +208,20 @@ class _HomescreenState extends State<Homescreen> {
                                         _isAddtocart = true;
                                       });
                                     },
-                                    child: Image.asset("assets/cartpic.png", height: 34.h),
+                                    child: Container(
+                                      height: 36.h,
+                                      width: 36,
+                                      decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                              image: AssetImage(
+                                                  "assets/cartpic.png")),
+                                          border: Border.all(
+                                            color: const Color.fromARGB(
+                                                255, 97, 92, 86),
+                                          ),
+                                          borderRadius:
+                                          BorderRadius.circular(10)),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -169,7 +232,8 @@ class _HomescreenState extends State<Homescreen> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         "${userData?['full_name'] ?? 'User'}",
@@ -181,7 +245,9 @@ class _HomescreenState extends State<Homescreen> {
                                       ),
                                       Row(
                                         children: [
-                                          Image(image: AssetImage("assets/mechanic.png")),
+                                          Image(
+                                              image: AssetImage(
+                                                  "assets/mechanic.png")),
                                           SizedBox(width: 5.w),
                                           Text(
                                             "${userData?['account_type'] ?? 'Account'}",
@@ -203,11 +269,14 @@ class _HomescreenState extends State<Homescreen> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         "My Points",
-                                        style: TextStyle(color: Colors.white, fontSize: 10.sp),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10.sp),
                                       ),
                                       Text(
                                         totalPoints.toStringAsFixed(2),
@@ -227,18 +296,27 @@ class _HomescreenState extends State<Homescreen> {
                                       });
                                       refreshPoints();
                                     },
-                                    margin: EdgeInsets.symmetric(horizontal: 3.w),
-                                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 9.h),
+                                    margin:
+                                    EdgeInsets.symmetric(horizontal: 3.w),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10.w, vertical: 9.h),
                                     decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: const Color.fromARGB(
+                                            255, 97, 92, 86),
+                                      ),
                                       borderRadius: BorderRadius.circular(10.r),
                                       color: Color.fromARGB(255, 32, 32, 32),
                                     ),
                                     child: Row(
                                       children: [
-                                        Image.asset("assets/coins.png", height: 22.h),
+                                        Image.asset("assets/coins.png",
+                                            height: 22.h),
                                         Text(
                                           "Convert Points",
-                                          style: TextStyle(color: Colors.white, fontSize: 12.sp),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12.sp),
                                         ),
                                       ],
                                     ),
@@ -249,13 +327,20 @@ class _HomescreenState extends State<Homescreen> {
                                         _isHistoryScreen = true;
                                       });
                                     },
-                                    margin: EdgeInsets.symmetric(horizontal: 5.w),
-                                    padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 11.h),
+                                    margin:
+                                    EdgeInsets.symmetric(horizontal: 5.w),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 14.w, vertical: 11.h),
                                     child: Text(
                                       "History",
-                                      style: TextStyle(color: Colors.white, fontSize: 12.sp),
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12.sp),
                                     ),
                                     decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: const Color.fromARGB(
+                                            255, 97, 92, 86),
+                                      ),
                                       borderRadius: BorderRadius.circular(10.r),
                                       color: Color.fromARGB(255, 32, 32, 32),
                                     ),
@@ -275,13 +360,15 @@ class _HomescreenState extends State<Homescreen> {
                       children: [
                         Text(
                           "Explore ISH",
-                          style: TextStyle(color: Colors.white, fontSize: 12.sp),
+                          style:
+                          TextStyle(color: Colors.white, fontSize: 12.sp),
                         ),
                         GridView.builder(
                           padding: EdgeInsets.symmetric(vertical: 10.h),
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate:
+                          SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
                             crossAxisSpacing: 10.w,
                             mainAxisSpacing: 13.h,
@@ -305,7 +392,8 @@ class _HomescreenState extends State<Homescreen> {
                                   color: const Color.fromARGB(255, 30, 28, 27),
                                   borderRadius: BorderRadius.circular(15.r),
                                   border: Border.all(
-                                    color: const Color.fromARGB(255, 97, 92, 86),
+                                    color:
+                                    const Color.fromARGB(255, 97, 92, 86),
                                   ),
                                 ),
                                 child: Center(
@@ -333,7 +421,8 @@ class _HomescreenState extends State<Homescreen> {
                         ),
                         Text(
                           "Promotions",
-                          style: TextStyle(color: Colors.white, fontSize: 12.sp),
+                          style:
+                          TextStyle(color: Colors.white, fontSize: 12.sp),
                         ),
                         SizedBox(height: 10.h),
                         Container(
@@ -365,17 +454,3 @@ class _HomescreenState extends State<Homescreen> {
     );
   }
 }
-
-
-
-
-
-// _isViewProduct? const ProductView(): SizedBox.shrink(),
-//     _isPopularProduct? const PopularProductsView(): SizedBox.shrink(),
-//     _isPointProduct? const Pointsproduct(): SizedBox.shrink(),
-//     _isBundleProduct? const BundlesProduct():SizedBox.shrink(),
-//     _isNewupdateProduct? const Newupdates():SizedBox.shrink(),
-//     _isConvertpoints? const Convertpoints():SizedBox.shrink(),
-//     _isCash_withdraw? const CashWithdrawScreen():SizedBox.shrink(),
-//     _isHistoryScreen? const Historyscreen(): SizedBox.shrink(),
-//       _isAddtocart? const CartScreen():SizedBox.shrink(),

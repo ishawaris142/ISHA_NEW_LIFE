@@ -97,7 +97,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true, splitScreenMode: true);
-    
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
@@ -110,134 +110,138 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
         ),
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(16.0.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              SizedBox(height: 10.h),
-              Center(
-                child: Image.asset(
-                  'assets/Logo.png',
-                  height: 100.h,
+
+          child: Container(
+            padding:  EdgeInsets.symmetric(horizontal: 10,vertical: 25),
+            margin: EdgeInsets.only(bottom: 230.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
-              ),
-              SizedBox(height: 20.h),
-              Text(
-                "Create your Account",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 20.h),
-              DropdownButtonFormField<String>(
-                value: selectedAccountType,
-                hint: const Text("Select Account Type", style: TextStyle(color: Colors.white54)),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color.fromARGB(255, 8, 8, 8),
-                  labelText: "Account Type",
-                  labelStyle: const TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                SizedBox(height: 10.h),
+                Center(
+                  child: Image.asset(
+                    'assets/Logo.png',
+                    height: 100.h,
                   ),
                 ),
-                dropdownColor: Colors.grey[800],
-                style: const TextStyle(color: Colors.white),
-                items: accountTypes.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type, style: const TextStyle(color: Colors.white)),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedAccountType = newValue;
-                  });
-                },
-              ),
-              SizedBox(height: 20.h),
-              _buildTextField(fullNameController, "Full Name", "Full Name"),
-              SizedBox(height: 20.h),
-              _buildTextField(emailController, "name@example.com", "Email"),
-              SizedBox(height: 20.h),
-              _buildTextField(phoneController, "+92 312 3456789", "Phone", keyboardType: TextInputType.phone, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
-              SizedBox(height: 20.h),
-              _buildTextField(cnicController, "35123 - 4567891 - 0", "CNIC", keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(13)]),
-              SizedBox(height: 20.h),
-              _buildTextField(addressController, "Your address", "Address"),
-              SizedBox(height: 20.h),
-              _buildTextField(passwordController, "********", "Password", obscureText: true),
-              SizedBox(height: 20.h),
-              _buildTextField(confirmPasswordController, "********", "Confirm Password", obscureText: true),
-              SizedBox(height: 20.h),
-              Row(
-                children: [
-                  Checkbox(
-                    value: acceptTerms,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        acceptTerms = value ?? false;
-                      });
-                    },
-                    activeColor: Colors.red,
-                    checkColor: Colors.white,
-                  ),
-                  const Text(
-                    "I accept the Terms and Conditions.",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20.h),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _signup,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: EdgeInsets.all(16.h),
-                  ),
-                  child: Text(
-                    "Create Account",
-                    style: TextStyle(fontSize: 18.sp),
+                SizedBox(height: 20.h),
+                Text(
+                  "Create your Account",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-              SizedBox(height: 20.h),
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Already Have An Account?",
-                      style: TextStyle(color: Colors.white),
+                SizedBox(height: 20.h),
+                DropdownButtonFormField<String>(
+                  value: selectedAccountType,
+                  hint: const Text("Select Account Type", style: TextStyle(color: Colors.white54)),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color.fromARGB(255, 8, 8, 8),
+                    labelText: "Account Type",
+                    labelStyle: const TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
+                  ),
+                  dropdownColor: Colors.grey[800],
+                  style: const TextStyle(color: Colors.white),
+                  items: accountTypes.map((type) {
+                    return DropdownMenuItem(
+                      value: type,
+                      child: Text(type, style: const TextStyle(color: Colors.white)),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedAccountType = newValue;
+                    });
+                  },
+                ),
+                SizedBox(height: 20.h),
+                _buildTextField(fullNameController, "Full Name", "Full Name"),
+                SizedBox(height: 20.h),
+                _buildTextField(emailController, "name@example.com", "Email"),
+                SizedBox(height: 20.h),
+                _buildTextField(phoneController, "+92 312 3456789", "Phone", keyboardType: TextInputType.phone, inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
+                SizedBox(height: 20.h),
+                _buildTextField(cnicController, "35123 - 4567891 - 0", "CNIC", keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(13)]),
+                SizedBox(height: 20.h),
+                _buildTextField(addressController, "Your address", "Address"),
+                SizedBox(height: 20.h),
+                _buildTextField(passwordController, "********", "Password", obscureText: true),
+                SizedBox(height: 20.h),
+                _buildTextField(confirmPasswordController, "********", "Confirm Password", obscureText: true),
+                SizedBox(height: 20.h),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: acceptTerms,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          acceptTerms = value ?? false;
+                        });
                       },
-                      child: const Text(
-                        "Login Here",
-                        style: TextStyle(color: Colors.red),
-                      ),
+                      activeColor: Colors.red,
+                      checkColor: Colors.white,
+                    ),
+                    const Text(
+                      "I accept the Terms and Conditions.",
+                      style: TextStyle(color: Colors.white),
                     ),
                   ],
                 ),
-              ),
-            ],
+                SizedBox(height: 20.h),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _signup,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: EdgeInsets.all(16.h),
+                    ),
+                    child: Text(
+                      "Create Account",
+                      style: TextStyle(fontSize: 18.sp),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Already Have An Account?",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Login Here",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -266,4 +270,3 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 }
-

@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:provider/provider.dart';
+import 'package:red_coprative/data/services/cart_provider.dart';
+import 'package:red_coprative/main.dart';
 import 'package:red_coprative/view/dashboard/dashboard.dart';
 import 'package:red_coprative/view/dashboard/profile.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
 
-  const EditProfileScreen({super.key, required this.userData});
+  const EditProfileScreen({super.key, required this.userData, });
 
   @override
   _EditProfileScreenState createState() => _EditProfileScreenState();
@@ -22,7 +27,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController addressController;
   late TextEditingController passwordController;
   late TextEditingController confirmPasswordController;
-
+  bool isProfile = false;
   // Account type dropdown
   String? selectedAccountType;
   final List<String> accountTypes = ['Super Dealer', 'Mechanics', 'Dealer'];
@@ -82,7 +87,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         );
 
-        Navigator.pop(context); // Return to the profile screen after saving
+        context.read<CartProvider>().onisEdit(false);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -98,107 +103,126 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true, splitScreenMode: true);
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: Container(
-          height: 1.sh,
-          width: 1.sw,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/backk.png"),
-              fit: BoxFit.cover,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboardscreen()),
+              (Route) => false,
+        );
+        return true;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: Container(
+            height: 1.sh,
+            width: 1.sw,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/backk.png"),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.only(top: 20,right: 12,left: 12,bottom: 200),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => Dashboardscreen()));// Go back to the previous screen
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.check, color: Colors.white),
-                        onPressed: _updateProfile, // Save the profile changes
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10.h),
-                  Center(
-                    child: Image.asset(
-                      'assets/smalllogo.png', // Your profile image here
-                      height: 100.h,
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Text(
-                    "Edit your Profile",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.only(top: 20,right: 12,left: 12,bottom: 250),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () {
+                            context.read<CartProvider>().onisEdit(false);
 
-                  // Account Type Dropdown
-                  DropdownButtonFormField<String>(
-                    value: selectedAccountType,
-                    hint: const Text("Select Account Type", style: TextStyle(color: Colors.white54)),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromARGB(255, 18, 18, 18),
-                      labelText: "Account Type",
-                      labelStyle: const TextStyle(color: Colors.white),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+
+                            //   Navigator.pop(context);
+                            // Navigator.pushAndRemoveUntil(
+                            //   context,
+                            //   MaterialPageRoute(builder: (context) => 
+                            //      Profilescreen()),
+                            //       (Route) => false,
+                            // );
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.check, color: Colors.white),
+                          onPressed: _updateProfile, // Save the profile changes
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10.h),
+                    Center(
+                      child: Image.asset(
+                        'assets/smalllogo.png', // Your profile image here
+                        height: 100.h,
                       ),
                     ),
-                    dropdownColor: Colors.grey[800],
-                    style: const TextStyle(color: Colors.white),
-                    items: accountTypes.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(type, style: const TextStyle(color: Colors.white)),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedAccountType = newValue;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 13.h),
+                    SizedBox(height: 20.h),
+                    Text(
+                      "Edit your Profile",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
 
-                  _buildLabel("Your Name"),
-                  _buildTextField(fullNameController, "Full Name"),
+                    // Account Type Dropdown
+                    DropdownButtonFormField<String>(
+                      value: selectedAccountType,
+                      hint: const Text("Select Account Type", style: TextStyle(color: Colors.white54)),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 18, 18, 18),
+                        labelText: "Account Type",
+                        labelStyle: const TextStyle(color: Colors.white),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      dropdownColor: Colors.grey[800],
+                      style: const TextStyle(color: Colors.white),
+                      items: accountTypes.map((type) {
+                        return DropdownMenuItem(
+                          value: type,
+                          child: Text(type, style: const TextStyle(color: Colors.white)),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedAccountType = newValue;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 13.h),
 
-                  _buildLabel("Phone"),
-                  _buildTextField(phoneController, "+92 312 3456789", keyboardType: TextInputType.phone),
+                    _buildLabel("Your Name"),
+                    _buildTextField(fullNameController, "Full Name"),
 
-                  _buildLabel("CNIC"),
-                  _buildTextField(cnicController, "35123 - 4567891 - 0", keyboardType: TextInputType.number),
+                    _buildLabel("Phone"),
+                    _buildTextField(phoneController, "+92 312 3456789", keyboardType: TextInputType.phone),
 
-                  _buildLabel("Address"),
-                  _buildTextField(addressController, "Your address"),
+                    _buildLabel("CNIC"),
+                    _buildTextField(cnicController, "35123 - 4567891 - 0", keyboardType: TextInputType.number),
 
-                  _buildLabel("New Password"),
-                  _buildTextField(passwordController, "New Password", obscureText: true),
+                    _buildLabel("Address"),
+                    _buildTextField(addressController, "Your address"),
 
-                  _buildLabel("Confirm Password"),
-                  _buildTextField(confirmPasswordController, "Confirm Password", obscureText: true),
-                ],
+                    _buildLabel("New Password"),
+                    _buildTextField(passwordController, "New Password", obscureText: true),
+
+                    _buildLabel("Confirm Password"),
+                    _buildTextField(confirmPasswordController, "Confirm Password", obscureText: true),
+                  ],
+                ),
               ),
             ),
           ),

@@ -24,8 +24,11 @@ class _ProductViewState extends State<ProductView> {
   List<QueryDocumentSnapshot> filteredProducts = [];
   Map<String, int> selectedIndexes = {};
   Map<String, int> quantities = {};
+  Map<String, int> points = {}; // Points map for each product based on quantity
   Map<String, Future<String>?> imageUrls = {};
   TextEditingController searchbar = TextEditingController();
+  bool _isSearching = false;
+  final FocusNode searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -44,6 +47,7 @@ class _ProductViewState extends State<ProductView> {
       setState(() {
         selectedIndexes[product.id] = 0;
         quantities[product.id] = 1;
+        points[product.id] = 10; // Initial points set to 10 for quantity 1
         imageUrls[product.id] = getDownloadUrl(product['imageUrl']);
       });
     }
@@ -61,6 +65,7 @@ class _ProductViewState extends State<ProductView> {
     }
   }
 
+
   void _addToCart(
       String productId,
       String category,
@@ -69,34 +74,77 @@ class _ProductViewState extends State<ProductView> {
       List<int> selectedPrice,
       String imageUrl,
       int quantity,
+      int points,
       ) async {
     String? userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
-      print("🥩 Image URL before resolving: $imageUrl"); // Debugging line added here
-      String resolvedImageUrl = await getDownloadUrl(imageUrl);
-      print("Resolved Image URL: $resolvedImageUrl"); // More specific debugging
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('cart')
-          .add({
-        'productId': productId,
-        'category': category,
-        'models': selectedModel,
-        'descriptions': selectedDescription,
-        'prices': selectedPrice,
-        'quantity': quantity,
-        'imageUrl': resolvedImageUrl,
-      })
-          .then((value) {
-        _showTopSnackBar(context, '$category (${selectedModel[0]}) added to cart with $quantity items.');
-      })
-          .catchError((error) {
-        _showTopSnackBar(context, 'Failed to add $category (${selectedModel[0]}) to cart');
-      });
+      try {
+        // Fetch the latest available quantity (originalQuantity) from the product collection
+        DocumentSnapshot productSnapshot = await FirebaseFirestore.instance
+            .collection('products')
+            .doc(productId)
+            .get();
+
+        if (!productSnapshot.exists) {
+          _showTopSnackBar(context, 'Product does not exist.');
+          return;
+        }
+
+        List<int> quantitiesAvailable = productSnapshot['quantity'] is List<dynamic>
+            ? List<int>.from(productSnapshot['quantity'])
+            : [productSnapshot['quantity'] ?? 0];
+
+        int selectedModelIndex = selectedIndexes[productId] ?? 0;
+        int originalQuantity = (quantitiesAvailable.length > selectedModelIndex)
+            ? quantitiesAvailable[selectedModelIndex]
+            : 0;
+
+        // Ensure user-selected quantity does not exceed originalQuantity
+        if (quantity > originalQuantity) {
+          quantity = originalQuantity;
+          _showTopSnackBar(
+              context, 'Quantity adjusted to available stock ($originalQuantity).');
+        }
+
+        String resolvedImageUrl = await getDownloadUrl(imageUrl);
+
+        // Add item to cart with both quantity and originalQuantity
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('cart')
+            .add({
+          'productid': productId,
+          'category': category,
+          'models': selectedModel,
+          'descriptions': selectedDescription,
+          'prices': selectedPrice,
+          'quantity': quantity, // User-selected quantity
+          'originalQuantity': originalQuantity, // Maximum quantity from product
+          'points': quantity * 10, // Example points calculation
+          'imageUrl': resolvedImageUrl,
+          'timestamp': Timestamp.fromDate(DateTime.now()),
+        });
+
+        _showTopSnackBar(
+            context, '$category (${selectedModel[0]}) added to cart with $quantity items.');
+
+        // Reset local state (optional)
+        setState(() {
+          quantities[productId] = 1;
+          // points[productId] = 10;
+        });
+      } catch (error) {
+        print('Failed to add product to cart: $error');
+        _showTopSnackBar(context, 'Failed to add $category to cart.');
+      }
     }
   }
-
+  void _updatePoints(String productId) {
+    setState(() {
+      points[productId] = 10 * quantities[productId]!; // Points calculated as 10 * quantity
+    });
+  }
 
   void _showTopSnackBar(BuildContext context, String message) {
     final overlay = Overlay.of(context);
@@ -208,25 +256,63 @@ class _ProductViewState extends State<ProductView> {
                                 Expanded(
                                   child: TextField(
                                     controller: searchbar,
-                                    style: const TextStyle(color: Colors.white),
+                                    focusNode:
+                                    searchFocusNode, // Use the FocusNode here
+                                    onTap: () {
+                                      setState(() {
+                                        _isSearching = true;
+                                      });
+                                    },
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14.sp,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                     decoration: InputDecoration(
                                       hintText: "Search",
-                                      hintStyle: const TextStyle(
-                                        color: Color.fromARGB(128, 255, 255, 255),
+                                      hintStyle: TextStyle(
+                                        color:
+                                        Color.fromARGB(128, 255, 255, 255),
+                                        fontSize: 12.sp,
                                       ),
-                                      contentPadding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w), // Responsive padding
+                                      contentPadding: EdgeInsets.symmetric(
+                                        vertical: -17,
+                                        horizontal: 4.w,
+                                      ),
                                       border: InputBorder.none,
                                     ),
                                     onChanged: _filterProducts,
                                   ),
                                 ),
                                 IconButton(
-                                  onPressed: _clearSearch,
-                                  icon: const Icon(Icons.clear, color: Colors.white),
+                                  onPressed: () {
+                                    if (searchbar.text.isEmpty) {
+                                      FocusScope.of(context)
+                                          .unfocus(); // Close the keyboard if the text field is empty
+                                      setState(() {
+                                        _isSearching =
+                                        false; // Hide the cross icon if not in search mode
+                                        filteredProducts =
+                                            products; // Reset the filtered data
+                                      });
+                                    } else {
+                                      searchbar.clear(); // Clear text only
+                                      searchFocusNode
+                                          .requestFocus(); // Keep the keyboard open by requesting focus
+                                      setState(() {
+                                        _isSearching =
+                                        true; // Ensure search mode remains active
+                                      });
+                                    }
+                                  },
+                                  icon: Icon(
+                                    _isSearching ? Icons.close : Icons.search,
+                                    color: Colors.white,
+                                    size: 20.sp,
+                                  ),
                                 ),
                               ],
-                            ),
-                          ),
+                            ),                          ),
                         ),
                       ),
                     ],
@@ -244,6 +330,9 @@ class _ProductViewState extends State<ProductView> {
                         var prices = product['price'] is List<dynamic>
                             ? List<int>.from(product['price'].map((e) => (e as num).toInt()))
                             : [product['price']];
+                        var pointsList = product['points'] is List<dynamic>
+                            ? List<int>.from(product['points'].map((e) => (e as num).toInt()))
+                            : [product['points']];
                         var quantitiesAvailable = product['quantity'] is List<dynamic>
                             ? List<int>.from(product['quantity'].map((e) => (e as num).toInt()))
                             : [product['quantity']];
@@ -256,6 +345,7 @@ class _ProductViewState extends State<ProductView> {
                         int pricePerUnit = prices[selectedIndex];
                         int availableQuantity = quantitiesAvailable[selectedIndex];
                         String selectedDescription = descriptions[selectedIndex];
+                        int selectedPoints = points[product.id] ?? 10;
 
                         return GestureDetector(
                           onTap: () {
@@ -284,8 +374,12 @@ class _ProductViewState extends State<ProductView> {
                                         ),
                                       );
                                     } else {
+                                      print('Product ID passed to ProductDescriptionPage: ${product['productid']}');
+                                      print('Type: ${product['productid'].runtimeType}'); // Use product['productId'] here
                                       return ProductDescriptionPage(
+                                        productid: product.id,
                                         categoryName: product['category'],
+                                        points: selectedPoints,
                                         modelName: models[selectedIndex],
                                         imageUrl: snapshot.data!,
                                         price: pricePerUnit,
@@ -350,21 +444,62 @@ class _ProductViewState extends State<ProductView> {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              product['category'],
-                                              style: TextStyle(
-                                                fontSize: 14.sp, // Responsive font size
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Container(
+                                                  height: 36.h,  // Apply ScreenUtil for responsive height
+                                                  width: 130.w,  // Apply ScreenUtil for responsive width
+                                                  child: Text(
+                                                    product['category'],
+                                                    style: TextStyle(
+                                                      fontSize: 14.sp, // Responsive font size
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      "Points",
+                                                      style: TextStyle(
+                                                        fontSize: 8.sp,  // Responsive font size
+                                                        color: Colors.white,
+                                                        fontWeight: FontWeight.w400,
+                                                      ),
+                                                    ),
+                                                    CustomButton(
+                                                      padding: EdgeInsets.symmetric(horizontal: 7.w), // Responsive horizontal padding
+                                                      child: Text(
+                                                        "$selectedPoints",
+                                                        style: TextStyle(
+                                                          fontSize: 12.sp, // Responsive font size
+                                                          color: Colors.white,
+                                                          fontWeight: FontWeight.w400,
+                                                        ),
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                          color: const Color.fromARGB(255, 97, 92, 86),
+                                                        ),
+                                                        borderRadius: BorderRadius.circular(5.r), // Responsive border radius
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
+                                            SizedBox(height: 5.h),  // Add responsive spacing if needed
                                             Text(
                                               selectedDescription,
                                               style: TextStyle(
-                                                fontSize: 12.sp, // Responsive font size
+                                                fontSize: 12.sp,  // Responsive font size
                                                 color: Colors.white70,
                                               ),
                                             ),
+
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.start,
                                               children: [
@@ -427,6 +562,7 @@ class _ProductViewState extends State<ProductView> {
                                                         setState(() {
                                                           selectedIndexes[product.id] = newIndex!;
                                                           quantities[product.id] = 1;
+                                                          points[product.id] = 10; // Reset points to 10 for new model selection
                                                         });
                                                       },
                                                     ),
@@ -477,6 +613,7 @@ class _ProductViewState extends State<ProductView> {
                                                             if (quantity > 1) {
                                                               setState(() {
                                                                 quantities[product.id] = quantity - 1;
+                                                                _updatePoints(product.id); // Update points on decrement
                                                               });
                                                             }
                                                           },
@@ -494,6 +631,7 @@ class _ProductViewState extends State<ProductView> {
                                                             if (quantity < availableQuantity) {
                                                               setState(() {
                                                                 quantities[product.id] = quantity + 1;
+                                                                _updatePoints(product.id); // Update points on increment
                                                               });
                                                             }
                                                           },
@@ -525,7 +663,6 @@ class _ProductViewState extends State<ProductView> {
                                                               quantities[product.id] = availableQuantity;
                                                             });
                                                           }
-                                                          int points = (pricePerUnit * quantity / 1000).floor();
                                                           String imageUrl = await imageUrls[product.id] ?? 'not found 404';
                                                           _addToCart(
                                                             product.id,
@@ -535,9 +672,11 @@ class _ProductViewState extends State<ProductView> {
                                                             [prices[selectedIndex]],         // Single-element array containing only the selected price
                                                             imageUrl,
                                                             quantity,
+                                                            points[product.id] ?? 10, // Pass the calculated points
                                                           );
                                                           setState(() {
                                                             quantities[product.id] = 1;
+                                                            points[product.id] = 10; // Reset points after adding to cart
                                                           });
                                                         }
                                                       },
