@@ -33,6 +33,8 @@ class _CartScreenState extends State<CartScreen> {
   TextEditingController searchbar = TextEditingController();
   bool _isSearching = false;
   final FocusNode searchFocusNode = FocusNode(); // Add FocusNode for text field
+  double _totalPoints = 0.0;  // Store total points of selected items
+
 
 
 
@@ -45,10 +47,10 @@ class _CartScreenState extends State<CartScreen> {
   Widget _buildTopBar() {
     return ClipRRect(
       borderRadius: BorderRadius.only(
-          // Uncomment these lines if rounded corners are needed
-          // topLeft: Radius.circular(30.r),
-          // topRight: Radius.circular(30.r),
-          ),
+        // Uncomment these lines if rounded corners are needed
+        // topLeft: Radius.circular(30.r),
+        // topRight: Radius.circular(30.r),
+      ),
       child: Container(
         height: 82.h,
         width: 1.sw,
@@ -60,8 +62,8 @@ class _CartScreenState extends State<CartScreen> {
               child: Row(
                 children: [
                   Checkbox(
-                    fillColor: WidgetStateProperty. resolveWith<Color>((Set<WidgetState> states) {
-                      if (states. contains(WidgetState. disabled)) {
+                    fillColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                      if (states.contains(MaterialState.disabled)) {
                         return Colors.white.withOpacity(.32);
                       }
                       return Colors.white;
@@ -71,12 +73,12 @@ class _CartScreenState extends State<CartScreen> {
                     onChanged: (value) => _toggleSelectAll(),
                     activeColor: Colors.red,
                   ),
-                  Text("All",style: TextStyle(fontSize: 14, color: Colors.white)),
+                  Text("All", style: TextStyle(fontSize: 14, color: Colors.white)),
                   SizedBox(width: 22),
                   CustomButton(
                     height: 48.h,
                     width: 142.w,
-                   onTap: _showDropdown, // Opens dropdown,
+                    onTap: _showDropdown, // Opens dropdown,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -90,40 +92,28 @@ class _CartScreenState extends State<CartScreen> {
                         Row(
                           children: [
                             Text("total Points: ",
-                                style:
-                                    TextStyle(fontSize: 14, color: Colors.white)),
-                            Text("0.0",
-                                style:
-                                    TextStyle(fontSize: 14, color: Colors.white)),
+                                style: TextStyle(fontSize: 14, color: Colors.white)),
+                            Text("$_totalPoints", // Show total points here
+                                style: TextStyle(fontSize: 14, color: Colors.white)),
                           ],
                         ),
                       ],
                     ),
                   ),
                   CustomButton(
-                    onTap:_showDropdown,
+                    onTap: _showDropdown,
                     child: IconButton(
-                    icon: Icon(Icons.keyboard_arrow_down_outlined,
-                        color: Colors.white),
-                        iconSize: 30,
-                    onPressed: _showDropdown, // Opens dropdown
+                      icon: Icon(Icons.keyboard_arrow_down_outlined, color: Colors.white),
+                      iconSize: 30,
+                      onPressed: _showDropdown, // Opens dropdown
+                    ),
                   ),
-                  ),
-                  //SizedBox(width: 6),
-                  // IconButton(
-                  //   icon: Icon(Icons.keyboard_arrow_down_outlined,
-                  //       color: Colors.white),
-                  //       iconSize: 30,
-                  //   onPressed: _showDropdown, // Opens dropdown
-                  // ),
-                 // SizedBox(width: 10),
                   CustomButton(
                     height: 40.h,
                     width: 100.w,
                     decoration: BoxDecoration(
                       color: Colors.black,
-                      border: Border.all(
-                          color: const Color.fromARGB(255, 97, 92, 86)),
+                      border: Border.all(color: const Color.fromARGB(255, 97, 92, 86)),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Center(
@@ -290,6 +280,7 @@ class _CartScreenState extends State<CartScreen> {
 
   void _calculateTotals() {
     double totalAmount = 0.0;
+    double totalPoints = 0.0;  // Variable to store total points of selected items
     for (var item in cartItems) {
       String itemId = item.id;
       if (selectedItems[itemId] ?? false) {
@@ -297,20 +288,22 @@ class _CartScreenState extends State<CartScreen> {
         int price = (item['prices'] as List<dynamic>?)?.first as int? ?? 0;
         int quantity = quantities[item.id] ?? 1;
         totalAmount += price * quantity;
+
+        // Add points for selected items
+        totalPoints += points[itemId] ?? 0;
       }
     }
     setState(() {
       _totalAmount = totalAmount;
+      _totalPoints = totalPoints;  // Store total points
     });
   }
 
   void _toggleSelection(String itemId) {
     setState(() {
-      selectedItems[itemId] =
-          !(selectedItems[itemId] ?? false); // Toggle item selection
-      isAllSelected =
-          !selectedItems.containsValue(false); // Update "Select All" state
-      _calculateTotals();
+      selectedItems[itemId] = !(selectedItems[itemId] ?? false); // Toggle item selection
+      isAllSelected = !selectedItems.containsValue(false); // Update "Select All" state
+      _calculateTotals(); // Recalculate totals including points
     });
   }
 
