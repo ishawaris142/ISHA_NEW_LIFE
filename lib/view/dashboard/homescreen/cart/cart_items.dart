@@ -34,10 +34,7 @@ class _CartScreenState extends State<CartScreen> {
   bool _isSearching = false;
   final FocusNode searchFocusNode = FocusNode(); // Add FocusNode for text field
   double _totalPoints = 0.0;  // Store total points of selected items
-
-
-
-
+  int _userPoints = 0;
   @override
   void initState() {
     super.initState();
@@ -77,7 +74,7 @@ class _CartScreenState extends State<CartScreen> {
                   SizedBox(width: 22),
                   CustomButton(
                     height: 48.h,
-                    width: 142.w,
+                    width: 125.w,
                     onTap: _showDropdown, // Opens dropdown,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,9 +119,7 @@ class _CartScreenState extends State<CartScreen> {
                         style: TextStyle(color: Colors.white, fontSize: 12),
                       ),
                     ),
-                    onTap: () {
-                      // Checkout logic
-                    },
+                    // onTap: _handleCheckout, // Call the checkout function
                   ),
                 ],
               ),
@@ -640,507 +635,625 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
+  // Future<void> _handleCheckout() async {
+  //   String? userId = FirebaseAuth.instance.currentUser?.uid;
+  //   if (userId == null) {
+  //     print("User is not authenticated.");
+  //     return;
+  //   }
+  //
+  //   try {
+  //     // Step 1: Collect selected items
+  //     List<Map<String, dynamic>> selectedProducts = [];
+  //     int totalPointsEarned = 0;
+  //
+  //     for (var item in selectedItems.keys) {
+  //       if (selectedItems[item] == true) {
+  //         var cartItem = cartItems.firstWhere((element) => element.id == item);
+  //         Map<String, dynamic> itemData = cartItem.data() as Map<String, dynamic>;
+  //
+  //         // Create the history entry for each selected item
+  //         selectedProducts.add({
+  //           "productId": itemData['productid'] ?? '',
+  //           "model": itemData['models']?[selectedIndexes[item] ?? 0] ?? '',
+  //           "price": itemData['prices']?[selectedIndexes[item] ?? 0] ?? 0,
+  //           "quantity": quantities[item] ?? 1,
+  //           "timestamp": FieldValue.serverTimestamp(),
+  //         });
+  //
+  //         // Calculate total points earned from this item
+  //         totalPointsEarned += points[item] ?? 0;
+  //       }
+  //     }
+  //
+  //     if (selectedProducts.isEmpty) {
+  //       _showTopSnackBar(context, 'No items selected for checkout.');
+  //       return;
+  //     }
+  //
+  //     // Step 2: Add the products to the "history" collection
+  //     for (var product in selectedProducts) {
+  //       await FirebaseFirestore.instance
+  //           .collection('users')
+  //           .doc(userId)
+  //           .collection('history')
+  //           .add(product);
+  //     }
+  //
+  //     // Step 3: Update user points with conversion logic
+  //     DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(userId)
+  //         .get();
+  //
+  //     int currentPoints = userSnapshot['points'] ?? 0;
+  //
+  //     // Convert points to rupees
+  //     double currentPointsInRupees = (currentPoints / 1000) * 10;
+  //     double earnedPointsInRupees = (totalPointsEarned / 1000) * 10;
+  //
+  //     // Update the total points in rupees
+  //     double updatedPointsInRupees = currentPointsInRupees + earnedPointsInRupees;
+  //
+  //     // Convert rupees back to points for storage
+  //     int updatedPoints = ((updatedPointsInRupees / 10) * 1000).round();
+  //
+  //     await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(userId)
+  //         .update({"points": updatedPoints});
+  //
+  //     // Step 4: Remove selected items from the cart
+  //     for (var item in selectedItems.keys) {
+  //       if (selectedItems[item] == true) {
+  //         await FirebaseFirestore.instance
+  //             .collection('users')
+  //             .doc(userId)
+  //             .collection('cart')
+  //             .doc(item)
+  //             .delete();
+  //       }
+  //     }
+  //
+  //     // Step 5: Update the UI
+  //     _showTopSnackBar(context, 'Checkout Successfull');
+  //
+  //
+  //     setState(() {
+  //       selectedItems.clear();
+  //       _fetchCartItems();
+  //       _fetchUserPoints(); // Refresh user points
+  //     });
+  //   } catch (e) {
+  //     print("Error during checkout: $e");
+  //     _showTopSnackBar(context, 'Checkout failed. Please try again.');
+  //   }
+  // }
+  Future<void> _fetchUserPoints() async {
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      setState(() {
+        _userPoints = userSnapshot['points'] ?? 0;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.black,
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Container(
-          height: height,
-          width: width,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/backk.png"),
-              fit: BoxFit.fill,
-            ),
-          ),
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboardscreen()),
+              (Route) => false,
+        );
+        return true;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.black,
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
           child: Container(
-            margin: const EdgeInsets.only(top: 30, bottom: 52),
-           // padding: const EdgeInsets.only(left: 4, right: 2),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Dashboardscreen()),
-                          (Route) => false,
-                        );
-                      },
-                      icon: const Icon(Icons.arrow_back_ios_new,
-                          color: Colors.white),
-                    ),
-                    SizedBox(width: 5.w), // Responsive width
-                    Text(
-                      "Cart",
-                      style: TextStyle(
-                          fontSize: 19.sp,
-                          color: Colors.white), // Responsive font size
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding:
-                            EdgeInsets.only(left: 70.w), // Responsive padding
-                        child: Container(
-                          height: 37.h, // Responsive height
-                          // width:10.w,
-                          margin: EdgeInsets.only(
-                              left: 15.w, right: 10.w), // Responsive margins
+            height: height,
+            width: width,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/backk.png"),
+                fit: BoxFit.fill,
+              ),
+            ),
+            child: Container(
+              margin: const EdgeInsets.only(top: 30, bottom: 52),
+             // padding: const EdgeInsets.only(left: 4, right: 2),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Dashboardscreen()),
+                            (Route) => false,
+                          );
+                        },
+                        icon: const Icon(Icons.arrow_back_ios_new,
+                            color: Colors.white),
+                      ),
+                      SizedBox(width: 5.w), // Responsive width
+                      Text(
+                        "Cart",
+                        style: TextStyle(
+                            fontSize: 19.sp,
+                            color: Colors.white), // Responsive font size
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding:
+                              EdgeInsets.only(left: 70.w), // Responsive padding
+                          child: Container(
+                            height: 37.h, // Responsive height
+                            // width:10.w,
+                            margin: EdgeInsets.only(
+                                left: 15.w, right: 10.w), // Responsive margins
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 32, 32, 32),
+                              borderRadius: BorderRadius.circular(
+                                  10.r), // Responsive border radius
+                              border: Border.all(
+                                color: const Color.fromARGB(255, 97, 92, 86),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: searchbar,
+                                    focusNode:
+                                        searchFocusNode, // Use the FocusNode here
+                                    onTap: () {
+                                      setState(() {
+                                        _isSearching = true;
+                                      });
+                                    },
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14.sp,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText: "Search",
+                                      hintStyle: TextStyle(
+                                        color: Color.fromARGB(128, 255, 255, 255),
+                                        fontSize: 12.sp,
+                                      ),
+                                      contentPadding: EdgeInsets.symmetric(
+                                        vertical: -17,
+                                        horizontal: 4.w,
+                                      ),
+                                      border: InputBorder.none,
+                                    ),
+                                    onChanged: _filterCartItems,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    if (searchbar.text.isEmpty) {
+                                      FocusScope.of(context)
+                                          .unfocus(); // Close the keyboard if the text field is empty
+                                      setState(() {
+                                        _isSearching =
+                                            false; // Hide the cross icon if not in search mode
+                                        filteredCartItems =
+                                            cartItems; // Reset the filtered data
+                                      });
+                                    } else {
+                                      searchbar.clear(); // Clear text only
+                                      searchFocusNode
+                                          .requestFocus(); // Keep the keyboard open by requesting focus
+                                      setState(() {
+                                        _isSearching =
+                                            true; // Ensure search mode remains active
+                                      });
+                                    }
+                                  },
+                                  icon: Icon(
+                                    _isSearching ? Icons.close : Icons.search,
+                                    color: Colors.white,
+                                    size: 20.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                          width: 190), // Add space between text and delete icon
+                      IconButton(
+                        icon: Icon(Icons.delete,
+                            color: Color.fromARGB(255, 172, 31, 37)),
+                        onPressed: () {
+                          if (selectedItems.containsValue(true)) {
+                            _deleteSelectedItems(); // Call function to delete selected items
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text("No items selected to delete")),
+                            );
+                          }
+                        },
+                      ),
+                      // Checkbox(
+                      //   value: isAllSelected,
+                      //   onChanged: (value) => _toggleSelectAll(),
+                      //   activeColor: Color.fromARGB(255, 172, 31, 37),
+                      // ),
+                    ],
+                  ),
+
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filteredCartItems.length + 1,
+                      // Extra item for the Total Amount and Checkout
+                      padding: const EdgeInsets.only(top: 5),
+                      itemBuilder: (context, index) {
+                        if (index == filteredCartItems.length) {
+                          // This is the last item in the list, used for Total Amount and Checkout button
+                          return Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 10, bottom: 150),
+                              child: Container());
+                        }
+
+                        // Regular cart item
+                        var item = filteredCartItems[index];
+                        String itemId = item.id;
+
+                        var models = List<String>.from(
+                            item['models'] ?? ["Default Model"]);
+                        var prices = item['prices'] is List<dynamic>
+                            ? List<int>.from(
+                                item['prices'].map((e) => (e as num).toInt()))
+                            : [item['prices'] ?? 0];
+                        var quantitiesAvailable = item['quantity']
+                                is List<dynamic>
+                            ? List<int>.from(
+                                item['quantity'].map((e) => (e as num).toInt()))
+                            : [item['quantity'] ?? 0];
+                        var descriptions = item['descriptions'] is List<dynamic>
+                            ? List<String>.from(item['descriptions'])
+                            : [
+                                item['descriptions'] ?? "No description available"
+                              ];
+                        var pointsList = item['points'] is List<dynamic>
+                            ? List<int>.from(
+                            item['points'].map((e) => (e as num).toInt()))
+                            : [item['points']];
+                        int selectedPoints = points[item.id] ?? 10;
+
+                        int selectedIndex = selectedIndexes[item.id] ?? 0;
+                        int quantity = quantities[itemId] ?? 1;
+                        int availableQuantity =
+                            (quantitiesAvailable.length > selectedIndex)
+                                ? quantitiesAvailable[selectedIndex]
+                                : 1;
+                        int pricePerUnit = (prices.length > selectedIndex)
+                            ? prices[selectedIndex]
+                            : 0;
+                        String selectedDescription =
+                            (descriptions.length > selectedIndex)
+                                ? descriptions[selectedIndex]
+                                : "No description available";
+                        return CustomButton(
+                          margin: EdgeInsets.symmetric(
+                              vertical: 6.h, horizontal: 4.w),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12.h, horizontal: 2.w),
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 32, 32, 32),
-                            borderRadius: BorderRadius.circular(
-                                10.r), // Responsive border radius
+                            color: const Color.fromARGB(255, 8, 8, 8),
+                            borderRadius: BorderRadius.circular(15.r),
                             border: Border.all(
                               color: const Color.fromARGB(255, 97, 92, 86),
                             ),
                           ),
                           child: Row(
                             children: [
+                              Checkbox(
+                                value: selectedItems[itemId] ?? false,
+                                onChanged: (value) => _toggleSelection(itemId),
+                                activeColor: Colors.red,
+                              ),
                               Expanded(
-                                child: TextField(
-                                  controller: searchbar,
-                                  focusNode:
-                                      searchFocusNode, // Use the FocusNode here
-                                  onTap: () {
-                                    setState(() {
-                                      _isSearching = true;
-                                    });
-                                  },
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14.sp,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: "Search",
-                                    hintStyle: TextStyle(
-                                      color: Color.fromARGB(128, 255, 255, 255),
-                                      fontSize: 12.sp,
-                                    ),
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: -17,
-                                      horizontal: 4.w,
-                                    ),
-                                    border: InputBorder.none,
-                                  ),
-                                  onChanged: _filterCartItems,
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  if (searchbar.text.isEmpty) {
-                                    FocusScope.of(context)
-                                        .unfocus(); // Close the keyboard if the text field is empty
-                                    setState(() {
-                                      _isSearching =
-                                          false; // Hide the cross icon if not in search mode
-                                      filteredCartItems =
-                                          cartItems; // Reset the filtered data
-                                    });
-                                  } else {
-                                    searchbar.clear(); // Clear text only
-                                    searchFocusNode
-                                        .requestFocus(); // Keep the keyboard open by requesting focus
-                                    setState(() {
-                                      _isSearching =
-                                          true; // Ensure search mode remains active
-                                    });
-                                  }
-                                },
-                                icon: Icon(
-                                  _isSearching ? Icons.close : Icons.search,
-                                  color: Colors.white,
-                                  size: 20.sp,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                        width: 190), // Add space between text and delete icon
-                    IconButton(
-                      icon: Icon(Icons.delete,
-                          color: Color.fromARGB(255, 172, 31, 37)),
-                      onPressed: () {
-                        if (selectedItems.containsValue(true)) {
-                          _deleteSelectedItems(); // Call function to delete selected items
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text("No items selected to delete")),
-                          );
-                        }
-                      },
-                    ),
-                    // Checkbox(
-                    //   value: isAllSelected,
-                    //   onChanged: (value) => _toggleSelectAll(),
-                    //   activeColor: Color.fromARGB(255, 172, 31, 37),
-                    // ),
-                  ],
-                ),
-
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: filteredCartItems.length + 1,
-                    // Extra item for the Total Amount and Checkout
-                    padding: const EdgeInsets.only(top: 5),
-                    itemBuilder: (context, index) {
-                      if (index == filteredCartItems.length) {
-                        // This is the last item in the list, used for Total Amount and Checkout button
-                        return Padding(
-                            padding:
-                                const EdgeInsets.only(top: 10, bottom: 150),
-                            child: Container());
-                      }
-
-                      // Regular cart item
-                      var item = filteredCartItems[index];
-                      String itemId = item.id;
-
-                      var models = List<String>.from(
-                          item['models'] ?? ["Default Model"]);
-                      var prices = item['prices'] is List<dynamic>
-                          ? List<int>.from(
-                              item['prices'].map((e) => (e as num).toInt()))
-                          : [item['prices'] ?? 0];
-                      var quantitiesAvailable = item['quantity']
-                              is List<dynamic>
-                          ? List<int>.from(
-                              item['quantity'].map((e) => (e as num).toInt()))
-                          : [item['quantity'] ?? 0];
-                      var descriptions = item['descriptions'] is List<dynamic>
-                          ? List<String>.from(item['descriptions'])
-                          : [
-                              item['descriptions'] ?? "No description available"
-                            ];
-                      var pointsList = item['points'] is List<dynamic>
-                          ? List<int>.from(
-                          item['points'].map((e) => (e as num).toInt()))
-                          : [item['points']];
-                      int selectedPoints = points[item.id] ?? 10;
-
-                      int selectedIndex = selectedIndexes[item.id] ?? 0;
-                      int quantity = quantities[itemId] ?? 1;
-                      int availableQuantity =
-                          (quantitiesAvailable.length > selectedIndex)
-                              ? quantitiesAvailable[selectedIndex]
-                              : 1;
-                      int pricePerUnit = (prices.length > selectedIndex)
-                          ? prices[selectedIndex]
-                          : 0;
-                      String selectedDescription =
-                          (descriptions.length > selectedIndex)
-                              ? descriptions[selectedIndex]
-                              : "No description available";
-                      return CustomButton(
-                        margin: EdgeInsets.symmetric(
-                            vertical: 6.h, horizontal: 4.w),
-                        padding: EdgeInsets.symmetric(
-                            vertical: 12.h, horizontal: 2.w),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 8, 8, 8),
-                          borderRadius: BorderRadius.circular(15.r),
-                          border: Border.all(
-                            color: const Color.fromARGB(255, 97, 92, 86),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Checkbox(
-                              value: selectedItems[itemId] ?? false,
-                              onChanged: (value) => _toggleSelection(itemId),
-                              activeColor: Colors.red,
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      FutureBuilder<String>(
-                                        future: imageUrls[itemId],
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return Container(
-                                              height: 115.w,
-                                              width: 115.w,
-                                              child: const Center(
-                                                child:
-                                                    CircularProgressIndicator(),
-                                              ),
-                                            );
-                                          } else if (snapshot.hasError ||
-                                              !snapshot.hasData ||
-                                              snapshot.data!.isEmpty) {
-                                            return Container(
-                                              height: 119.w,
-                                              width: 119.w,
-                                              color: Colors.grey,
-                                              child: const Icon(Icons.error,
-                                                  color: Colors.red),
-                                            );
-                                          } else {
-                                            return Container(
-                                              height: 130.w,
-                                              width: 130.w,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10.r),
-                                                image: DecorationImage(
-                                                  image: NetworkImage(
-                                                      snapshot.data!),
-                                                  fit: BoxFit.fill,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        FutureBuilder<String>(
+                                          future: imageUrls[itemId],
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return Container(
+                                                height: 115.w,
+                                                width: 115.w,
+                                                child: const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
                                                 ),
-                                              ),
-                                            );
-                                          }
-                                        },
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              left: 10.w, right: 5.w),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                MainAxisAlignment
-                                                    .spaceBetween,
-                                                children: [
-                                                  Container(
-                                                    height: 36.h, // Responsive height
-                                                    width: 130.w, // Responsive width
-                                                    child: Text(
-                                                      item['category'],
-                                                      style: TextStyle(
-                                                        fontSize: 14.sp, // Responsive font size
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                        FontWeight.bold,
-                                                      ),
-                                                    ),
+                                              );
+                                            } else if (snapshot.hasError ||
+                                                !snapshot.hasData ||
+                                                snapshot.data!.isEmpty) {
+                                              return Container(
+                                                height: 119.w,
+                                                width: 119.w,
+                                                color: Colors.grey,
+                                                child: const Icon(Icons.error,
+                                                    color: Colors.red),
+                                              );
+                                            } else {
+                                              return Container(
+                                                height: 130.w,
+                                                width: 130.w,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10.r),
+                                                  image: DecorationImage(
+                                                    image: NetworkImage(
+                                                        snapshot.data!),
+                                                    fit: BoxFit.fill,
                                                   ),
-                                                  Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Text(
-                                                        "Points",
+                                                ),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                        Expanded(
+                                          child: Padding(
+                                            padding: EdgeInsets.only(
+                                                left: 10.w, right: 5.w),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                                  children: [
+                                                    Container(
+                                                      height: 36.h, // Responsive height
+                                                      width: 130.w, // Responsive width
+                                                      child: Text(
+                                                        item['category'],
                                                         style: TextStyle(
-                                                          fontSize: 8.sp,  // Responsive font size
+                                                          fontSize: 14.sp, // Responsive font size
                                                           color: Colors.white,
-                                                          fontWeight: FontWeight.w400,
+                                                          fontWeight:
+                                                          FontWeight.bold,
                                                         ),
                                                       ),
-                                                      CustomButton(
-                                                        padding: EdgeInsets.symmetric(horizontal: 7.w), // Responsive horizontal padding
-                                                        child: Text(
-                                                          "$selectedPoints",
+                                                    ),
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          "Points",
                                                           style: TextStyle(
-                                                            fontSize: 11.sp, // Responsive font size
+                                                            fontSize: 8.sp,  // Responsive font size
                                                             color: Colors.white,
                                                             fontWeight: FontWeight.w400,
                                                           ),
                                                         ),
-                                                        decoration: BoxDecoration(
-                                                          border: Border.all(
-                                                            color: const Color.fromARGB(255, 97, 92, 86),
+                                                        CustomButton(
+                                                          padding: EdgeInsets.symmetric(horizontal: 7.w), // Responsive horizontal padding
+                                                          child: Text(
+                                                            "$selectedPoints",
+                                                            style: TextStyle(
+                                                              fontSize: 11.sp, // Responsive font size
+                                                              color: Colors.white,
+                                                              fontWeight: FontWeight.w400,
+                                                            ),
                                                           ),
-                                                          borderRadius: BorderRadius.circular(5.r), // Responsive border radius
+                                                          decoration: BoxDecoration(
+                                                            border: Border.all(
+                                                              color: const Color.fromARGB(255, 97, 92, 86),
+                                                            ),
+                                                            borderRadius: BorderRadius.circular(5.r), // Responsive border radius
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                              Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 4.w,
-                                                    vertical: 2.w),
-                                                child: Text(
-                                                  models[selectedIndex],
-                                                  style: TextStyle(
-                                                    fontSize: 11.sp,
-                                                    color: Colors.grey,
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 4.w,
+                                                      vertical: 2.w),
+                                                  child: Text(
+                                                    models[selectedIndex],
+                                                    style: TextStyle(
+                                                      fontSize: 11.sp,
+                                                      color: Colors.grey,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              SizedBox(height: 3.h),
-                                              Row(
-                                                mainAxisAlignment:
-                                                MainAxisAlignment
-                                                    .spaceBetween,
-                                                children: [
-                                                  Expanded(
-                                                    child: Container(
+                                                SizedBox(height: 3.h),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Container(
+                                                        padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 6.h,
+                                                            horizontal: 8.w),
+                                                        decoration: BoxDecoration(
+                                                          borderRadius:
+                                                          BorderRadius
+                                                              .circular(5.r),
+                                                          border: Border.all(
+                                                              color: const Color
+                                                                  .fromARGB(255,
+                                                                  97, 92, 86)),
+                                                          color: Colors.black,
+                                                        ),
+                                                        child: Text(
+                                                          selectedDescription,
+                                                          style: TextStyle(
+                                                            fontSize: 12.sp,
+                                                            color: Colors.white70,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 5.w),
+                                                    Container(
                                                       padding:
                                                       EdgeInsets.symmetric(
                                                           vertical: 6.h,
                                                           horizontal: 8.w),
                                                       decoration: BoxDecoration(
                                                         borderRadius:
-                                                        BorderRadius
-                                                            .circular(5.r),
+                                                        BorderRadius.circular(
+                                                            5.r),
                                                         border: Border.all(
                                                             color: const Color
-                                                                .fromARGB(255,
-                                                                97, 92, 86)),
-                                                        color: Colors.black,
+                                                                .fromARGB(
+                                                                255, 97, 92, 86)),
                                                       ),
                                                       child: Text(
-                                                        selectedDescription,
+                                                        "${pricePerUnit * quantity}",
                                                         style: TextStyle(
                                                           fontSize: 12.sp,
-                                                          color: Colors.white70,
+                                                          color: Colors.white,
                                                         ),
                                                       ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 5.w),
-                                                  Container(
-                                                    padding:
-                                                    EdgeInsets.symmetric(
-                                                        vertical: 6.h,
-                                                        horizontal: 8.w),
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                      BorderRadius.circular(
-                                                          5.r),
-                                                      border: Border.all(
-                                                          color: const Color
-                                                              .fromARGB(
-                                                              255, 97, 92, 86)),
-                                                    ),
-                                                    child: Text(
-                                                      "${pricePerUnit * quantity}",
-                                                      style: TextStyle(
-                                                        fontSize: 12.sp,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              SizedBox(height: 5.h),
-                                              Container(
-                                                height: 37.h,
-                                                width: 130.w,
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 6, vertical: 2),
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                  BorderRadius.circular(
-                                                      5.r),
-                                                  border: Border.all(
-                                                      color:
-                                                      const Color.fromARGB(
-                                                          255, 97, 92, 86)),
-                                                  color: Colors.black,
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                                  children: [
-                                                    CustomButton(
-                                                      onTap: () =>
-                                                          _decrementQuantity(
-                                                              itemId),
-                                                      padding:
-                                                      EdgeInsets.all(4),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                        BorderRadius
-                                                            .circular(5),
-                                                        color: const Color
-                                                            .fromARGB(
-                                                            255, 172, 31, 37),
-                                                      ),
-                                                      child: Icon(Icons.remove,
-                                                          size: 16,
-                                                          color: Colors.white),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                      EdgeInsets.symmetric(
-                                                          horizontal: 12.0),
-                                                      child: Container(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                            vertical: 6.h,
-                                                            horizontal:
-                                                            12.w),
-                                                        child: Text(
-                                                          '$quantity',
-                                                          style: TextStyle(
-                                                            fontSize: 14.sp,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    CustomButton(
-                                                      onTap: () {
-                                                        if (quantity <
-                                                            availableQuantity) {
-                                                          _incrementQuantity(
-                                                              itemId);
-                                                        }
-                                                      },
-                                                      padding:
-                                                      EdgeInsets.all(4),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                        BorderRadius
-                                                            .circular(5),
-                                                        color: const Color
-                                                            .fromARGB(
-                                                            255, 172, 31, 37),
-                                                      ),
-                                                      child: Icon(Icons.add,
-                                                          size: 16,
-                                                          color: Colors.white),
                                                     ),
                                                   ],
                                                 ),
-                                              ),
-                                            ],
+                                                SizedBox(height: 5.h),
+                                                Container(
+                                                  height: 37.h,
+                                                  width: 130.w,
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 6, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                    BorderRadius.circular(
+                                                        5.r),
+                                                    border: Border.all(
+                                                        color:
+                                                        const Color.fromARGB(
+                                                            255, 97, 92, 86)),
+                                                    color: Colors.black,
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                    children: [
+                                                      CustomButton(
+                                                        onTap: () =>
+                                                            _decrementQuantity(
+                                                                itemId),
+                                                        padding:
+                                                        EdgeInsets.all(4),
+                                                        decoration: BoxDecoration(
+                                                          borderRadius:
+                                                          BorderRadius
+                                                              .circular(5),
+                                                          color: const Color
+                                                              .fromARGB(
+                                                              255, 172, 31, 37),
+                                                        ),
+                                                        child: Icon(Icons.remove,
+                                                            size: 16,
+                                                            color: Colors.white),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 12.0),
+                                                        child: Container(
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                              vertical: 6.h,
+                                                              horizontal:
+                                                              12.w),
+                                                          child: Text(
+                                                            '$quantity',
+                                                            style: TextStyle(
+                                                              fontSize: 14.sp,
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      CustomButton(
+                                                        onTap: () {
+                                                          if (quantity <
+                                                              availableQuantity) {
+                                                            _incrementQuantity(
+                                                                itemId);
+                                                          }
+                                                        },
+                                                        padding:
+                                                        EdgeInsets.all(4),
+                                                        decoration: BoxDecoration(
+                                                          borderRadius:
+                                                          BorderRadius
+                                                              .circular(5),
+                                                          color: const Color
+                                                              .fromARGB(
+                                                              255, 172, 31, 37),
+                                                        ),
+                                                        child: Icon(Icons.add,
+                                                            size: 16,
+                                                            color: Colors.white),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-                _buildTopBar(), // Add the navigation bar here
-              ],
+                  _buildTopBar(), // Add the navigation bar here
+                ],
+              ),
             ),
           ),
         ),
