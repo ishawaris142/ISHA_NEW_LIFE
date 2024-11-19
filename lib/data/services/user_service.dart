@@ -32,7 +32,7 @@ class UserDataService {
   // Fetch and cache user total points
   Future<num> fetchTotalPoints() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? cachedTotalPoints = prefs.getString('totalPoints');
+    String? cachedTotalPoints = prefs.getString('points');
 
     if (cachedTotalPoints != null) {
       return num.tryParse(cachedTotalPoints) ?? 0;
@@ -46,10 +46,10 @@ class UserDataService {
 
         if (doc.exists) {
           Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
-          num totalPoints = userData['totalPoints'] ?? 0;
+          num points = userData['points'] ?? 0;
 
-          await prefs.setString('totalPoints', totalPoints.toString());
-          return totalPoints;
+          await prefs.setString('points', points.toString());
+          return points;
         }
       }
     }
@@ -71,17 +71,16 @@ class UserDataService {
     // Update Firestore and cache
     await FirebaseFirestore.instance
         .collection('users')
-        .doc(user.uid)
-        .update({'totalPoints': updatedPoints});
+        .doc(user.uid);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('totalPoints', updatedPoints.toString());
+    await prefs.setString('points', updatedPoints.toString());
   }
 
   // Clear cache
   Future<void> clearCache() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('userData');
-    await prefs.remove('totalPoints');
+    await prefs.remove('points');
   }
 }

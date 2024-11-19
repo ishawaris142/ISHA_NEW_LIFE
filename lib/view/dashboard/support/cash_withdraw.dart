@@ -45,7 +45,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
     'uBank/UPaisa',
     'Mobilink Bank/JazzCash',
     'Bank of Khyber',
-    
+
   ];
   String? _selectedBank; // Variable to store the selected bank
 
@@ -136,7 +136,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const Dashboardscreen()),
-            (Route) => false,
+                (Route) => false,
           );
           return true;
         },
@@ -157,9 +157,9 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                     ),
                   ),
                   child: SingleChildScrollView(
-                    
+
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 40.h),
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 20.h),
                       margin: EdgeInsets.only(bottom: 170),
                       child: Column(
                         children: [
@@ -168,31 +168,32 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                             children: [
                               IconButton(
                                 icon: Icon(Icons.arrow_back_ios_new,
-                                    color: Colors.white, size: 32.sp),
+                                  color: Colors.white,),
                                 onPressed: () {
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const Dashboardscreen()),
-                                    (Route) => false,
+                                        const Dashboardscreen()),
+                                        (Route) => false,
                                   ); // This will navigate back to the previous screen
                                 },
                               ),
                               Text("Convert Points",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 16.sp))
+                                  style: TextStyle(fontSize: 19.sp, color: Colors.white)),
                             ],
                           ),
-                      
+                          SizedBox(height: 25),
                           // Wallet balance section
                           Container(
                             width: double.infinity,
                             height: 190.h,
                             decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 165, 6, 13),
-                              borderRadius: BorderRadius.circular(14.r),
-                              border: Border.all(color: Colors.white54),
+                                color: const Color.fromARGB(255, 165, 6, 13),
+                                borderRadius: BorderRadius.circular(14.r),
+                                border: Border.all(color: const Color.fromARGB(255, 8, 8, 8),)
+                              //  color: const Color.fromARGB(255, 8, 8, 8),
+
                             ),
                             child: Padding(
                               padding: EdgeInsets.symmetric(
@@ -202,7 +203,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                                 children: [
                                   Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         children: [
@@ -215,18 +216,14 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                                           Row(
                                             children: [
                                               Text(
-                                                "Rs",
-                                                style: TextStyle(
-                                                    fontSize: 32.sp,
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold),
+                                                "Rs",style: TextStyle(fontSize: 32.sp,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold),
                                               ),
                                               SizedBox(width: 2.w),
                                               Text(
                                                 _walletBalance.toStringAsFixed(2),
-                                                style: TextStyle(
-                                                    fontSize: 32.sp,
-                                                    color: Colors.white,
+                                                style: TextStyle(fontSize: 32.sp,color: Colors.white,
                                                     fontWeight: FontWeight.bold),
                                               ),
                                             ],
@@ -270,7 +267,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                             ),
                           ),
                           SizedBox(height: 10.h),
-                      
+
                           Text(
                             "Request Cash Withdraw",
                             style: TextStyle(
@@ -278,7 +275,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
                           ),
-                      
+
                           // Withdraw Form
                           Form(
                             child: Column(
@@ -319,63 +316,62 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                                   ),
                                 ),
                                 SizedBox(height: 1.h),
-                               
-                                DropdownButtonFormField<String>(
-                      
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: const Color.fromARGB(255, 8, 8, 8),
-                                   
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide:
-                                          const BorderSide(color: Colors.white54),
-                                      borderRadius: BorderRadius.circular(10.r),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                        
-                                          color: Color.fromARGB(255, 165, 6, 13)),
-                                      borderRadius: BorderRadius.circular(10.r),
-                                      
+
+                                DropdownButtonHideUnderline(
+                                  child: ButtonTheme(
+                                    alignedDropdown: true, // Align dropdown with the button
+                                    child: DropdownButtonFormField<String>(
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: const Color.fromARGB(255, 8, 8, 8),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: const BorderSide(color: Colors.white54),
+                                          borderRadius: BorderRadius.circular(10.r),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: const BorderSide(
+                                              color: Color.fromARGB(255, 165, 6, 13)),
+                                          borderRadius: BorderRadius.circular(10.r),
+                                        ),
+                                      ),
+                                      dropdownColor: Color(0xFF2C2C2C), // Dropdown background color
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14.sp,
+                                      ),
+                                      value: _selectedBank, // Initial value (can be null)
+                                      hint: Text(
+                                        'Select a Bank',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12.sp,
+                                        ),
+                                      ),
+                                      menuMaxHeight: 230.h, // Height of dropdown
+                                      items: _banks.map((bank) {
+                                        return DropdownMenuItem<String>(
+                                          value: bank,
+                                          child: SizedBox(
+                                            width: 150.0, // Set custom width here
+                                            child: Text(bank),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedBank = value; // Update the selected bank
+                                        });
+                                      },
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please select a bank';
+                                        }
+                                        return null; // No validation error
+                                      },
                                     ),
                                   ),
-                                  dropdownColor:
-                                       Color(0xFF2C2C2C),// Dropdown background color
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 14.sp),
-                                  value:
-                                      _selectedBank, // Initial value (can be null)
-                                  hint: Text(
-                                    'Select a Bank',
-                                    style: TextStyle(
-                                        color: Colors.grey, fontSize: 12.sp),
-                                  ),
-                                  menuMaxHeight: 230.h, 
-                                  
-                                         /////Height of dropdown
-                                  items: _banks.map((bank) {
-                                    return DropdownMenuItem<String>(
-                                      value: bank,
-                                      child: Text(bank),
-                                    );
-                                  }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedBank =
-                                          value; // Update the selected bank
-                                    });
-                                  },
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please select a bank';
-                                    }
-                                    return null; // No validation error
-                                  },
-                                  
                                 ),
-                      
-                      
-                                
+
                                 SizedBox(height: 10.h),
                                 Text(
                                   'Amount (Rs)',
@@ -401,22 +397,22 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                                         final mobileNumber =
                                             _mobileNumberController.text;
                                         final amount = _amountController.text;
-                      
+
                                         if (accountTitle.isNotEmpty &&
                                             mobileNumber.isNotEmpty &&
                                             amount.isNotEmpty) {
                                           double withdrawAmount =
-                                              double.parse(amount);
+                                          double.parse(amount);
                                           if (withdrawAmount <= _walletBalance) {
                                             setState(() {
                                               _walletBalance -= withdrawAmount;
                                             });
-                      
+
                                             double remainingRupees =
                                                 _walletBalance;
                                             _updateRemainingPoints(
                                                 remainingRupees);
-                      
+
                                             _showTopSnackBar(context,
                                                 'Withdrawing Rs. $withdrawAmount via $_selectedAccountType');
                                           } else {
@@ -430,13 +426,13 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor:
-                                            const Color.fromARGB(255, 165, 6, 13),
+                                        const Color.fromARGB(255, 165, 6, 13),
                                         padding: EdgeInsets.symmetric(
                                             vertical: 15
                                                 .h), // Keep vertical padding only to control the button's height
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(10.r),
+                                          BorderRadius.circular(10.r),
                                           side: BorderSide(color: Colors.grey),
                                         ),
                                       ),
@@ -473,6 +469,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
         filled: true,
         fillColor: const Color.fromARGB(255, 8, 8, 8),
         hintText: hintText,
+
         hintStyle: TextStyle(color: Colors.grey, fontSize: 12.sp),
         enabledBorder: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.white54),

@@ -166,7 +166,7 @@ class _HistoryscreenState extends State<Historyscreen> {
                           var historyItem = historyItems[index];
                           Timestamp? timestamp =
                               historyItem['timestamp'] as Timestamp?;
-                          double totalAmount = historyItem['totalAmount'];
+                          // double totalAmount = historyItem['totalAmount'];
                           int totalPoints = historyItem['totalPoints'];
                           String docId = historyItem.id;
                           Map<String, dynamic> purchaseData =
@@ -178,7 +178,7 @@ class _HistoryscreenState extends State<Historyscreen> {
                             },
                             child: Card(
                               margin: const EdgeInsets.only(bottom: 8.0),
-                              color: const Color.fromARGB(38, 255, 255, 255),
+                              color:  Colors.black,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -193,10 +193,10 @@ class _HistoryscreenState extends State<Historyscreen> {
                                     Text('Total Points: $totalPoints',
                                         style: const TextStyle(
                                             color: Colors.white)),
-                                    Text(
-                                        'Amount of Purchase: \$${totalAmount.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                            color: Colors.white)),
+                                    // Text(
+                                    //     'Amount of Purchase: \$${totalAmount.toStringAsFixed(2)}',
+                                    //     style: const TextStyle(
+                                    //         color: Colors.white)),
                                   ],
                                 ),
                                 trailing: IconButton(

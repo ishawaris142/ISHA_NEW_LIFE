@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:red_coprative/models/homescreengrid.dart';
 import 'package:red_coprative/utils/custom_button.dart';
+import 'package:red_coprative/utils/exit_dailogue.dart';
 import 'package:red_coprative/view/auth/edit_profile_screen.dart';
 import 'package:red_coprative/view/dashboard/homescreen/new_updates.dart';
 import 'package:red_coprative/view/dashboard/homescreen/products/bundles_product.dart';
@@ -24,7 +25,7 @@ class Homescreen extends StatefulWidget {
 class _HomescreenState extends State<Homescreen> {
   final UserDataService userDataService = UserDataService();
   Map<String, dynamic>? userData;
-  num totalPoints = 0;
+  num points = 0;
   bool isLoading = true;
   bool _isViewProduct = false;
   bool _isPopularProduct = false;
@@ -48,12 +49,12 @@ class _HomescreenState extends State<Homescreen> {
   Future<void> fetchUserData() async {
     setState(() => isLoading = true);
     userData = await userDataService.fetchUserData();
-    totalPoints = await userDataService.fetchTotalPoints();
+    points = await userDataService.fetchTotalPoints();
     setState(() => isLoading = false);
   }
 
   Future<void> refreshPoints() async {
-    totalPoints = await userDataService.fetchTotalPoints();
+    points = await userDataService.fetchTotalPoints();
     setState(() {});
   }
 
@@ -66,7 +67,13 @@ class _HomescreenState extends State<Homescreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: ()async{
+        if(!(_isViewProduct ||_isPopularProduct||_isPointProduct||_isBundleProduct||_isConvertpoints||_isCash_withdraw||_isHistoryScreen||_isAddtocart)){
+          return await ShowExitPopup.handleExit(context);
+        }
+        return Future.value(true); // Allow the back press
+      },      child: Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
@@ -279,7 +286,7 @@ class _HomescreenState extends State<Homescreen> {
                                             fontSize: 10.sp),
                                       ),
                                       Text(
-                                        totalPoints.toStringAsFixed(2),
+                                        points.toStringAsFixed(2),
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 24.sp,
@@ -451,6 +458,7 @@ class _HomescreenState extends State<Homescreen> {
           if (_isAddtocart) const CartScreen(),
         ],
       ),
+    ),
     );
   }
 }

@@ -49,77 +49,108 @@ class _CartScreenState extends State<CartScreen> {
         // topRight: Radius.circular(30.r),
       ),
       child: Container(
-        height: 82.h,
-        width: 1.sw,
+        height: 81.h, // Responsive height
+        width: 1.sw, // Responsive width
         color: const Color.fromARGB(255, 172, 31, 37),
         child: Stack(
           children: <Widget>[
             Positioned(
-              top: 10.h,
+              top: 10.h, // Responsive positioning
+              // left: 10.w, // Ensure responsive horizontal alignment
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Checkbox(
-                    fillColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                      if (states.contains(MaterialState.disabled)) {
-                        return Colors.white.withOpacity(.32);
-                      }
-                      return Colors.white;
-                    }),
+                    fillColor: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.disabled)) {
+                          return Colors.white.withOpacity(.32);
+                        }
+                        return Colors.white;
+                      },
+                    ),
                     checkColor: Colors.red,
                     value: isAllSelected,
                     onChanged: (value) => _toggleSelectAll(),
                     activeColor: Colors.red,
                   ),
-                  Text("All", style: TextStyle(fontSize: 14, color: Colors.white)),
-                  SizedBox(width: 22),
+                  Text(
+                    "All",
+                    style: TextStyle(
+                      fontSize: 14.sp, // Responsive font size
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(width: 22.w), // Responsive spacing
                   CustomButton(
-                    height: 48.h,
-                    width: 125.w,
-                    onTap: _showDropdown, // Opens dropdown,
+                    height: 48.h, // Responsive height
+                    width: 130.w, // Responsive width
+                    onTap: _showDropdown,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Rs. ${_totalAmount.toStringAsFixed(2)}',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.sp),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.sp, // Responsive font size
+                          ),
                         ),
                         Row(
                           children: [
-                            Text("total Points: ",
-                                style: TextStyle(fontSize: 14, color: Colors.white)),
-                            Text("$_totalPoints", // Show total points here
-                                style: TextStyle(fontSize: 14, color: Colors.white)),
+                            Text(
+                              "total Points: ",
+                              style: TextStyle(
+                                fontSize: 14.sp, // Responsive font size
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              "$_totalPoints", // Show total points here
+                              style: TextStyle(
+                                fontSize: 14.sp, // Responsive font size
+                                color: Colors.white,
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     ),
                   ),
+                  // SizedBox(width: 10.w), // Responsive spacing between buttons
                   CustomButton(
                     onTap: _showDropdown,
                     child: IconButton(
-                      icon: Icon(Icons.keyboard_arrow_down_outlined, color: Colors.white),
-                      iconSize: 30,
-                      onPressed: _showDropdown, // Opens dropdown
+                      icon: Icon(
+                        Icons.keyboard_arrow_up_outlined,
+                        color: Colors.white,
+                      ),
+                      iconSize: 30.sp, // Responsive icon size
+                      onPressed: _showDropdown,
                     ),
                   ),
+                  // SizedBox(width: 10.w), // Additional responsive spacing
                   CustomButton(
-                    height: 40.h,
-                    width: 100.w,
+                    height: 40.h, // Responsive height
+                    width: 100.w, // Responsive width
                     decoration: BoxDecoration(
                       color: Colors.black,
-                      border: Border.all(color: const Color.fromARGB(255, 97, 92, 86)),
-                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 97, 92, 86),
+                      ),
+                      borderRadius: BorderRadius.circular(10.r), // Responsive border radius
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         'Checkout',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.sp, // Responsive font size
+                        ),
                       ),
                     ),
-                    // onTap: _handleCheckout, // Call the checkout function
+                    onTap: _handleCheckout,
                   ),
                 ],
               ),
@@ -635,100 +666,121 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  // Future<void> _handleCheckout() async {
-  //   String? userId = FirebaseAuth.instance.currentUser?.uid;
-  //   if (userId == null) {
-  //     print("User is not authenticated.");
-  //     return;
-  //   }
-  //
-  //   try {
-  //     // Step 1: Collect selected items
-  //     List<Map<String, dynamic>> selectedProducts = [];
-  //     int totalPointsEarned = 0;
-  //
-  //     for (var item in selectedItems.keys) {
-  //       if (selectedItems[item] == true) {
-  //         var cartItem = cartItems.firstWhere((element) => element.id == item);
-  //         Map<String, dynamic> itemData = cartItem.data() as Map<String, dynamic>;
-  //
-  //         // Create the history entry for each selected item
-  //         selectedProducts.add({
-  //           "productId": itemData['productid'] ?? '',
-  //           "model": itemData['models']?[selectedIndexes[item] ?? 0] ?? '',
-  //           "price": itemData['prices']?[selectedIndexes[item] ?? 0] ?? 0,
-  //           "quantity": quantities[item] ?? 1,
-  //           "timestamp": FieldValue.serverTimestamp(),
-  //         });
-  //
-  //         // Calculate total points earned from this item
-  //         totalPointsEarned += points[item] ?? 0;
-  //       }
-  //     }
-  //
-  //     if (selectedProducts.isEmpty) {
-  //       _showTopSnackBar(context, 'No items selected for checkout.');
-  //       return;
-  //     }
-  //
-  //     // Step 2: Add the products to the "history" collection
-  //     for (var product in selectedProducts) {
-  //       await FirebaseFirestore.instance
-  //           .collection('users')
-  //           .doc(userId)
-  //           .collection('history')
-  //           .add(product);
-  //     }
-  //
-  //     // Step 3: Update user points with conversion logic
-  //     DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-  //         .collection('users')
-  //         .doc(userId)
-  //         .get();
-  //
-  //     int currentPoints = userSnapshot['points'] ?? 0;
-  //
-  //     // Convert points to rupees
-  //     double currentPointsInRupees = (currentPoints / 1000) * 10;
-  //     double earnedPointsInRupees = (totalPointsEarned / 1000) * 10;
-  //
-  //     // Update the total points in rupees
-  //     double updatedPointsInRupees = currentPointsInRupees + earnedPointsInRupees;
-  //
-  //     // Convert rupees back to points for storage
-  //     int updatedPoints = ((updatedPointsInRupees / 10) * 1000).round();
-  //
-  //     await FirebaseFirestore.instance
-  //         .collection('users')
-  //         .doc(userId)
-  //         .update({"points": updatedPoints});
-  //
-  //     // Step 4: Remove selected items from the cart
-  //     for (var item in selectedItems.keys) {
-  //       if (selectedItems[item] == true) {
-  //         await FirebaseFirestore.instance
-  //             .collection('users')
-  //             .doc(userId)
-  //             .collection('cart')
-  //             .doc(item)
-  //             .delete();
-  //       }
-  //     }
-  //
-  //     // Step 5: Update the UI
-  //     _showTopSnackBar(context, 'Checkout Successfull');
-  //
-  //
-  //     setState(() {
-  //       selectedItems.clear();
-  //       _fetchCartItems();
-  //       _fetchUserPoints(); // Refresh user points
-  //     });
-  //   } catch (e) {
-  //     print("Error during checkout: $e");
-  //     _showTopSnackBar(context, 'Checkout failed. Please try again.');
-  //   }
-  // }
+  Future<void> _handleCheckout() async {
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      print("User is not authenticated.");
+      return;
+    }
+
+    try {
+      // Step 1: Collect selected items
+      List<String> categories = [];
+      List<String> models = [];
+      List<int> prices = [];
+      List<int> quantitiesList = [];
+      List<int> pointsList = []; // Points array for each item
+      int totalPrice = 0;
+
+      for (var item in selectedItems.keys) {
+        if (selectedItems[item] == true) {
+          var cartItem = cartItems.firstWhere((element) => element.id == item);
+          Map<String, dynamic> itemData = cartItem.data() as Map<String, dynamic>;
+
+          // Collect data into arrays
+          categories.add(itemData['category'] ?? '');
+          models.add(itemData['models']?[selectedIndexes[item] ?? 0] ?? '');
+          int price = itemData['prices']?[selectedIndexes[item] ?? 0] ?? 0;
+          int quantity = quantities[item] ?? 1;
+          int points = (quantity * 10) as int; // Calculate item-specific points
+
+          prices.add(price);
+          quantitiesList.add(quantity);
+          pointsList.add(points); // Add item points to points array
+
+          // Calculate total price
+          totalPrice += price * quantity;
+        }
+      }
+
+      if (categories.isEmpty) {
+        _showTopSnackBar(context, 'No items selected for checkout.');
+        return;
+      }
+
+      // Step 2: Get user data
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      // Ensure user data is properly fetched
+      String name = userSnapshot['full_name'] ?? 'Unknown';
+      String accountType = userSnapshot['account_type'] ?? 'Unknown';
+      String email = userSnapshot['email'] ?? 'Unknown';
+      String address = userSnapshot['address'] ?? 'Unknown';
+      String phone = userSnapshot['phone'] ?? 'Unknown';
+      String cnic = userSnapshot['cnic'] ?? 'Unknown';
+      int currentPoints = userSnapshot['points'] ?? 0;
+
+      // Debugging to ensure proper fields
+      print("Fetched user data: Name: $name, Account Type: $accountType");
+
+      // Step 3: Calculate user's total points to add
+      int totalPointsEarned = (totalPrice ~/ 100); // Convert total price to points (1000 points = 10 rupees)
+
+      // Step 4: Create or Update History Collection
+      await FirebaseFirestore.instance.collection('history').add({
+        'userId': userId,
+        'name': name,
+        'account_type': accountType,
+        'email': email,
+        'address': address,
+        'phone': phone,
+        'cnic': cnic,
+        'timestamp': FieldValue.serverTimestamp(),
+        'categories': categories,
+        'models': models,
+        'prices': prices,
+        'quantities': quantitiesList,
+        'points': pointsList, // Include item-specific points array
+        'totalPrice': totalPrice, // Total price of all items
+        'totalPoints': totalPointsEarned, // Total points earned
+      });
+
+      // Step 5: Update user points
+      int updatedPoints = currentPoints + totalPointsEarned;
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .update({'points': updatedPoints});
+
+      // Step 6: Remove selected items from the cart
+      for (var item in selectedItems.keys) {
+        if (selectedItems[item] == true) {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .collection('cart')
+              .doc(item)
+              .delete();
+        }
+      }
+
+      // Step 7: Update UI
+      _showTopSnackBar(context, 'Checkout Successful');
+      setState(() {
+        selectedItems.clear();
+        _fetchCartItems();
+        _fetchUserPoints();
+      });
+    } catch (e) {
+      print("Error during checkout: $e");
+      _showTopSnackBar(context, 'Checkout failed. Please try again.');
+    }
+  }
+
   Future<void> _fetchUserPoints() async {
     String? userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
