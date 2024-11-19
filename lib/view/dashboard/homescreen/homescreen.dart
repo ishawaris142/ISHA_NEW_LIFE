@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:red_coprative/models/homescreengrid.dart';
@@ -40,22 +42,26 @@ class _HomescreenState extends State<Homescreen> {
   final TextEditingController searchbar = TextEditingController();
   final FocusNode searchFocusNode = FocusNode(); // Add FocusNode for text field
 
+
+
+  Stream<DocumentSnapshot<Map<String, dynamic>>>? userStream;
+
   @override
   void initState() {
     super.initState();
-    fetchUserData();
-  }
-
-  Future<void> fetchUserData() async {
-    setState(() => isLoading = true);
-    userData = await userDataService.fetchUserData();
-    points = await userDataService.fetchTotalPoints();
-    setState(() => isLoading = false);
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      userStream = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .snapshots();
+    }
   }
 
   Future<void> refreshPoints() async {
+    print('Refreshing points from Firestore...');
     points = await userDataService.fetchTotalPoints();
-    setState(() {});
+    setState(() {}); // Update UI
   }
 
   @override
@@ -238,34 +244,45 @@ class _HomescreenState extends State<Homescreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "${userData?['full_name'] ?? 'User'}",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16.sp,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      Row(
+                                  StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                                    stream: userStream,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return Center(child: CircularProgressIndicator());
+                                      }
+
+                                      if (snapshot.hasError) {
+                                        return Center(child: Text("Error loading user data"));
+                                      }
+
+                                      if (!snapshot.hasData || snapshot.data == null) {
+                                        return Center(child: Text("No user data found"));
+                                      }
+
+                                      Map<String, dynamic>? userData = snapshot.data!.data();
+
+                                      return Column(
                                         children: [
-                                          Image(
-                                              image: AssetImage(
-                                                  "assets/mechanic.png")),
-                                          SizedBox(width: 5.w),
-                                          Text(
-                                            "${userData?['account_type'] ?? 'Account'}",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12.sp,
-                                            ),
+                                          Text(userData?['full_name'] ?? 'User', style: TextStyle( color: Colors.white,
+                                            fontSize: 12.sp,)),
+                                          Row(
+                                            children: [
+                                              Image(
+                                                  image: AssetImage(
+                                                      "assets/mechanic.png")),
+                                              SizedBox(width: 5.w),
+                                              Text(
+                                                "${userData?['account_type'] ?? 'Account'}",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12.sp,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
-                                      ),
-                                    ],
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
@@ -276,22 +293,63 @@ class _HomescreenState extends State<Homescreen> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        "My Points",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10.sp),
-                                      ),
-                                      Text(
-                                        points.toStringAsFixed(2),
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 24.sp,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                      StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                                        stream: userStream, // Stream defined earlier in initState
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white,
+                                              ),
+                                            );
+                                          }
+
+                                          if (snapshot.hasError) {
+                                            return Text(
+                                              "Error",
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                                fontSize: 12.sp,
+                                              ),
+                                            );
+                                          }
+
+                                          if (!snapshot.hasData || snapshot.data == null) {
+                                            return Text(
+                                              "No Data",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12.sp,
+                                              ),
+                                            );
+                                          }
+
+                                          // Extract the points from Firestore
+                                          Map<String, dynamic>? userData = snapshot.data!.data();
+                                          num points = userData?['points'] ?? 0;
+
+                                          return Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "My Points",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10.sp,
+                                                ),
+                                              ),
+                                              Text(
+                                                points.toStringAsFixed(2),
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 24.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       ),
                                     ],
                                   ),

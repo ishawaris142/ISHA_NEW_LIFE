@@ -29,31 +29,44 @@ class UserDataService {
     return null;
   }
 
+
   // Fetch and cache user total points
   Future<num> fetchTotalPoints() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? cachedTotalPoints = prefs.getString('points');
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cachedTotalPoints = prefs.getString('points');
 
-    if (cachedTotalPoints != null) {
-      return num.tryParse(cachedTotalPoints) ?? 0;
-    } else {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        DocumentSnapshot doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
+      // Check if points are cached
+      if (cachedTotalPoints != null) {
+        print('Fetched points from cache: $cachedTotalPoints'); // Debug log
+        return num.tryParse(cachedTotalPoints) ?? 0;
+      } else {
+        User? user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          DocumentSnapshot doc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
 
-        if (doc.exists) {
-          Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
-          num points = userData['points'] ?? 0;
+          if (doc.exists) {
+            Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
+            num points = userData['points'] ?? 0; // Fallback to 0 if not present
 
-          await prefs.setString('points', points.toString());
-          return points;
+            // Cache the fetched points
+            await prefs.setString('points', points.toString());
+            print('Fetched points from Firestore: $points'); // Debug log
+            return points;
+          } else {
+            print('User document does not exist in Firestore');
+          }
+        } else {
+          print('No authenticated user found');
         }
       }
+    } catch (e) {
+      print('Error fetching total points: $e');
     }
-    return 0;
+    return 0; // Default fallback if fetching fails
   }
 
   // Deduct points based on the withdrawn amount (convert currency to points)

@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:red_coprative/view/dashboard/dashboard.dart';
 import 'package:red_coprative/view/dashboard/homescreen/homescreen.dart';
 
+import '../../../data/services/user_service.dart';
+
 class CashWithdrawScreen extends StatefulWidget {
   const CashWithdrawScreen({super.key});
 
@@ -14,6 +16,10 @@ class CashWithdrawScreen extends StatefulWidget {
 }
 
 class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
+  final UserDataService userDataService = UserDataService();
+  Map<String, dynamic>? userData;
+  num points = 0;
+  bool isLoading = true;
   final TextEditingController _accountTitleController = TextEditingController();
   final TextEditingController _mobileNumberController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -48,6 +54,17 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
 
   ];
   String? _selectedBank; // Variable to store the selected bank
+  Future<void> fetchUserData() async {
+    setState(() => isLoading = true);
+    userData = await userDataService.fetchUserData();
+    points = await userDataService.fetchTotalPoints();
+    setState(() => isLoading = false);
+  }
+
+  Future<void> refreshPoints() async {
+    points = await userDataService.fetchTotalPoints();
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -239,7 +256,7 @@ class _CashWithdrawScreenState extends State<CashWithdrawScreen> {
                                                 color: Colors.white),
                                           ),
                                           Text(
-                                            "0",
+                                            points.toStringAsFixed(2),
                                             style: TextStyle(
                                                 fontSize: 32.sp,
                                                 color: Colors.white,

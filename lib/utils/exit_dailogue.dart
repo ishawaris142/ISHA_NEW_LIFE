@@ -11,7 +11,7 @@ class ShowExitPopup {
       _lastBackPressed = currentTime;
 
       // Show a custom overlay message in the middle of the screen
-      _showCustomMessage(context, "Please press again to Exit");
+      _showCustomMessage(context, "Click again to Exit");
       return Future.value(false); // Do not exit
     }
 
@@ -24,23 +24,23 @@ class ShowExitPopup {
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: MediaQuery.of(context).size.height / 2 - 100, // Center vertically
-        left: MediaQuery.of(context).size.width / 2 - 175, // Center horizontally
+        top: MediaQuery.of(context).size.height / 2 - -110, // Center vertically
+        left: MediaQuery.of(context).size.width / 2 - 85, // Center horizontally
         child: Material(
-          color: const Color.fromARGB(255, 8, 8, 8), // Transparent background
+          color: Colors.transparent, // Transparent background
           child: Container(
-            width: 350, // Fixed width
-            height: 100, // Fixed height
+            width: 170, // Fixed width
+            height: 50, // Fixed height
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.white, // Background color
-              borderRadius: BorderRadius.circular(15), // Rounded corners
+              color: Colors.black45, // Background color
+              borderRadius: BorderRadius.circular(10), // Rounded corners
             ),
             child: Text(
               message,
               style: const TextStyle(
-                color: Colors.black,
-                fontSize: 18,
+                color: Colors.white,
+                fontSize: 15,
               ),
               textAlign: TextAlign.center,
             ),

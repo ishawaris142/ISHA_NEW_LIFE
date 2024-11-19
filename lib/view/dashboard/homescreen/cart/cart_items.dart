@@ -49,13 +49,14 @@ class _CartScreenState extends State<CartScreen> {
         // topRight: Radius.circular(30.r),
       ),
       child: Container(
-        height: 81.h, // Responsive height
+        height: 83.h, // Responsive height
         width: 1.sw, // Responsive width
         color: const Color.fromARGB(255, 172, 31, 37),
         child: Stack(
           children: <Widget>[
             Positioned(
-              top: 10.h, // Responsive positioning
+              top: 10.h,
+              bottom:27.h,// Responsive positioning
               // left: 10.w, // Ensure responsive horizontal alignment
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -666,6 +667,112 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
+  // Future<void> _handleCheckout() async {
+  //   String? userId = FirebaseAuth.instance.currentUser?.uid;
+  //   if (userId == null) {
+  //     print("User is not authenticated.");
+  //     return;
+  //   }
+  //
+  //   try {
+  //     // Step 1: Collect selected items
+  //     List<String> categories = [];
+  //     List<String> models = [];
+  //     List<int> prices = [];
+  //     List<int> quantitiesList = [];
+  //     List<int> pointsList = [];
+  //     int totalPrice = 0;
+  //
+  //     for (var item in selectedItems.keys) {
+  //       if (selectedItems[item] == true) {
+  //         var cartItem = cartItems.firstWhere((element) => element.id == item);
+  //         Map<String, dynamic> itemData = cartItem.data() as Map<String, dynamic>;
+  //
+  //         // Collect data into arrays
+  //         categories.add(itemData['category'] ?? '');
+  //         models.add(itemData['models']?[selectedIndexes[item] ?? 0] ?? '');
+  //         int price = itemData['prices']?[selectedIndexes[item] ?? 0] ?? 0;
+  //         int quantity = quantities[item] ?? 1;
+  //         int points = ((price * quantity) ~/ 100); // Correct points calculation
+  //
+  //         prices.add(price);
+  //         quantitiesList.add(quantity);
+  //         pointsList.add(points);
+  //
+  //         // Calculate total price
+  //         totalPrice += price * quantity;
+  //       }
+  //     }
+  //
+  //     if (categories.isEmpty) {
+  //       _showTopSnackBar(context, 'No items selected for checkout.');
+  //       return;
+  //     }
+  //
+  //     // Step 2: Get user data
+  //     DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(userId)
+  //         .get();
+  //
+  //     String name = userSnapshot['full_name'] ?? 'Unknown';
+  //     String accountType = userSnapshot['account_type'] ?? 'Unknown';
+  //     int currentPoints = userSnapshot['points'] ?? 0;
+  //
+  //     // Step 3: Calculate total points earned
+  //     int totalPointsEarned = pointsList.fold(0, (sum, itemPoints) => sum + itemPoints);
+  //
+  //     // Debugging: Verify calculations
+  //     print("Points per item: $pointsList");
+  //     print("Total points earned: $totalPointsEarned");
+  //
+  //     // Step 4: Update History Collection
+  //     await FirebaseFirestore.instance.collection('history').add({
+  //       'userId': userId,
+  //       'name': name,
+  //       'account_type': accountType,
+  //       'timestamp': FieldValue.serverTimestamp(),
+  //       'categories': categories,
+  //       'models': models,
+  //       'prices': prices,
+  //       'quantities': quantitiesList,
+  //       'points': pointsList,
+  //       'totalPrice': totalPrice,
+  //       'totalPoints': totalPointsEarned,
+  //     });
+  //
+  //     // Step 5: Update user points
+  //     int updatedPoints = currentPoints + totalPointsEarned;
+  //     await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(userId)
+  //         .update({'points': updatedPoints});
+  //
+  //     // Step 6: Remove selected items from the cart
+  //     for (var item in selectedItems.keys) {
+  //       if (selectedItems[item] == true) {
+  //         await FirebaseFirestore.instance
+  //             .collection('users')
+  //             .doc(userId)
+  //             .collection('cart')
+  //             .doc(item)
+  //             .delete();
+  //       }
+  //     }
+  //
+  //     // Step 7: Update UI
+  //     _showTopSnackBar(context, 'Checkout Successful');
+  //     setState(() {
+  //       selectedItems.clear();
+  //       _fetchCartItems();
+  //       _fetchUserPoints();
+  //     });
+  //   } catch (e) {
+  //     print("Error during checkout: $e");
+  //     _showTopSnackBar(context, 'Checkout failed. Please try again.');
+  //   }
+  // }
+
   Future<void> _handleCheckout() async {
     String? userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
@@ -679,8 +786,8 @@ class _CartScreenState extends State<CartScreen> {
       List<String> models = [];
       List<int> prices = [];
       List<int> quantitiesList = [];
-      List<int> pointsList = []; // Points array for each item
-      int totalPrice = 0;
+      List<int> pointsList = [];
+      int totalPointsEarned = 0;
 
       for (var item in selectedItems.keys) {
         if (selectedItems[item] == true) {
@@ -692,14 +799,14 @@ class _CartScreenState extends State<CartScreen> {
           models.add(itemData['models']?[selectedIndexes[item] ?? 0] ?? '');
           int price = itemData['prices']?[selectedIndexes[item] ?? 0] ?? 0;
           int quantity = quantities[item] ?? 1;
-          int points = (quantity * 10) as int; // Calculate item-specific points
+          int points = (quantity)* 10; // Each item contributes 1 point per quantity
 
           prices.add(price);
           quantitiesList.add(quantity);
-          pointsList.add(points); // Add item points to points array
+          pointsList.add(points);
 
-          // Calculate total price
-          totalPrice += price * quantity;
+          // Add item-specific points to the total points earned
+          totalPointsEarned += points;
         }
       }
 
@@ -714,49 +821,36 @@ class _CartScreenState extends State<CartScreen> {
           .doc(userId)
           .get();
 
-      // Ensure user data is properly fetched
       String name = userSnapshot['full_name'] ?? 'Unknown';
       String accountType = userSnapshot['account_type'] ?? 'Unknown';
-      String email = userSnapshot['email'] ?? 'Unknown';
-      String address = userSnapshot['address'] ?? 'Unknown';
-      String phone = userSnapshot['phone'] ?? 'Unknown';
-      String cnic = userSnapshot['cnic'] ?? 'Unknown';
       int currentPoints = userSnapshot['points'] ?? 0;
 
-      // Debugging to ensure proper fields
-      print("Fetched user data: Name: $name, Account Type: $accountType");
+      // Debugging: Verify calculations
+      print("Points per item: $pointsList");
+      print("Total points earned: $totalPointsEarned");
 
-      // Step 3: Calculate user's total points to add
-      int totalPointsEarned = (totalPrice ~/ 100); // Convert total price to points (1000 points = 10 rupees)
-
-      // Step 4: Create or Update History Collection
+      // Step 3: Update History Collection
       await FirebaseFirestore.instance.collection('history').add({
         'userId': userId,
         'name': name,
         'account_type': accountType,
-        'email': email,
-        'address': address,
-        'phone': phone,
-        'cnic': cnic,
         'timestamp': FieldValue.serverTimestamp(),
         'categories': categories,
         'models': models,
         'prices': prices,
         'quantities': quantitiesList,
-        'points': pointsList, // Include item-specific points array
-        'totalPrice': totalPrice, // Total price of all items
-        'totalPoints': totalPointsEarned, // Total points earned
+        'points': pointsList,
+        'totalPoints': totalPointsEarned, // Total points earned for this checkout
       });
 
-      // Step 5: Update user points
+      // Step 4: Update user points
       int updatedPoints = currentPoints + totalPointsEarned;
-
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
           .update({'points': updatedPoints});
 
-      // Step 6: Remove selected items from the cart
+      // Step 5: Remove selected items from the cart
       for (var item in selectedItems.keys) {
         if (selectedItems[item] == true) {
           await FirebaseFirestore.instance
@@ -768,7 +862,7 @@ class _CartScreenState extends State<CartScreen> {
         }
       }
 
-      // Step 7: Update UI
+      // Step 6: Update UI
       _showTopSnackBar(context, 'Checkout Successful');
       setState(() {
         selectedItems.clear();
@@ -780,6 +874,7 @@ class _CartScreenState extends State<CartScreen> {
       _showTopSnackBar(context, 'Checkout failed. Please try again.');
     }
   }
+
 
   Future<void> _fetchUserPoints() async {
     String? userId = FirebaseAuth.instance.currentUser?.uid;
